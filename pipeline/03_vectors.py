@@ -78,6 +78,9 @@ WGS84 = "EPSG:4326"
 # vintage the moment WorldPop adds a newer India image, with no code change to notice.
 WORLDPOP_YEAR = "2020"
 
+# Share of grid cells that must receive a WorldPop value for the stage to pass.
+MIN_POP_COVERAGE = 0.9
+
 
 def load_grid_fc(path: Path) -> ee.FeatureCollection:
     with open(path, encoding="utf-8") as f:
@@ -97,7 +100,16 @@ def pull_worldpop(grid_fc: ee.FeatureCollection) -> dict:
     band_names = img.bandNames().getInfo()
 
     total_pop = img.select(band_names).reduce(ee.Reducer.sum()).rename("total_pop")
-    zonal = total_pop.reduceRegions(collection=grid_fc, reducer=ee.Reducer.sum(), scale=100)
+    # setOutputs is not optional. reduceRegions names its output after the band
+    # only when the image has more than one band; with a single band it uses the
+    # reducer's own name, "sum". Removing the elderly band (#167) left one band,
+    # every lookup of "total_pop" below came back None, and the scheduled
+    # refresh dropped all 547 cells (#171).
+    zonal = total_pop.reduceRegions(
+        collection=grid_fc,
+        reducer=ee.Reducer.sum().setOutputs(["total_pop"]),
+        scale=100,
+    )
     result = zonal.getInfo()
 
     out = {}
@@ -193,15 +205,21 @@ def main() -> int:
     grid_gdf["slum_pct"] = grid_gdf["grid_id"].map(slum_by_id)
     grid_gdf["hospital_dist_m"] = grid_gdf["grid_id"].map(hosp_by_id)
 
+    # Population is a required indicator, so missing coverage is a failure, not a
+    # warning, and it is caught before the output is written. A warning here let
+    # #171 run on: stage 04 then dropped every cell and PCA crashed two stages
+    # later, far from the cause.
+    if matched < MIN_POP_COVERAGE * len(grid_gdf):
+        print(f"[FAIL] only {matched}/{len(grid_gdf)} cells got WorldPop data "
+              f"(need {MIN_POP_COVERAGE:.0%}); not writing {OUT_PATH.name}")
+        return 1
+
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     grid_gdf.to_file(OUT_PATH, driver="GeoJSON")
     print(f"[ok] wrote {len(grid_gdf)} cells ({matched} with pop data) -> {OUT_PATH}")
 
     # ------------------------------------------------------- sanity checks --
     ok = True
-    if matched < 0.9 * len(grid_gdf):
-        print(f"[WARN] only {matched}/{len(grid_gdf)} cells got WorldPop data")
-        ok = False
     mean_slum = grid_gdf["slum_pct"].dropna().mean()
     print(f"\nmean slum_pct={mean_slum:.2f}, "
           f"hospital_dist non-null={grid_gdf['hospital_dist_m'].notna().sum()}/{len(grid_gdf)}")

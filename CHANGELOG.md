@@ -26,6 +26,17 @@ All notable changes to this project are documented here. Format based on
   indicator dropped, which shows that `child_pct` accounts for nearly all of the
   disagreement between PCA and equal weights.
 
+### Fixed
+- The scheduled refresh had failed on every run since 2026-09-25 (#171). Stage
+  03 asked Earth Engine for a property named `total_pop`, but with the elderly
+  band gone the image had one band, and `reduceRegions` then names its output
+  `sum`. Every cell came back without population, stage 04 dropped all 547 and
+  PCA crashed in stage 05. The reducer now names its output. Checked against
+  Earth Engine: 547 of 547 cells, densities identical to the published file.
+- Stages 03 and 04 now fail, instead of warning, when population coverage or
+  the surviving cell count collapses, and they check before writing, so a bad
+  run stops at its cause and leaves the last good output in place.
+
 ## [1.0.2] - 2026-09-23
 
 ### Added

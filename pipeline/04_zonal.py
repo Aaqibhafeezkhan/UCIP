@@ -65,6 +65,9 @@ CENSUS_TABLE = DATA_DIR / f"census2011_ward_age_{_CITY.slug}.csv"
 # a refresh over provenance metadata rather than over data.
 OPTIONAL_COLS = ["child_source"]
 
+# Smallest share of grid cells that must survive the missing-value drop.
+MIN_KEPT_SHARE = 0.85
+
 
 def attach_child_share(gdf: "gpd.GeoDataFrame") -> bool:
     """Join the Census 0-6 share onto the cells by ward. Returns whether it did.
@@ -143,6 +146,14 @@ def main() -> int:
               f"({', '.join(tidy.loc[~populated, 'grid_id'].astype(str))})")
     tidy = tidy[populated]
 
+    # Checked before writing, so a bad upstream run fails here and leaves the
+    # last good cells.geojson in place instead of overwriting it with a sliver
+    # (#171 wrote a zero-cell file and only failed at PCA in stage 05).
+    if len(tidy) < MIN_KEPT_SHARE * before:
+        print(f"[FAIL] lost more than {1 - MIN_KEPT_SHARE:.0%} of cells to missing data "
+              f"({len(tidy)}/{before} kept); not writing {OUT_PATH.name}")
+        return 1
+
     tidy = tidy.reset_index(drop=True)
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     tidy.to_file(OUT_PATH, driver="GeoJSON")
@@ -156,9 +167,6 @@ def main() -> int:
 
     # ------------------------------------------------------- sanity checks --
     ok = True
-    if len(tidy) < 0.85 * before:
-        print(f"[WARN] lost >15% of cells to missing data ({len(tidy)}/{before} kept)")
-        ok = False
     if tidy["ward_id"].nunique() < 20:
         print(f"[WARN] only {tidy['ward_id'].nunique()} wards represented after cleaning")
         ok = False
