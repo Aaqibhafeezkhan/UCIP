@@ -46,6 +46,7 @@ Run:
 
 import json
 import sys
+import time
 from pathlib import Path
 
 import ee
@@ -80,6 +81,15 @@ WORLDPOP_YEAR = "2020"
 
 # Share of grid cells that must receive a WorldPop value for the stage to pass.
 MIN_POP_COVERAGE = 0.9
+
+# Public Overpass instances, tried in order. The main one returns 502 under load
+# often enough to have failed a scheduled refresh on its own (2026-10-17).
+OVERPASS_URLS = [
+    "https://overpass-api.de/api",
+    "https://overpass.kumi.systems/api",
+    "https://overpass-api.de/api",
+]
+OVERPASS_RETRY_WAIT_S = 20
 
 
 def load_grid_fc(path: Path) -> ee.FeatureCollection:
@@ -149,10 +159,18 @@ def compute_hospital_distance(grid_gdf: gpd.GeoDataFrame, wards_path: Path) -> d
         wards = wards.set_crs(WGS84)
     ward_union_wgs84 = wards.union_all()
 
-    try:
-        hospitals = ox.features_from_polygon(ward_union_wgs84, tags={"amenity": "hospital"})
-    except Exception as exc:
-        print(f"[WARN] OSM hospital query failed ({exc}); hospital_dist will be null for all cells.")
+    hospitals = None
+    for attempt, url in enumerate(OVERPASS_URLS, start=1):
+        ox.settings.overpass_url = url
+        try:
+            hospitals = ox.features_from_polygon(ward_union_wgs84, tags={"amenity": "hospital"})
+            break
+        except Exception as exc:
+            print(f"[WARN] OSM hospital query {attempt}/{len(OVERPASS_URLS)} failed at {url} ({exc})")
+            if attempt < len(OVERPASS_URLS):
+                time.sleep(OVERPASS_RETRY_WAIT_S)
+    if hospitals is None:
+        print("[WARN] every Overpass endpoint failed; hospital_dist will be null for all cells.")
         return {gid: None for gid in grid_gdf["grid_id"]}
 
     if hospitals.empty:
@@ -212,6 +230,13 @@ def main() -> int:
     if matched < MIN_POP_COVERAGE * len(grid_gdf):
         print(f"[FAIL] only {matched}/{len(grid_gdf)} cells got WorldPop data "
               f"(need {MIN_POP_COVERAGE:.0%}); not writing {OUT_PATH.name}")
+        return 1
+    # Hospital distance is required too. A null for every cell means the OSM
+    # query failed, not that Mumbai has no hospitals.
+    hosp_matched = int(grid_gdf["hospital_dist_m"].notna().sum())
+    if hosp_matched < MIN_POP_COVERAGE * len(grid_gdf):
+        print(f"[FAIL] only {hosp_matched}/{len(grid_gdf)} cells got a hospital distance; "
+              f"not writing {OUT_PATH.name}")
         return 1
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)

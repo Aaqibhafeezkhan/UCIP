@@ -36,6 +36,19 @@ def test_stage03_fails_before_writing_on_low_population_coverage():
     assert "return 1" in src[guard:write]
 
 
+def test_stage03_fails_before_writing_without_hospital_distances():
+    src = source("03_vectors.py")
+    guard = src.index('hosp_matched < MIN_POP_COVERAGE')
+    write = src.index("grid_gdf.to_file(OUT_PATH")
+    assert guard < write
+    assert "return 1" in src[guard:write]
+
+
+def test_stage03_tries_more_than_one_overpass_endpoint():
+    src = source("03_vectors.py")
+    assert "for attempt, url in enumerate(OVERPASS_URLS" in src
+
+
 def test_stage04_fails_before_writing_on_cell_loss():
     src = source("04_zonal.py")
     guard = src.index("if len(tidy) < MIN_KEPT_SHARE * before")
