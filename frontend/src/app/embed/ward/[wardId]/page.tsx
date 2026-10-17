@@ -5,20 +5,24 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { hviColor } from "@/lib/hvi";
 import type { WardProps } from "@/lib/wardTypes";
+import { wardIdFromSlug, wardSlug } from "@/lib/wardSlug";
 
 const wards = JSON.parse(
   readFileSync(join(process.cwd(), "public", "wards_hvi.geojson"), "utf8")
 ) as FeatureCollection<Geometry, WardProps>;
 
+// Slugs, not raw codes: a code with a slash (F/N) cannot be one path segment,
+// and building params from raw codes made 15 of the 24 cards unreachable.
 export function generateStaticParams() {
-  return wards.features.map(({ properties }) => ({ wardId: properties.ward_id }));
+  return wards.features.map(({ properties }) => ({ wardId: wardSlug(properties.ward_id) }));
 }
 
 export const dynamicParams = false;
 
 export default async function WardEmbed({ params }: { params: Promise<{ wardId: string }> }) {
   const { wardId } = await params;
-  const ward = wards.features.find(({ properties }) => properties.ward_id === wardId.toUpperCase());
+  const id = wardIdFromSlug(wardId);
+  const ward = wards.features.find(({ properties }) => properties.ward_id === id);
   if (!ward) notFound();
   const { HVI, rank, n_cells, ward_id } = ward.properties;
 

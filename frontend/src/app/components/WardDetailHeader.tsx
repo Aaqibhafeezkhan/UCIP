@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { hviColor } from "@/lib/hvi";
 import type { WardProps } from "@/lib/wardTypes";
+import { wardSlug } from "@/lib/wardSlug";
 
 /**
  * The identity strip at the top of a ward surface: rank badge, ward code, HVI,
@@ -28,7 +29,7 @@ export default function WardDetailHeader({
   const [copied, setCopied] = useState(false);
 
   async function copyEmbed() {
-    const src = `${window.location.origin}/embed/ward/${encodeURIComponent(ward.ward_id)}`;
+    const src = `${window.location.origin}/embed/ward/${wardSlug(ward.ward_id)}`;
     try {
       await navigator.clipboard.writeText(`<iframe src="${src}" title="UCIP Ward ${ward.ward_id}" width="100%" height="250" loading="lazy"></iframe>`);
       setCopied(true);

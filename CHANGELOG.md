@@ -36,6 +36,15 @@ All notable changes to this project are documented here. Format based on
 - Stages 03 and 04 now fail, instead of warning, when population coverage or
   the surviving cell count collapses, and they check before writing, so a bad
   run stops at its cause and leaves the last good output in place.
+- The OSM hospital query retries across two public Overpass instances. A 502
+  from the main instance had nulled the hospital distance for every cell, and
+  stage 03 now fails rather than writing that.
+- Embed cards for the 15 wards with a slash in their code (F/N, G/N, H/E and
+  the rest) returned 404. Embed URLs now use a slug (`/embed/ward/F-N`); codes
+  without a slash keep their old URL. The API accepts the slug form too.
+- A malformed percent-encoded ward id returned HTTP 500 on `/wards/{id}`,
+  `/cells?ward=` and `/recommendations?ward=`. It now gets the same 400 as any
+  other invalid code.
 
 ## [1.0.2] - 2026-09-23
 

@@ -32,6 +32,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { wardIdFromSlug } from "@/lib/wardSlug";
 
 export const API_VERSION = "v1";
 
@@ -139,9 +140,10 @@ export function parseLimit(raw: string | null, fallback: number, max: number): n
  */
 const WARD_ID_PATTERN = /^[A-Z]{1,2}(\/[A-Z])?$/;
 
+/** Accepts the code (F/N), its encoded form (F%2FN) or its slug (F-N). */
 export function normaliseWardId(raw: string): string | null {
-  const id = decodeURIComponent(raw).trim().toUpperCase();
-  return WARD_ID_PATTERN.test(id) ? id : null;
+  const id = wardIdFromSlug(raw);
+  return id !== null && WARD_ID_PATTERN.test(id) ? id : null;
 }
 
 export function parseCoordinate(raw: string | null, min: number, max: number): number | null {
