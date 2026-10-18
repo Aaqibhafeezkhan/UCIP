@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   alert:
-    if: github.event.workflow_run.conclusion == 'failure'
+    if: github.repository == 'AnayDhawan/UCIP' && github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     steps:
       - name: Open or update the failure issue

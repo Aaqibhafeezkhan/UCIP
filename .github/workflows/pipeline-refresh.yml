@@ -68,6 +68,8 @@ concurrency:
 
 jobs:
   refresh:
+    # Forks have no LIVE_URL, Supabase secrets or issues tab, so scheduled runs there only fail.
+    if: github.repository == 'AnayDhawan/UCIP'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

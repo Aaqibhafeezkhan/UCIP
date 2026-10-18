@@ -29,6 +29,8 @@ concurrency:
 
 jobs:
   smoke:
+    # Forks have no LIVE_URL, Supabase secrets or issues tab, so scheduled runs there only fail.
+    if: github.repository == 'AnayDhawan/UCIP'
     runs-on: ubuntu-latest
     steps:
       - name: Check the live site responds
