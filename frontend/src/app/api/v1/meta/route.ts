@@ -53,7 +53,7 @@ export async function GET(request: Request) {
       "Ward-level heat vulnerability for Mumbai, with cited nature-based cooling recommendations.",
     coverage: {
       cities: [{ name: MUMBAI.name, wards: wards?.features.length ?? null }],
-      note: "Mumbai only. The pipeline is city-agnostic; no second city is configured yet.",
+      note: "Mumbai only. The pipeline reads its city from a config; Pune is configured as a test case and has not been run end to end.",
     },
     counts: {
       wards: wards?.features.length ?? null,
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
     database_configured: supabase() !== null,
     license: {
       code: "Apache-2.0",
-      data: "See /legal for per-source terms (Landsat, WorldPop, ESA WorldCover, OpenStreetMap, Datameet).",
+      data: "See /legal for per-source terms (Landsat, WorldPop, ESA WorldCover, OpenStreetMap, Datameet, Census of India via OpenCity, NOAA GSOD).",
     },
     links: {
       documentation: "/api/v1/openapi.json",

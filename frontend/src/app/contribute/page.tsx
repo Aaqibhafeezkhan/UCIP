@@ -31,7 +31,7 @@ const WAYS = [
   {
     Icon: MapPin,
     title: "Port it to another city",
-    body: "The pipeline is city-agnostic: open satellite and population data plus ward boundaries. If you want UCIP for another city, tell us which one.",
+    body: "Every scored input is free, open, global data, so another city needs a ward boundary file and an Earth Engine project. No second city has been run end to end yet. If you want to try one, open an issue and say which.",
   },
 ];
 

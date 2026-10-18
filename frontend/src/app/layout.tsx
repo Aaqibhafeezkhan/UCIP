@@ -24,7 +24,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://uciplatform.vercel.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "UCIP: Urban Climate Intelligence Platform",
-  description: "Mumbai ward-level heat vulnerability decision-support platform.",
+  description: "Ward-level heat vulnerability for Mumbai, built from free open data.",
   keywords: [
     "urban heat vulnerability",
     "Mumbai",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "UCIP: Urban Climate Intelligence Platform",
-    description: "Mumbai ward-level heat vulnerability decision-support platform.",
+    description: "Ward-level heat vulnerability for Mumbai, built from free open data.",
     url: siteUrl,
     siteName: "UCIP",
     images: ["/og-image.png"],
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "UCIP: Urban Climate Intelligence Platform",
-    description: "Mumbai ward-level heat vulnerability decision-support platform.",
+    description: "Ward-level heat vulnerability for Mumbai, built from free open data.",
     images: ["/og-image.png"],
   },
 };

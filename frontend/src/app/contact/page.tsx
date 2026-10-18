@@ -30,7 +30,7 @@ export default function ContactPage() {
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground">
           <li>Spotted a data error? Name the ward and what looks wrong.</li>
           <li>Methodology question? Point at the section on the how-it-works page.</li>
-          <li>Want to adapt UCIP for another city? Say which one, the pipeline is city-agnostic.</li>
+          <li>Want to adapt UCIP for another city? Say which one. The pipeline runs from a per-city config, and every scored input is free, open, global data.</li>
           <li>Press or general questions: anything goes.</li>
         </ul>
       </main>
