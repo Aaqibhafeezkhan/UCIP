@@ -17,13 +17,11 @@ export type WardProps = {
   contrib_LST_C: number | null;
   contrib_NDVI: number | null;
   contrib_pop_density_km2: number | null;
-  contrib_child_pct: number | null;
-  contrib_slum_pct: number | null;
   contrib_hospital_dist_m: number | null;
   contrib_impervious_pct: number | null;
   /** Indicator with the largest absolute contribution to this ward's score. */
   dominant_factor?: string | null;
-  /** Its share of total absolute contribution, 0 to 1. An even spread across the seven is about 0.143. */
+  /** Its share of total absolute contribution, 0 to 1. An even spread across the five is 0.2. */
   dominant_share?: number | null;
   /** True when one indicator accounts for half or more of the movement in the score. */
   single_factor_dominated?: boolean | null;
@@ -62,18 +60,18 @@ export type CellNdviProps = {
 };
 
 /**
- * The seven HVI indicators, in the canonical order of pipeline/_indicators.py.
+ * The five scored HVI indicators, in the canonical order of
+ * pipeline/_indicators.py. All five come from free, open, global data that is
+ * easy to re-pull: Landsat 8/9 (LST, NDVI), WorldPop, OpenStreetMap and ESA
+ * WorldCover.
  *
- * child_pct is the Census 2011 ward-level share of population aged 0 to 6. It
- * is optional in the pipeline (a city needs a ward-level Census table for it),
- * but the published city has one, so the site treats it as present.
+ * The slum share and the Census 2011 under-7 share are no longer scored
+ * (2026-10-17). They are still published per cell as context.
  */
 export const INDICATOR_KEYS = [
   "LST_C",
   "NDVI",
   "pop_density_km2",
-  "child_pct",
-  "slum_pct",
   "hospital_dist_m",
   "impervious_pct",
 ] as const;
@@ -85,8 +83,6 @@ export const FACTOR_LABELS: Record<IndicatorKey, string> = {
   LST_C: "Land surface temp",
   NDVI: "Green cover (NDVI)",
   pop_density_km2: "Population density",
-  child_pct: "Children under 7 %",
-  slum_pct: "Slum index",
   hospital_dist_m: "Hospital distance",
   impervious_pct: "Impervious / built-up",
 };

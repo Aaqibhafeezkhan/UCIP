@@ -13,7 +13,7 @@ What it does:
 
     One-at-a-time rather than Monte Carlo, deliberately: each bar in the output
     chart is attributable to exactly one weight's uncertainty, which is
-    readable. Fourteen runs for seven indicators.
+    readable. Two runs per indicator: ten for the five.
 
 Inputs:
     ../data/cells_hvi.geojson       scored cells from stage 05

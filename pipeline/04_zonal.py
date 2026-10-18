@@ -3,9 +3,9 @@
 What it does:
     Stages 02 and 03 each write their columns straight onto the grid, so the
     zonal aggregation is already done by the time this runs. What is left is the
-    tidy-schema pass: select the canonical seven indicators plus the keys and
-    geometry, drop the intermediate columns, enforce dtypes, and drop any cell
-    missing a required indicator.
+    tidy-schema pass: select the five scored indicators, the context columns,
+    the keys and geometry, drop the intermediate columns, and drop any cell
+    missing a scored indicator.
 
     That last step matters more than it sounds. Stage 05 standardises every
     indicator to a z-score, and a single NaN would propagate through the PCA and
@@ -19,10 +19,9 @@ Outputs:
     ../data/cells.geojson               one tidy row per complete cell
 
 Notes:
-    INDICATOR_COLS is the canonical seven-indicator set that the index is defined
-    over (methodology.md section 3). Adding an indicator means changing it here
-    and in stage 05 together, or the PCA and the published weight table drift
-    apart.
+    INDICATOR_COLS comes from _indicators.py, the one place the scored set is
+    defined (methodology.md section 3), so this stage and stage 05 cannot
+    disagree about it.
 
 Run:
     .venv\\Scripts\\activate
@@ -37,7 +36,7 @@ import geopandas as gpd
 import _provenance
 
 from _city import load_city
-from _indicators import REQUIRED
+from _indicators import CONTEXT, REQUIRED
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
@@ -49,8 +48,9 @@ _CITY = load_city()
 IN_PATH = _CITY.grid_path("_vectors")
 OUT_PATH = _CITY.out("cells.geojson")
 
-# The indicators every run must have, from _indicators.py. child_pct is optional
-# and joined below when a ward-level Census table exists for the city.
+# The scored indicators every run must have, from _indicators.py. A cell missing
+# one of these is dropped. Context columns (slum_pct, and child_pct when a Census
+# table exists) are carried through as they are and never cause a drop.
 INDICATOR_COLS = list(REQUIRED)
 KEEP_COLS = ["grid_id", "ward_id", "ward_gid", "NDVI_prev", "geometry"] + INDICATOR_COLS
 
@@ -121,14 +121,14 @@ def main() -> int:
         print(f"[FAIL] missing expected columns: {missing_cols}")
         return 1
 
-    has_child = attach_child_share(gdf)
-    indicator_cols = INDICATOR_COLS + (["child_pct"] if has_child else [])
+    attach_child_share(gdf)
+    context_cols = [c for c in CONTEXT if c in gdf.columns]
 
-    tidy = gdf[KEEP_COLS + (["child_pct"] if has_child else [])
+    tidy = gdf[KEEP_COLS + context_cols
                + [c for c in OPTIONAL_COLS if c in gdf.columns]].copy()
 
     before = len(tidy)
-    tidy = tidy.dropna(subset=indicator_cols)
+    tidy = tidy.dropna(subset=INDICATOR_COLS)
     dropped = before - len(tidy)
     if dropped:
         print(f"[WARN] dropped {dropped}/{before} cells with a missing indicator value")

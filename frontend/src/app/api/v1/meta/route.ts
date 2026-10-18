@@ -67,9 +67,9 @@ export async function GET(request: Request) {
     generated_at: runLog?.finished_at ?? runLog?.started_at ?? null,
     composite_window: runLog?.composite_window ?? null,
     method: {
-      index: "Heat Vulnerability Index, 0-100, from seven standardised indicators",
+      index: "Heat Vulnerability Index, 0-100, from five standardised indicators, all from free open global data",
       weighting: pcaLog?.fallback_used
-        ? "published literature weights (PCA fallback triggered)"
+        ? "equal weights (PCA fallback triggered)"
         : "PCA-derived, per Reid et al. 2009",
       explainability:
         "Transparent linear index. Per-factor contributions are published per ward, so a score decomposes exactly into its drivers.",

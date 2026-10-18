@@ -11,7 +11,7 @@
     "ward_id": "A",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 9
   },
@@ -19,7 +19,7 @@
     "ward_id": "A",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 3
   },
@@ -35,7 +35,7 @@
     "ward_id": "B",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 1
   },
@@ -43,7 +43,7 @@
     "ward_id": "B",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 2
   },
@@ -59,7 +59,7 @@
     "ward_id": "C",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 1
   },
@@ -67,7 +67,7 @@
     "ward_id": "C",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 1
   },
@@ -83,7 +83,7 @@
     "ward_id": "D",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 5
   },
@@ -91,7 +91,7 @@
     "ward_id": "D",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 3
   },
@@ -101,13 +101,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 4
+    "cell_count": 5
   },
   {
     "ward_id": "E",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 5
   },
@@ -115,7 +115,7 @@
     "ward_id": "E",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 1
   },
@@ -131,7 +131,7 @@
     "ward_id": "F/N",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 2
   },
@@ -141,13 +141,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 5
+    "cell_count": 6
   },
   {
     "ward_id": "F/S",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 5
   },
@@ -155,7 +155,7 @@
     "ward_id": "F/S",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 4
   },
@@ -171,7 +171,7 @@
     "ward_id": "G/N",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 7
   },
@@ -179,7 +179,7 @@
     "ward_id": "G/N",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 6
   },
@@ -189,13 +189,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 4
+    "cell_count": 6
   },
   {
     "ward_id": "G/S",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 7
   },
@@ -203,7 +203,7 @@
     "ward_id": "G/S",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 4
   },
@@ -219,7 +219,7 @@
     "ward_id": "H/E",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 4
   },
@@ -227,7 +227,7 @@
     "ward_id": "H/E",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 5
   },
@@ -237,13 +237,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 3
+    "cell_count": 5
   },
   {
     "ward_id": "H/W",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 4
   },
@@ -251,7 +251,7 @@
     "ward_id": "H/W",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 4
   },
@@ -261,13 +261,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 7
+    "cell_count": 8
   },
   {
     "ward_id": "K/E",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 6
   },
@@ -275,7 +275,7 @@
     "ward_id": "K/E",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 7
   },
@@ -285,13 +285,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 3
+    "cell_count": 2
   },
   {
     "ward_id": "K/W",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 6
   },
@@ -299,7 +299,7 @@
     "ward_id": "K/W",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 1
   },
@@ -315,7 +315,7 @@
     "ward_id": "L",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 5
   },
@@ -323,7 +323,7 @@
     "ward_id": "L",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 7
   },
@@ -339,7 +339,7 @@
     "ward_id": "M/E",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 4
   },
@@ -347,7 +347,7 @@
     "ward_id": "M/E",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 3
   },
@@ -357,13 +357,13 @@
     "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
     "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
     "priority": 1,
-    "cell_count": 4
+    "cell_count": 3
   },
   {
     "ward_id": "M/W",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 2
   },
@@ -371,7 +371,7 @@
     "ward_id": "M/W",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 2
   },
@@ -379,7 +379,7 @@
     "ward_id": "N",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 2
   },
@@ -395,7 +395,7 @@
     "ward_id": "P/N",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 5
   },
@@ -403,15 +403,23 @@
     "ward_id": "P/N",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
+    "cell_count": 1
+  },
+  {
+    "ward_id": "P/S",
+    "intervention": "Cool roofs + reflective pavements + cooling centres",
+    "rationale": "High vulnerability, low canopy, but native-grassland/built-up cell: afforestation would backfire ecologically",
+    "citation": "Veldman et al. 2019, Science (response to Bastin 2019)",
+    "priority": 1,
     "cell_count": 1
   },
   {
     "ward_id": "P/S",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 3
   },
@@ -419,7 +427,7 @@
     "ward_id": "R/C",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 2
   },
@@ -427,7 +435,7 @@
     "ward_id": "R/N",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 1
   },
@@ -443,7 +451,7 @@
     "ward_id": "R/S",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 3
   },
@@ -451,7 +459,7 @@
     "ward_id": "R/S",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 1
   },
@@ -467,7 +475,7 @@
     "ward_id": "S",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 4
   },
@@ -475,7 +483,7 @@
     "ward_id": "S",
     "intervention": "Pocket parks",
     "rationale": "High population density with little existing green/open space",
-    "citation": "C40 Urban Cooling Toolbox",
+    "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
     "priority": 3,
     "cell_count": 1
   },
@@ -483,7 +491,7 @@
     "ward_id": "T",
     "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
     "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-    "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+    "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
     "priority": 2,
     "cell_count": 1
   }

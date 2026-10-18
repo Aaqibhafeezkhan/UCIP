@@ -19,16 +19,16 @@ were added since:
 | Gap | Status | Where |
 |---|---|---|
 | #65 ground-truth validation | Closed. Pooled within-station Pearson r = 0.716 against NOAA GSOD. | §6d |
-| #87 uncertainty bands | Closed. 1000-replicate bootstrap; median rank interval 7 of 24 places, widest 19; no ward's rank certain. | §6a |
-| #88 weight cross-validation | Closed. PCA against equal weighting: Kendall tau 0.754, 4 of 24 ranks identical, 3 of the top 5 shared. Dropping `child_pct` lifts tau to 0.957. | §6b |
-| #96 cross-resolution check | Added. 500 m rebuild moves 13 of 24 wards, and all 24 fall inside their 1 km bootstrap intervals. | §6c |
-| #95 indicator audit | Added. `elderly_pct` carried district, not sub-district, information and was removed. Real ward-level `child_pct` is the one age indicator. | §4, §10 |
+| #87 uncertainty bands | Closed. 1000-replicate bootstrap; median rank interval 6 of 24 places, widest 17; no ward's rank certain. | §6a |
+| #88 weight cross-validation | Closed. PCA against equal weighting on the five-indicator index: Kendall tau 0.986, 20 of 24 ranks identical, the same top five. On the earlier seven-indicator index it was 0.754, almost all from `child_pct`. | §6b |
+| #96 cross-resolution check | Added, on the seven-indicator index. 500 m rebuild moved 13 of 24 wards, and all 24 fell inside their 1 km bootstrap intervals. **Not yet re-run on the five-indicator index.** | §6c |
+| #95 indicator audit | Added. `elderly_pct` carried district, not sub-district, information and was removed. On 2026-10-17 the index was limited to five indicators from free, open, global data; `slum_pct` and `child_pct` became context columns. | §4, §10 |
 
 §6c is the part worth submitting on. Two methods that share no machinery, a
 bootstrap over cells and a rebuild at a different resolution, disagree about the
 ordering and agree about which parts of the ordering carry information. That is
-a stronger claim than either makes alone, and it is not a claim most indices of
-this kind test at all.
+a stronger claim than either makes alone. It was shown on the seven-indicator
+index and needs re-running on the five before submission (see below).
 
 §10 on `elderly_pct` is a negative result about our own indicator set, and the
 indicator was removed on the strength of it. It is in the paper on purpose. The same WorldPop raster is widely used the same way, and
@@ -53,15 +53,18 @@ Recorded 2026-09-24, so nobody has to ask again.
 
 **Email on the paper.** Whether `dhawansanay@gmail.com` is printed on it. That is public and permanent.
 
-**A new dataset release, before submitting.** The Zenodo record the paper cites is at v1.0.2. That release predates two changes the paper describes: the plantability correction (section 7) and the eighth indicator `child_pct`. Someone who downloads v1.0.2 will not reproduce the paper's numbers. Tag a new release first, let the release workflow archive it, and the concept DOI then resolves to data that matches. Section 11 already tells readers to cite a later release than 1.0.2.
+**Re-run the 500 m check.** Section 6c reports the cross-resolution result from the seven-indicator index. Run `python pipeline/run_pipeline.py --cell-size 500` on the current code and rewrite 6c with the new figures, or state plainly in the paper that it was not repeated.
+
+**A new dataset release, before submitting.** The Zenodo record the paper cites is at v1.0.2. That release predates three changes the paper describes: the plantability correction (section 7), the removal of the elderly indicator, and the move to five open-data indicators. Someone who downloads v1.0.2 will not reproduce the paper's numbers. Tag a new release first, let the release workflow archive it, and the concept DOI then resolves to data that matches. Section 11 already tells readers to cite a later release than 1.0.2.
 
 ## Before you submit
 
 - [ ] Give the ORCID iD and decide about the email; both go in the manuscript header
+- [ ] Re-run the 500 m check on the five-indicator index, or say in 6c that it was not repeated
 - [ ] Cut a new release so the archived data matches the paper
 - [ ] Read section 10 in full. It is candid about the index's own weaknesses, on purpose, but your name goes on it and you should agree with every sentence before it becomes permanent
 - [ ] Convert to PDF. `pandoc docs/HVI-methodology-report.md -o ucip-preprint.pdf` is enough, and most servers accept PDF only. Remove the italic draft-status note at the top first
-- [ ] Check every figure still matches committed output. A pipeline refresh between now and submission changes numbers, and a preprint citing figures that no longer reproduce is worse than a late one. The twice-weekly refresh will move the satellite-derived values, so do this check on the day
+- [ ] Check every figure still matches committed output. A pipeline refresh between now and submission can change numbers, and a preprint citing figures that no longer reproduce is worse than a late one. Within a dry season the twice-weekly refresh reproduces the same values, but the 2026-27 season's composite (available around March 2027) will move them, so do this check on the day
 - [ ] After it is posted: add the preprint DOI to `README.md` and `CITATION.cff`, and close #90
 
 ## What was deliberately not done

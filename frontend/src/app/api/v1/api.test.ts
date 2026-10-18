@@ -60,19 +60,31 @@ describe("GET /api/v1/meta", () => {
     expect(json.license.code).toBe("Apache-2.0");
   });
 
-  it("nulls the data-vintage fields until a committed run log exists", async () => {
+  it("reports the committed run log's date, and never invents one", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const logPath = path.join(process.cwd(), "public", "pipeline_run_log.json");
+    const committed = await fs
+      .readFile(logPath, "utf8")
+      .then((t) => JSON.parse(t))
+      .catch(() => null);
     const json = await body(await getMeta(req("/api/v1/meta")));
-    // The repo has no committed pipeline_run_log.json yet, so the endpoint must
-    // not invent a refresh date. This is the honest answer until the first
-    // refresh run commits one.
-    expect(json.generated_at).toBeNull();
-    expect(json.composite_window).toBeNull();
+    if (committed) {
+      expect(json.generated_at).toBe(committed.finished_at ?? committed.started_at);
+      expect(json.composite_window).toEqual(committed.composite_window ?? null);
+    } else {
+      // No log means no refresh has been recorded, and the honest answer is null.
+      expect(json.generated_at).toBeNull();
+      expect(json.composite_window).toBeNull();
+    }
   });
 
   it("reports the refresh date and composite window from the run log", async () => {
     const fs = await import("node:fs/promises");
     const path = await import("node:path");
     const logPath = path.join(process.cwd(), "public", "pipeline_run_log.json");
+    // The real log is committed, so keep it and put it back afterwards.
+    const original = await fs.readFile(logPath, "utf8").catch(() => null);
     try {
       await fs.writeFile(
         logPath,
@@ -90,7 +102,8 @@ describe("GET /api/v1/meta", () => {
         end: "2026-02-28",
       });
     } finally {
-      await fs.rm(logPath, { force: true });
+      if (original === null) await fs.rm(logPath, { force: true });
+      else await fs.writeFile(logPath, original);
     }
   });
 });
@@ -140,9 +153,17 @@ describe("GET /api/v1/wards/{wardId}", () => {
     getWard(req(`/api/v1/wards/${id}`), { params: Promise.resolve({ wardId: id }) });
 
   it("returns a ward with its ranked recommendations", async () => {
+    const fs = await import("node:fs/promises");
+    const path = await import("node:path");
+    const snapshot = JSON.parse(
+      await fs.readFile(path.join(process.cwd(), "public", "wards_hvi.geojson"), "utf8")
+    );
+    const expectedRank = snapshot.features.find(
+      (f: { properties: { ward_id: string } }) => f.properties.ward_id === "L"
+    ).properties.rank;
     const json = await body(await call("L"));
     expect(json.ward.ward_id).toBe("L");
-    expect(json.ward.rank).toBe(1);
+    expect(json.ward.rank).toBe(expectedRank);
     expect(json.recommendations.length).toBeGreaterThan(0);
     const priorities = json.recommendations.map((r: { priority: number }) => r.priority);
     expect([...priorities].sort((a, b) => a - b)).toEqual(priorities);
@@ -151,6 +172,16 @@ describe("GET /api/v1/wards/{wardId}", () => {
   it("resolves a URL-encoded split ward code", async () => {
     const json = await body(await call("F%2FN"));
     expect(json.ward.ward_id).toBe("F/N");
+  });
+
+  it("resolves the slug form of a split ward code", async () => {
+    const json = await body(await call("F-N"));
+    expect(json.ward.ward_id).toBe("F/N");
+  });
+
+  it("400s, not 500s, on malformed percent-encoding", async () => {
+    const res = await call("%E0%A4%A");
+    expect(res.status).toBe(400);
   });
 
   it("accepts a lowercase code", async () => {

@@ -43,8 +43,6 @@ const INDICATOR_FORMAT: Record<(typeof INDICATOR_KEYS)[number], (v: number) => s
   LST_C: fmtTemp,
   NDVI: fmtNdvi,
   pop_density_km2: fmtDensity,
-  child_pct: fmtPct,
-  slum_pct: fmtPct,
   hospital_dist_m: fmtDistance,
   impervious_pct: fmtPct,
 };

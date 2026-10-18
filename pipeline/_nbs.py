@@ -1,8 +1,8 @@
 """The NBS decision logic, kept free of geospatial dependencies (issue #98).
 
 06_nbs.py needs geopandas to read layers and Earth Engine to fetch land cover.
-Deciding what to recommend for a cell needs neither: it is a function of seven
-numbers and a land-cover class. Keeping it here means CI can test it, and CI
+Deciding what to recommend for a cell needs neither: it is a function of a
+few numbers and a land-cover class. Keeping it here means CI can test it, and CI
 installs requirements-dev.txt rather than the full stack.
 
 This is the logic most worth testing in the whole pipeline. A bug in
@@ -140,7 +140,7 @@ def fire_rules(row: Any, thresholds: dict[str, float]) -> list[dict[str, Any]]:
         recs.append({
             "intervention": "Rain gardens + water-sensitive urban design (WSUD)",
             "rationale": "Highly impervious cell near mapped water/wetland: runoff and heat compound risk",
-            "citation": "Methodology proxy: WorldCover water-distance < 500m (no dedicated hydrology layer in P0)",
+            "citation": "No paper: UCIP's own proxy, within 500 m of WorldCover open water (no hydrology layer)",
             "priority": 2,
         })
 
@@ -148,7 +148,7 @@ def fire_rules(row: Any, thresholds: dict[str, float]) -> list[dict[str, Any]]:
         recs.append({
             "intervention": "Pocket parks",
             "rationale": "High population density with little existing green/open space",
-            "citation": "C40 Urban Cooling Toolbox",
+            "citation": "C40 Urban Cooling Toolbox (practice guide, no DOI)",
             "priority": 3,
         })
 

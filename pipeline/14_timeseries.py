@@ -16,13 +16,13 @@ What this is NOT, stated plainly because the issue title invites the stronger re
     This is not a multi-year Heat Vulnerability Index, and it deliberately does
     not pretend to be one.
 
-    The index combines seven indicators. Only two of them, LST and NDVI, are
+    The index combines five indicators. Only two of them, LST and NDVI, are
     observed per year: they come from satellite imagery that exists for every
-    season. The other five do not vary annually in any data this project has.
-    Population density comes from a single pinned WorldPop
-    image; the slum layer is one Datameet snapshot; hospital distance is current
-    OpenStreetMap; imperviousness is one WorldCover epoch. Recomputing "the HVI
-    per year" while five of its seven inputs are frozen would produce a series
+    season. The other three do not vary annually in any data this project has.
+    Population density comes from a single pinned WorldPop image; hospital
+    distance is current OpenStreetMap; imperviousness is one WorldCover epoch.
+    Recomputing "the HVI per year" while three of its five inputs are frozen
+    would produce a series
     that looks like a vulnerability trend and is really a thermal trend wearing
     its clothing, with the added dishonesty of an official-looking 0-100 score.
 
@@ -76,6 +76,7 @@ import geopandas as gpd
 
 from _city import load_city
 from _gee_auth import init_ee
+from _indicators import DIRECTIONS
 from _publish import publish
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -410,11 +411,11 @@ def main() -> int:
             "least-squares trend per ward."
         ),
         "what_this_is_not": (
-            "Not a multi-year Heat Vulnerability Index. Only 2 of the index's 7 indicators are "
-            "observed annually; population density, the 0-6 share, the slum layer, hospital "
-            "distance and imperviousness each come from a single snapshot. Recomputing the index "
-            "per year with five inputs frozen would present a thermal trend as a vulnerability "
-            "trend."
+            f"Not a multi-year Heat Vulnerability Index. Only 2 of the index's {len(DIRECTIONS)} "
+            "indicators are observed annually; population density and imperviousness come from "
+            "single snapshots and hospital distance from current OpenStreetMap. Recomputing the "
+            "index per year with the others frozen would present a thermal trend as a "
+            "vulnerability trend."
         ),
         "limitations": [
             f"Landsat 8 and 9 only, so the record starts at the {DEFAULT_START_YEAR} season. "

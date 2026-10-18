@@ -6,6 +6,28 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Changed
+- The index now scores five indicators, all from free, open, global data that
+  any city can re-pull: land surface temperature and NDVI (Landsat 8/9),
+  population density (WorldPop), hospital distance (OpenStreetMap) and
+  impervious share (ESA WorldCover). The slum share (one-off Datameet polygons)
+  and the under-7 share (Census 2011) are no longer scored, because neither
+  exists for most cities or gets updated. Both stay in the published cells as
+  context. Ten of the 24 wards changed rank, by at most three places; the top
+  five is now C, L, G/N, B, E (was L, C, G/N, H/E, E). PC1 explains 73.1% of the
+  variance (was 56.5%), and PCA and equal weights now agree at Kendall tau 0.986
+  (was 0.754). The index no longer measures informal housing or age directly;
+  methodology.md 10e says what that costs.
+- `contrib` objects and the ward export lose their `child_pct` and `slum_pct`
+  keys. A field removal inside `v1`, explained in `docs/api.md`.
+- The budget scenario's note comparing the two objectives is computed from the
+  current data instead of quoting a figure from an earlier run.
+- Copy across the site, README and docs now says what the code does: the data
+  date comes from the run log, ranks are described as uncertain, the
+  weighting is described as fitted to Mumbai's own cells, the tree rule is
+  described as firing nowhere, BMC's newer wards are disclosed, and internal
+  hackathon notes are gone from public pages.
+
 ### Removed
 - The elderly share (`elderly_pct`, `contrib_elderly_pct`) and the
   cooling-centre rule that depended on it. The only source, WorldPop's India

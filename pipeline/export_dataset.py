@@ -68,8 +68,6 @@ COLUMNS = [
     "contrib_LST_C",
     "contrib_NDVI",
     "contrib_pop_density_km2",
-    "contrib_child_pct",
-    "contrib_slum_pct",
     "contrib_hospital_dist_m",
     "contrib_impervious_pct",
     "plantable",

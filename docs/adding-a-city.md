@@ -1,17 +1,22 @@
 # Adding a city
 
-UCIP's pipeline is city-agnostic: everything city-specific lives in one JSON
-file, and every stage reads it. This page is how to stand up a new one.
+UCIP's pipeline reads its city from one JSON file, `config/cities/<slug>.json`.
+Not everything city-specific lives there yet: the "Known limits" section at the
+end lists what is still Mumbai's, and the frontend serves one city per
+deployment. No second city has been run end to end; Pune is configured as a
+test case. This page is how to stand up a new one as things are today.
 
-Be realistic about effort. This is a few hours of work plus a Google Cloud
-project, not a five-minute setup, and the last section is the part most people
-would rather skip and should not.
+Be realistic about effort. Expect a weekend plus a Google Cloud project, not a
+five-minute setup, and the calibration section is the part most people would
+rather skip and should not.
 
 ## What you need first
 
 - **A Google Earth Engine account.** Free for research and non-commercial use,
-  but approval is not instant. Everything up to stage 01 works without it; every
-  satellite layer needs it.
+  but approval is not instant. Since April 2026 a noncommercial project gets a
+  monthly compute allowance (the Community tier is 150 EECU-hours; past it, jobs
+  run slower rather than stop). Everything up to stage 01 works without it;
+  every satellite layer needs it.
 - **Ward boundaries as GeoJSON**, one polygon per administrative unit, with a
   field holding each unit's name or code. For Indian cities
   [Datameet](https://github.com/datameet/Municipal_Spatial_Data) is the usual
@@ -157,8 +162,10 @@ once per cell: stage 02 took 88 seconds at 500 m against roughly 25 at 1 km.
 That is not the binding constraint. The browser payload is, and it is why 1 km
 remains the default.
 
-**500 m is not a strictly better dataset.** Nine of the 24 wards change rank,
-and ward B moves from 5th to 1st. That is not a bug in either run: every ward's
+**500 m is not a strictly better dataset.** On the seven-indicator index of
+2026-09-24, thirteen of the 24 wards changed rank between resolutions and ward B
+moved from 6th to 2nd (not yet re-run on the five-indicator index). That is not
+a bug in either run: every ward's
 500 m rank falls inside that ward's own 95% bootstrap interval from the 1 km
 data (`pipeline/uncertainty.py`, issue #87), so the two resolutions agree, to
 within the uncertainty the 1 km data already reported. It does mean a published
@@ -168,11 +175,12 @@ reshuffle the top of the table without making it more correct.
 Anything that reports these ranks should read
 [`docs/methodology.md`](methodology.md) on what they do and do not support.
 
-## 4c. Optional: a ward-level Census table
+## 4c. Optional context: a ward-level Census table
 
-The index has a seventh indicator, `child_pct`, the share of the population aged 0 to 6. It comes from a
-ward-level Census table and is optional. A city without one runs on the six required indicators and
-nothing fails.
+The index scores five indicators, all from free, open, global data, so a new city needs nothing local to
+compute them. A ward-level Census table is optional context: Mumbai's adds `child_pct`, the share of the
+population aged 0 to 6, which is published per cell and is not scored (it was scored until 2026-10-17;
+methodology.md 10e explains why it was taken out). A city without one runs exactly the same.
 
 There is no elderly indicator, on purpose. WorldPop's age-sex product carries district age structure, so it
 would give every ward in a district the same value (methodology.md 10a). Add one only if you have a real
@@ -188,9 +196,9 @@ are that the two source files must agree on every ward's population and that the
 Census's own figure for the city. Census wards are usually smaller than administrative wards, so a roll-up
 is normally involved, and a wrong join there gives plausible numbers.
 
-Read methodology.md 10c before relying on it. PCA gives an indicator like this almost no weight, because it
-is nearly uncorrelated with the others, so adding it makes the index use real data without changing the
-ranking much.
+Read methodology.md 10c and 10e before relying on it. Scoring a local column like this means editing
+`pipeline/_indicators.py`, and a city that does so can no longer be compared on the same terms as one that
+does not.
 
 ## 5. Calibrate the ecology. Do not skip this.
 
@@ -239,8 +247,9 @@ frontend bundle; CI fails if that mirror is stale.
 ## Known limits
 
 - **`data/slumClusters.geojson` is Mumbai-specific.** Stage 03 uses it for the
-  slum indicator and falls back to zero for every cell without it, so another
-  city currently loses that indicator entirely unless you supply an equivalent.
+  `slum_pct` context column and writes zero for every cell without it. Nothing
+  scored depends on it, but another city's context column will read zero until
+  the path is made per-city.
 - **Hospital locations come from OpenStreetMap**, whose completeness varies a
   lot between cities. Sparse coverage silently weakens the access indicator.
 - **WorldPop is pinned to a specific India image** in `pipeline/03_vectors.py`.
@@ -250,5 +259,7 @@ frontend bundle; CI fails if that mirror is stale.
   different months, or the composites are built from cloud.
 
 None of these are hidden in the code: each is a named constant with a comment
-saying why it is what it is. But they are why "city-agnostic" means the
-machinery generalises, not that the assumptions do.
+saying why it is what it is. But they are why "config-driven" means the
+machinery generalises, not that the assumptions do. Expect a new city to take a
+weekend, not an afternoon, most of it waiting for Earth Engine access and
+finding a ward boundary file.

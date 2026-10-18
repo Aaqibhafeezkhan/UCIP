@@ -19,8 +19,6 @@ export type CityProfile = {
   LST_C: number;
   NDVI: number;
   pop_density_km2: number;
-  child_pct: number;
-  slum_pct: number;
   hospital_dist_m: number;
   impervious_pct: number;
 };
@@ -40,10 +38,6 @@ export type WardProfile = {
   NDVI_delta_city: number;
   pop_density_km2: number;
   pop_density_km2_delta_city: number;
-  child_pct: number;
-  child_pct_delta_city: number;
-  slum_pct: number;
-  slum_pct_delta_city: number;
   hospital_dist_m: number;
   hospital_dist_m_delta_city: number;
   impervious_pct: number;

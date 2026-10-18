@@ -1,7 +1,8 @@
 """M6 — Ward descriptive profiles (feeds the dashboard's ward dialog).
 
 Why this stage exists:
-    wards_hvi.geojson carries only HVI, rank, n_cells and the seven contrib_*
+    wards_hvi.geojson carries only HVI, rank, n_cells and one contrib_* per
+    scored indicator
     values (weight x z-score). The raw measured indicators live only per 1 km
     cell, so the UI could show a ward's score but never say anything about the
     ward itself. This rolls the cell indicators up to ward level and adds the
@@ -18,13 +19,12 @@ Indicator units, verified against data/cells_hvi.geojson (541 cells):
     LST_C             degrees Celsius     26.24 to 39.95
     NDVI              index, unitless     -0.07 to 0.71   (NOT a canopy percentage)
     pop_density_km2   people per sq km    16 to 115,272
-    slum_pct          percent, 0-100      0.00 to 68.55
     hospital_dist_m   metres              3.86 to 6199.03
     impervious_pct    percent, 0-100      0.00 to 96.79
 
-    All *_pct columns are on a 0-100 scale, not 0-1. Per methodology.md
-    section 10, the slum layer is a proxy (mapped slum-cluster boundaries), not
-    a ward-level census count, and LST is land-surface, not air, temperature.
+    All *_pct columns are on a 0-100 scale, not 0-1. LST is land-surface, not
+    air, temperature. The slum and under-7 shares are context columns and are
+    not profiled here, since they are not scored.
 
 Run:
     .venv\\Scripts\\activate

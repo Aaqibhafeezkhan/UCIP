@@ -1,0 +1,205 @@
+{
+  "started_at": "2026-10-17T12:35:32.885517+00:00",
+  "finished_at": "2026-10-17T12:43:05.764583+00:00",
+  "composite_window": {
+    "start": "2025-11-01",
+    "end": "2026-02-28"
+  },
+  "stages": [
+    {
+      "id": "01",
+      "script": "01_grid.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 2.26,
+      "provenance": {
+        "source_boundaries": "bmc_wards.geojson",
+        "wards_in": 24,
+        "cells_out": 547,
+        "cell_size_m": 1000.0,
+        "projected_crs": "EPSG:32643"
+      }
+    },
+    {
+      "id": "02",
+      "script": "02_gee_layers.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 37.95,
+      "provenance": {
+        "collections": [
+          "LANDSAT/LC08/C02/T1_L2",
+          "LANDSAT/LC09/C02/T1_L2",
+          "ESA/WorldCover/v200"
+        ],
+        "composite_window": {
+          "start": "2025-11-01",
+          "end": "2026-02-28"
+        },
+        "previous_window": {
+          "start": "2016-11-01",
+          "end": "2017-02-28"
+        },
+        "scenes_current_window": 23,
+        "scenes_previous_window": 14,
+        "cells_in": 547,
+        "cells_out": 547,
+        "cells_with_lst": 547,
+        "gee_project": "ucip-mum"
+      }
+    },
+    {
+      "id": "03",
+      "script": "03_vectors.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 30.13
+    },
+    {
+      "id": "04",
+      "script": "04_zonal.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 1.1,
+      "provenance": {
+        "cells_in": 547,
+        "cells_out": 541,
+        "columns_out": [
+          "grid_id",
+          "ward_id",
+          "ward_gid",
+          "NDVI_prev",
+          "geometry",
+          "LST_C",
+          "NDVI",
+          "pop_density_km2",
+          "hospital_dist_m",
+          "impervious_pct",
+          "child_pct",
+          "slum_pct",
+          "child_source"
+        ]
+      }
+    },
+    {
+      "id": "05",
+      "script": "05_hvi.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 2.42,
+      "provenance": {
+        "cells_in": 541,
+        "wards_out": 24,
+        "weight_source": "pca_reid2009",
+        "explained_variance_pc1": 0.7313,
+        "fallback_used": false,
+        "indicators": [
+          "LST_C",
+          "NDVI",
+          "pop_density_km2",
+          "hospital_dist_m",
+          "impervious_pct"
+        ]
+      }
+    },
+    {
+      "id": "06",
+      "script": "06_nbs.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 26.62,
+      "provenance": {
+        "collections": [
+          "ESA/WorldCover/v200"
+        ],
+        "cells_in": 541,
+        "cells_plantable": 161,
+        "cells_with_recommendation": 123,
+        "thresholds": {
+          "hvi_p75": 64.481,
+          "ndvi_p25": 0.2695,
+          "density_p75": 74271.8605,
+          "impervious_p75": 68.3779
+        }
+      }
+    },
+    {
+      "id": "07",
+      "script": "07_load.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 3.5
+    },
+    {
+      "id": "08",
+      "script": "08_sensitivity.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 4.56
+    },
+    {
+      "id": "09",
+      "script": "09_ndvi_change.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 1.29
+    },
+    {
+      "id": "10",
+      "script": "10_ward_profile.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 1.28
+    },
+    {
+      "id": "11",
+      "script": "11_hero_city.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 1.32
+    },
+    {
+      "id": "12",
+      "script": "12_hero_region.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 1.69
+    },
+    {
+      "id": "13",
+      "script": "13_validate_lst.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 7.52
+    },
+    {
+      "id": "14",
+      "script": "14_timeseries.py",
+      "cadence": "annual",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 329.56
+    },
+    {
+      "id": "15",
+      "script": "15_optimize.py",
+      "cadence": "monthly",
+      "status": "ok",
+      "returncode": 0,
+      "seconds": 1.67
+    }
+  ]
+}

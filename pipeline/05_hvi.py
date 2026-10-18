@@ -1,8 +1,7 @@
 """Stage 05 — Compute the Heat Vulnerability Index. The core of the project.
 
 What it does:
-    Standardises the indicators (eight for Mumbai, seven for a city with no
-    ward-level Census table) to z-scores, orients each one so that
+    Standardises the five indicators to z-scores, orients each one so that
     higher always means more vulnerable (NDVI is inverted; more greenery is less
     vulnerability), then derives the weights from a PCA over the standardised
     cells, following Reid et al. 2009. The weighted sum is rescaled to 0-100 and
@@ -19,9 +18,10 @@ What it does:
     post-hoc attribution needed. No SHAP, by design, because there is no
     black box to explain.
 
-    If the PCA loadings come out unstable or with signs that contradict the
-    literature, the script falls back to published weights verbatim and exits 2
-    so the run is flagged rather than silently trusted.
+    If PC1 explains less than MIN_EXPLAINED_VARIANCE of the variance, the
+    script falls back to equal weights (1/n per indicator, Reid et al. 2009's
+    component-level default) and records that in the PCA log, so the run is
+    flagged rather than silently trusted.
 
 Inputs:
     ../data/cells.geojson       tidy indicator table from stage 04

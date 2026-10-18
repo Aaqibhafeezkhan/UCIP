@@ -22,7 +22,7 @@ PIPELINE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PIPELINE_DIR))
 
 import build_census_table as census  # noqa: E402
-from _indicators import DIRECTIONS, OPTIONAL, REQUIRED, present  # noqa: E402
+from _indicators import CONTEXT, DIRECTIONS, OPTIONAL, REQUIRED, present  # noqa: E402
 from _quality import CELL_BOUNDS, check_bounds  # noqa: E402
 
 ROOT = PIPELINE_DIR.parent
@@ -43,14 +43,22 @@ class TestIndicatorSet:
     def test_every_direction_is_plus_or_minus_one(self):
         assert set(DIRECTIONS.values()) <= {1, -1}
 
-    def test_child_share_is_optional_and_the_rest_are_required(self):
-        assert "child_pct" in OPTIONAL
-        assert "child_pct" not in REQUIRED
+    def test_the_scored_set_is_the_five_open_data_indicators(self):
+        # Decision 2026-10-17: only indicators any city can build from free,
+        # open, global data that is easy to re-pull. Adding one back is a
+        # methodology change and should have to edit this line.
+        assert list(DIRECTIONS) == [
+            "LST_C", "NDVI", "pop_density_km2", "hospital_dist_m", "impervious_pct",
+        ]
         assert set(REQUIRED) | set(OPTIONAL) == set(DIRECTIONS)
+
+    def test_child_and_slum_shares_are_context_and_never_scored(self):
+        assert set(CONTEXT) == {"child_pct", "slum_pct"}
+        assert not set(CONTEXT) & set(DIRECTIONS)
 
     def test_present_keeps_canonical_order_whatever_the_column_order(self):
         shuffled = ["impervious_pct", "child_pct", "LST_C", "geometry", "ward_id", "NDVI"]
-        assert present(shuffled) == ["LST_C", "NDVI", "child_pct", "impervious_pct"]
+        assert present(shuffled) == ["LST_C", "NDVI", "impervious_pct"]
 
     def test_a_run_without_a_census_table_gets_the_required_set(self):
         assert present(REQUIRED) == REQUIRED
@@ -191,14 +199,16 @@ class TestJoinedIntoTheCells:
             props = feature["properties"]
             assert props["child_pct"] == pytest.approx(by_ward[props["ward_id"]]), props["grid_id"]
 
-    def test_the_indicator_reaches_the_index(self):
-        # A column that is joined but never scored would pass every test above
-        # while doing nothing. It has to appear in the published contributions.
+    def test_the_context_column_stays_out_of_the_index(self):
+        # child_pct is carried for display and is not scored (2026-10-17). A
+        # contribution for it in the published wards would mean it leaked back
+        # into the index.
         wards_path = ROOT / "data" / "wards_hvi.geojson"
         if not wards_path.exists():
             pytest.skip("wards_hvi.geojson not present")
         features = json.loads(wards_path.read_text(encoding="utf-8"))["features"]
-        assert all("contrib_child_pct" in f["properties"] for f in features)
+        assert not any("contrib_child_pct" in f["properties"] for f in features)
+        assert not any("contrib_slum_pct" in f["properties"] for f in features)
 
 
 # --------------------------------------------------- the plausibility bounds
