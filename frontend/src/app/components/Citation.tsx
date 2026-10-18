@@ -21,7 +21,7 @@ export default function Citation(props: CitationProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="align-super text-[0.65em] font-mono text-brand-teal hover:underline"
-        title={`${entry.authors} — ${entry.venue}`}
+        title={`${entry.authors}, ${entry.venue}`}
       >
         [{props.index}]
       </a>

@@ -62,7 +62,7 @@ export const CITATIONS: CitationEntry[] = [
     venue: "Science 366(6463):eaay7976",
     doi: "10.1126/science.aay7976",
     verified: true,
-    usage: "Don't afforest grasslands or savannas — powers the plantability filter",
+    usage: "Don't afforest grasslands or savannas; powers the plantability filter",
     category: "plantability-filter",
   },
   {
@@ -170,7 +170,7 @@ export function matchCitationFromText(text: string): CitationEntry | undefined {
   return hit ? getCitation(hit[1]) : undefined;
 }
 
-/** Raw data-provenance sources (not academic papers, no DOIs) — `/legal`'s table. */
+/** Raw data-provenance sources (not academic papers, no DOIs): `/legal`'s table. */
 export type SourceEntry = { name: string; use: string };
 
 export const SOURCES: SourceEntry[] = [
@@ -179,7 +179,9 @@ export const SOURCES: SourceEntry[] = [
   { name: "ESA WorldCover v200", use: "Land cover, impervious surface, plantability screening" },
   { name: "Google Earth Engine", use: "Satellite data access and zonal statistics" },
   { name: "OpenStreetMap contributors", use: "Hospital locations (ODbL)" },
-  { name: "Datameet Municipal Spatial Data", use: "BMC ward boundaries and slum-cluster polygons" },
+  { name: "Datameet Municipal Spatial Data", use: "BMC ward boundaries; slum-cluster polygons (context, not scored)" },
+  { name: "Census of India 2011, via OpenCity", use: "Ward under-7 share (context, not scored)" },
+  { name: "NOAA Global Summary of the Day", use: "Weather-station check of the satellite temperature layer" },
   { name: "CARTO / OpenStreetMap", use: "Basemap tiles on the dashboard" },
   { name: "Natural Earth 1:10m physical", use: "Regional coastline behind the landing-page model (public domain)" },
 ];

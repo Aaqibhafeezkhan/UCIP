@@ -7,13 +7,13 @@ import Card from "../components/Card";
 
 export const metadata: Metadata = {
   title: "Mission | UCIP",
-  description: "Why UCIP exists: turning cited heat-vulnerability data into ward-level action for Mumbai.",
+  description: "Why UCIP exists: a cited, ward-level heat vulnerability index for Mumbai, built only from free open data.",
 };
 
 const DIFFERENTIATORS = [
   {
     title: "A ranked, cited vulnerability score",
-    body: "Every ward gets a 0 to 100 score from satellite and population data, with PCA-derived weights grounded in the published heat-vulnerability literature, not guesses.",
+    body: "Every ward gets a 0 to 100 score from five indicators any city can measure with free, open, global data. The weights come from the data itself: a PCA on Mumbai's own cells, following the method of Reid et al. 2009.",
   },
   {
     title: "Factor-by-factor explainability",
@@ -21,11 +21,11 @@ const DIFFERENTIATORS = [
   },
   {
     title: "A recommendation engine, not just a map",
-    body: "Each ward gets a concrete intervention: trees, cool roofs, or shaded cooling centres, with a rationale and a citation attached.",
+    body: "Each ward gets an intervention with a rationale attached: rain gardens, cool roofs with shaded cooling centres, or pocket parks. A tree-planting rule exists but fires nowhere today, because every hot, bare cell in Mumbai is already built up.",
   },
   {
     title: "An ecological guardrail",
-    body: "The engine rejects tree-planting where it would backfire (native grasslands and built-up cells), routing those to reflective surfaces instead.",
+    body: "The engine refuses tree planting where it would backfire: native grassland, wetland, mangrove, water and heavily sealed cells. Those get reflective or water-sensitive options instead.",
   },
 ];
 
@@ -39,9 +39,9 @@ export default function MissionPage() {
           Turn heat data into action, ward by ward.
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          Mumbai gets dangerously hot, and the burden is not shared evenly. Dense, low-green, older,
-          informally-housed wards feel it most. UCIP exists to say, in public and with receipts,
-          which wards need cooling first and what to build there.
+          Mumbai gets dangerously hot, and the burden is not shared evenly. Dense, paved, low-green
+          wards feel it most. UCIP exists to say, in public and with sources, which wards are most
+          exposed, why, and what could cool them, along with how sure each answer is.
         </p>
 
         <Reveal>
@@ -51,8 +51,13 @@ export default function MissionPage() {
               Prior tools tend to do one or two things: map where a city is hot, set city-wide
               targets, or suggest generic fixes. Diagnostic studies stop at the map. Strategy
               documents set goals without per-ward targeting. Global toolboxes inspire without a
-              specific city&apos;s data underneath. UCIP is the operational bridge, and it commits to
-              all four things below at once, scoped tightly to Mumbai&apos;s 24 BMC wards.
+              specific city&apos;s data underneath. UCIP tries to do all four for one city, on the
+              24-ward BMC boundary map it was built with. BMC has since created new wards, which
+              the{" "}
+              <Link href="/methodology" className="text-brand-teal hover:underline">
+                methodology
+              </Link>{" "}
+              explains.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {DIFFERENTIATORS.map((d) => (
@@ -69,11 +74,12 @@ export default function MissionPage() {
           <section className="mt-12">
             <h2 className="text-xl font-semibold text-foreground">Honesty is a feature</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Most city heat tools present their outputs as more certain than they really are. UCIP
-              tries not to. The heat map shows land-surface temperature, which is a real but
-              imperfect stand-in for how hot it actually feels outside, and we say so plainly. The
-              slum layer is a proxy built from public data, not a census-grade count,
-              and we name them as proxies rather than let them pass for something more precise. The
+              UCIP tries to say how certain each number is. The heat map shows land-surface
+              temperature, which is a real but imperfect stand-in for how hot it feels outside, and
+              only in the daytime. Every ward rank comes with a plausible range, and most ranges
+              span several places. The slum share and the Census 2011 under-7 share used to be
+              scored; they are now shown as context only, because neither can be found for most
+              cities or kept up to date. The
               cooling coefficients come from studies in other cities and haven&apos;t been calibrated
               for Mumbai specifically, so that caveat sits right next to every estimate instead of
               buried in a footnote. This is a research prototype, and treating it as more authoritative

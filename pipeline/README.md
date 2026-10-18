@@ -1,9 +1,10 @@
 # Pipeline
 
-Thirteen numbered stages (`00_gee_spike.py` through `12_hero_region.py`) that turn raw
-satellite imagery, WorldPop demographics, and OSM/Datameet vector data into the Heat
-Vulnerability Index, the NBS recommendations, and every JSON/GeoJSON file the frontend
-reads. Each script is documented in its own docstring and is still runnable standalone;
+Sixteen numbered scripts (`00_gee_spike.py` through `15_optimize.py`) that turn
+satellite imagery, WorldPop population, ESA WorldCover land cover and OpenStreetMap
+hospitals into the Heat Vulnerability Index, the NBS recommendations, and every
+JSON/GeoJSON file the frontend reads. `00` is a connectivity check and is skipped by
+default; `14` (the year-by-year trend) runs only with `--include-annual`. Each script is documented in its own docstring and is still runnable standalone;
 this page covers running them as one chain, and when that chain should actually run.
 
 ## Running a refresh
@@ -19,7 +20,7 @@ cp ../.env.example ../.env.local   # fill in Supabase keys if you want the DB up
 python run_pipeline.py
 ```
 
-`run_pipeline.py` (issue #56) runs stages `01` through `12` in dependency order, stops at
+`run_pipeline.py` (issue #56) runs stages `01` through `15` in dependency order, stops at
 the first hard failure, and writes a run log to `data/pipeline_run_log.json` (mirrored to
 `frontend/public/`; see "Frontend sync" below). The log records when the run happened and
 the dry-season window it was computed from (issue #124), which is what the site's
@@ -32,6 +33,7 @@ flags:
 | `--from 05` | Resume the chain starting at stage `05` (after fixing a failure). |
 | `--only 08,09` | Run just the listed stages. |
 | `--include-spike` | Also run `00_gee_spike.py` first (excluded by default, see below). |
+| `--include-annual` | Also run `14_timeseries.py`, the multi-year trend (about 13 minutes of Earth Engine time). |
 | `--keep-going` | Don't stop the chain on a hard failure. |
 
 `00_gee_spike.py` is a one-time development go/no-go gate, not a stage of a real
@@ -61,6 +63,11 @@ runtime writes to both places in the same run, not just `data/`:
 | `10_ward_profile.py` | `ward_profiles.json` | yes (already did this before #56) |
 | `11_hero_city.py` | `hero_city.json` | yes (already did this before #56) |
 | `12_hero_region.py` | `hero_region.json` | yes (already did this before #56) |
+| `13_validate_lst.py` | `lst_validation.json` | yes |
+| `14_timeseries.py` | `ward_timeseries.json` | yes |
+| `15_optimize.py` | `budget_allocation.json` | yes |
+| `uncertainty.py` (run separately) | `hvi_uncertainty.json` | yes |
+| `compare_weightings.py` (run separately) | `weighting_comparison.json` | yes |
 | `run_pipeline.py` | `pipeline_run_log.json` | yes |
 
 The `run_pipeline.py` row is the orchestrator's own run log rather than a stage output:
@@ -69,7 +76,7 @@ it rides the same automated refresh PR as every other file in the table.
 
 `sensitivity.json`, `hvi_pca_log.json` and `pipeline_run_log.json` are the exceptions to
 "the deployed frontend reads from `frontend/public/`": the methodology page reads all
-three server-side straight out of `../data/`, so they need no copy for that page — but
+three server-side straight out of `../data/`, so they need no copy for that page. But
 `pipeline_run_log.json` still gets one, because `/api/v1/meta` and the dashboard footer
 (which are not the methodology page) read it from `frontend/public/` like every other
 route does. `sensitivity_chart.png` is
@@ -98,29 +105,30 @@ this copy actually happens, called from each stage's `if ok:` branch.
 
 ## Refresh cadence (issue #57)
 
-**Every stage below runs on a monthly cadence, not daily, because the data underneath
-it does not change daily.**
+**The data underneath changes once a dry season at most. The scheduled workflow
+(`.github/workflows/pipeline-refresh.yml`) runs twice a week anyway, on Tuesdays and
+Fridays, by explicit request, so the published data is never more than a few days from a
+verified run.** Within a dry season most of those runs reproduce identical numbers, and
+the workflow opens nothing when the output is byte-identical. How often each stage's
+input actually changes:
 
-| Stage | Cadence | Why |
-|-------|---------|-----|
-| `01_grid.py` | Monthly | BMC ward boundaries are static; only changes if `data/bmc_wards.geojson` is re-sourced. |
-| `02_gee_layers.py` | Monthly | Landsat 8/9 dry-season **composite** (`00_gee_spike.py`'s validated recipe), a multi-week median composite by construction, not a daily reading. |
-| `03_vectors.py` | Monthly | WorldPop's age-sex layer is pinned to a single annual vintage (`WORLDPOP_YEAR = "2020"`, see the script); OSM hospitals and slum-cluster boundaries change on the order of months, not days. |
-| `04_zonal.py` | Monthly | Pure consolidation of the two stages above; has nothing new to compute between their refreshes. |
-| `05_hvi.py` | Monthly | Deterministic function of `04`'s output; the PCA weights themselves are also expected to be stable run-to-run (see `docs/HVI-methodology-report.md` section 6, the sensitivity analysis). |
-| `06_nbs.py` | Monthly | Its GEE call is ESA WorldCover, an annual-cadence land-cover product. |
-| `07_load.py` | Monthly | Terminal upsert/snapshot step of the same refresh; runs once per chain, immediately after the stage that changed. |
-| `08_sensitivity.py` | Monthly | Cheap function of `05`'s weights; nothing to recompute until `05` changes. |
-| `09_ndvi_change.py` | Monthly | Function of `02`'s two NDVI composites (current vs. a ~9-year baseline); does not move month to month. |
-| `10_ward_profile.py` | Monthly | Rolls up `05`/`06` output; changes only when they do. |
-| `11_hero_city.py` | Monthly | Geometry + HVI/rank read from `05`; changes only when boundaries or HVI change. |
-| `12_hero_region.py` | Monthly | Natural Earth coastline, effectively static; cached to `data/cache/` after the first fetch. |
-
-Running this chain more often than monthly would re-fetch the same underlying
-satellite/demographic snapshot and re-derive the same numbers, at real GEE-quota cost,
-for a "last updated" timestamp with no real signal behind it: cosmetic freshness, not
-actual freshness. A monthly cron (`.github/workflows/pipeline-refresh.yml`, issue #58)
-matches the data's real cadence.
+| Stage | Input changes | Why |
+|-------|---------------|-----|
+| `01_grid.py` | Rarely | Ward boundaries are static until `data/bmc_wards.geojson` is re-sourced. |
+| `02_gee_layers.py` | Once a dry season | A Nov-Feb Landsat 8/9 median **composite**, fixed once the season is complete. |
+| `03_vectors.py` | Months | WorldPop is pinned to one vintage (`WORLDPOP_YEAR = "2020"`); OSM hospitals change slowly. |
+| `04_zonal.py` | With 02/03 | Pure consolidation of the two stages above. |
+| `05_hvi.py` | With 04 | Deterministic function of `04`'s output. |
+| `06_nbs.py` | With 05 | Its Earth Engine call is ESA WorldCover, a fixed 2021 epoch. |
+| `07_load.py` | With 06 | Writes the snapshots, and loads the database when credentials are set. |
+| `08_sensitivity.py` | With 05 | Function of `05`'s weights. |
+| `09_ndvi_change.py` | Once a dry season | Current versus 2016-17 NDVI composite. |
+| `10_ward_profile.py` | With 05/06 | Rolls up their output. |
+| `11_hero_city.py` | With 05 | Geometry plus HVI/rank. |
+| `12_hero_region.py` | Never | Natural Earth coastline, cached to `data/cache/` after the first fetch. |
+| `13_validate_lst.py` | When NOAA publishes | Station data arrives with a lag. |
+| `14_timeseries.py` | Once a year | One value per dry season. |
+| `15_optimize.py` | With 05 | The worked budget scenario. |
 
 **The one genuinely fast-changing number in the product, live air temperature, is
 intentionally not a pipeline stage at all.** `frontend/src/lib/weather.ts` fetches it
@@ -128,7 +136,7 @@ client-side from Open-Meteo on every page load: no server, no cron, no committed
 snapshot, no staleness possible. That pattern (fetch live at request time, show an
 honest "unavailable" state on failure, never fabricate or cache a stale number) is the
 template for any future value that is actually fast-changing: extend `weather.ts`'s
-approach for it, rather than adding another monthly-refreshed pipeline stage and
+approach for it, rather than adding another scheduled pipeline stage and
 labeling it "daily" for effect.
 
 ## Change diffing (issue #61)

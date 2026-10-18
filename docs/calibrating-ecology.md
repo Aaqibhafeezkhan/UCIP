@@ -147,8 +147,18 @@ no flag to.**
 
 Coastal western India. Class 30 is mostly genuine open habitat, so it is
 refused. Mangrove (95) is refused as already-functioning habitat rather than a
-planting site. Imperviousness is unimodal across the 541 cells, so a percentile
-cutoff is meaningful. Class 20 is sparse enough not to matter.
+planting site. Class 20 is sparse enough not to matter.
+
+**Imperviousness fails this guide's own check.** Across the 541 cells it is
+bimodal: 175 cells sit below 10% (open land, water, forest) and a second
+cluster of 148 sits between 60% and 80%. The 75th-percentile cutoff, 68.4%,
+falls inside the upper mode, so it separates the most sealed built-up cells
+from the rest of the built-up cells rather than built-up from open land. The
+filter still refuses every built-up cell through its WorldCover class check,
+which is why tree planting fires nowhere, but by the rule above a threshold
+chosen from the two modes would be the right instrument. The `calibrated: true`
+flag predates this check and should be revisited before another city copies
+Mumbai's setting.
 
 ## Worked example: Pune, not calibrated
 

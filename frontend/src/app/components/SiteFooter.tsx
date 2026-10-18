@@ -25,8 +25,8 @@ export default function SiteFooter() {
           <div className="col-span-2 sm:col-span-1">
             <Logo />
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              A decision-support tool for Mumbai&apos;s urban heat, ward by ward, with every claim
-              cited.
+              A heat vulnerability index for Mumbai&apos;s wards, built from open data, with its
+              sources and limits in public.
             </p>
           </div>
 

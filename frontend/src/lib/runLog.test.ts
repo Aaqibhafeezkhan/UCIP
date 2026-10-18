@@ -43,7 +43,7 @@ describe("formatCompositeWindow", () => {
   it("renders the range with an en dash", () => {
     expect(
       formatCompositeWindow({ start: "2025-11-01", end: "2026-02-28" })
-    ).toBe("1 Nov 2025 – 28 Feb 2026");
+    ).toBe("1 Nov 2025 to 28 Feb 2026");
   });
 
   it("returns null when either bound is missing or invalid", () => {

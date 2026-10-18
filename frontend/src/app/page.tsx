@@ -8,6 +8,7 @@ import Hero from "./components/sections/Hero";
 import MapPreview from "./components/sections/MapPreview";
 import Mission from "./components/sections/Mission";
 import CitationStrip from "./components/sections/CitationStrip";
+import { formatCompositeWindow, type RunLog } from "@/lib/runLog";
 
 type WardFeature = {
   properties: {
@@ -27,11 +28,24 @@ function topWards(n: number) {
     .slice(0, n);
 }
 
+/** The composite window from the committed run log, or null before one exists. */
+function compositeWindow(): string | null {
+  const p = path.join(process.cwd(), "public", "pipeline_run_log.json");
+  if (!fs.existsSync(p)) return null;
+  const log = JSON.parse(fs.readFileSync(p, "utf-8")) as RunLog;
+  return formatCompositeWindow(log.composite_window);
+}
+
 const LAYERS = [
   {
     color: "#f03b20",
     name: "Heat vulnerability",
-    text: "Every ward gets a score from 0 to 100 combining surface heat, green cover, crowding, young children, informal housing, and distance to hospitals. Darker red means help is needed sooner.",
+    text: "Every ward gets a score from 0 to 100 combining five things anyone can measure from free satellite and open map data: how hot its surfaces run, how green it is, how crowded, how paved, and how far people are from a hospital. Darker red means more vulnerable.",
+  },
+  {
+    color: "#fd8d3c",
+    name: "Heat grid",
+    text: "The same score at the 1 km cell it is measured at, before the cells are averaged into wards. It shows the hot pockets a ward average hides.",
   },
   {
     color: "#4ade80",
@@ -47,6 +61,7 @@ const LAYERS = [
 
 export default function Home() {
   const wards = topWards(5);
+  const dryWindow = compositeWindow();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -61,7 +76,7 @@ export default function Home() {
 
         <Reveal>
           <section className="mx-auto max-w-5xl px-6 py-14">
-            <h2 className="text-xl font-semibold text-foreground">Three ways to look at the city</h2>
+            <h2 className="text-xl font-semibold text-foreground">Four ways to look at the city</h2>
             <div className="mt-6 space-y-6">
               {LAYERS.map((l) => (
                 <div key={l.name} className="flex items-start gap-4">
@@ -86,10 +101,17 @@ export default function Home() {
           <section className="border-t border-border bg-surface">
             <div className="mx-auto max-w-5xl px-6 py-14">
               <h2 className="text-xl font-semibold text-foreground">
-                The five wards that need cooling most
+                The five most heat-vulnerable wards
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Computed from the latest satellite pass, not hand-picked.
+                {dryWindow
+                  ? `From dry-season satellite imagery (${dryWindow}), not hand-picked.`
+                  : "From a dry-season satellite composite, not hand-picked."}{" "}
+                Ranks are uncertain; the{" "}
+                <Link href="/methodology" className="text-brand-teal hover:underline">
+                  methodology
+                </Link>{" "}
+                gives each ward&apos;s plausible range.
               </p>
               <ol className="mt-6 divide-y divide-border">
                 {wards.map((w) => (
@@ -126,8 +148,9 @@ export default function Home() {
           <section className="mx-auto max-w-5xl px-6 py-14">
             <h2 className="text-xl font-semibold text-foreground">Built in the open</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              All data sources are free and public: Landsat satellite imagery, WorldPop population
-              rasters, OpenStreetMap, and municipal ward boundaries. The method, its weights, and
+              Every scored input is free, open and global: Landsat satellite imagery, ESA
+              WorldCover land cover, WorldPop population rasters and OpenStreetMap, plus the 24-ward
+              boundary file. The method, its weights, and
               its limitations are documented on the{" "}
               <Link href="/methodology" className="text-brand-teal hover:underline">
                 methodology

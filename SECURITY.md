@@ -4,7 +4,7 @@
 
 UCIP is a Next.js frontend backed by Supabase (read-only public data) and a Python data
 pipeline that runs against Google Earth Engine. There is no user authentication and no
-user-submitted data path in the prototype — the main surfaces worth reporting on are:
+user-submitted data path in the prototype. The main surfaces worth reporting on are:
 
 - Supabase queries or environment handling that could leak credentials.
 - Dependency vulnerabilities (npm or pip) with a known CVE.
@@ -39,6 +39,6 @@ Include:
 
 ## Out of scope
 
-- Vulnerabilities in third-party services (Supabase, Google Earth Engine, OpenStreetMap) —
+- Vulnerabilities in third-party services (Supabase, Google Earth Engine, OpenStreetMap):
   report to them directly.
 - Theoretical vulnerabilities without a proof of concept.

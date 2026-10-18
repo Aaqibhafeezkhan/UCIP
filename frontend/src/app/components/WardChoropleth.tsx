@@ -470,7 +470,7 @@ export default function WardChoropleth({
                 onClick={onLocate}
                 disabled={locating}
                 aria-label={locating ? "Finding your ward…" : "Find my ward"}
-                title={locating ? "Finding your ward…" : "Find my ward — use your location"}
+                title={locating ? "Finding your ward…" : "Find my ward: use your location"}
               >
                 {locating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -545,7 +545,7 @@ export default function WardChoropleth({
           than Leaflet's usual z/x/y, hence the swapped template below.
         */}
         <TileLayer
-          attribution='&copy; <a href="https://www.esri.com">Esri</a> — Esri, HERE, Garmin, FAO, NOAA, USGS'
+          attribution='&copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, FAO, NOAA, USGS'
           url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
         />
         <TileLayer

@@ -21,8 +21,9 @@ export default function SimulatePage() {
         <h1 className="text-2xl font-semibold text-foreground">What if we cooled a ward?</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Move the sliders to see an illustrative first-order estimate of daytime cooling from
-          adding tree canopy or raising roof albedo, using coefficients from published research
-          rather than a trained model. Every number below traces to a cited paper.
+          adding tree canopy, raising roof albedo or adding pocket parks, using coefficients from
+          published research rather than a trained model. The coefficients cite their papers; the
+          pocket-park scaling and the budget&apos;s albedo gain are our own stated assumptions.
         </p>
 
         <div className="mt-8">

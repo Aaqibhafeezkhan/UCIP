@@ -15,11 +15,12 @@ export default function CitationStrip() {
       <div className="rounded-2xl border border-border bg-surface p-8">
         <p className="kicker">Cited research</p>
         <h2 className="mt-2 text-xl font-semibold text-foreground">
-          Every weight and coefficient traces to a published paper
+          The method and the cooling estimates rest on published research
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The vulnerability index, the plantability filter, and the cooling estimates are all built
-          on peer-reviewed work, {CITATIONS.length} papers in total, each with a verifiable DOI.
+          The index method, the plantability filter and the cooling coefficients cite{" "}
+          {CITATIONS.length} papers, each with a DOI. Where a threshold is our own judgement rather
+          than a paper&apos;s, the methodology page says so.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           {VENUES.map((v) => (

@@ -1,4 +1,4 @@
-# DESIGN.md — UCIP
+# DESIGN.md: UCIP
 
 ## Brand palette (from docs/brand/README.md, generated brand sheet)
 
@@ -44,7 +44,7 @@ generated from the current vector brand kit). Summary:
 - `frontend/public/logo.svg` / `logo-dark.svg`: full gradient mark, 492x654 (not square), 48px+
   only.
 - `frontend/public/icon-192.png` / `icon-512.png`: square, safely-padded exports of the same mark.
-  Use these (not `logo.svg`) anywhere the mark needs to sit in a small square box (nav, footer) —
+  Use these (not `logo.svg`) anywhere the mark needs to sit in a small square box (nav, footer);
   the raw mark's aspect ratio distorts if forced square below 48px.
 - `frontend/src/app/{favicon.ico,icon.png,apple-icon.png}`: regenerated from `icon-512.png` (not
   from a "logo-small" variant; that asset was retired).
@@ -56,7 +56,7 @@ generated from the current vector brand kit). Summary:
 - `HeroGradient.tsx`: animated teal/emerald mesh gradient (@paper-design/shaders-react) for the
   landing hero only. Respects `prefers-reduced-motion` and no-WebGL by falling back to a static CSS
   gradient; SSR-safe via `useSyncExternalStore`, no dynamic-import wrapper needed.
-- `WardChoropleth.tsx`: Leaflet map, 3-layer switcher (shadcn Tabs), CartoDB Positron tiles,
+- `WardChoropleth.tsx`: Leaflet map, 4-layer switcher (shadcn Tabs), CartoDB Positron tiles,
   click-to-select with a teal selection outline, `fitBounds()` to the ward extent on first load,
   and fullscreen mode (hides site chrome, keeps the layer box + legend + exit button, Escape to
   close). The fullscreen-only Leaflet popup was removed when `WardDialog` took over ward detail on
@@ -94,7 +94,7 @@ generated from the current vector brand kit). Summary:
   `position:relative` parent; page root needs a hard `h-screen` anchor; raw OSM tile server is
   blocked, use CartoDB; Leaflet doesn't notice layout-driven container resizes (e.g. fullscreen
   toggle) without an explicit `map.invalidateSize()` call; don't put `selectedWardId` in a
-  `<GeoJSON key={...}>` — remounting the layer on every ward click destroys any popup Leaflet was
+  `<GeoJSON key={...}>`: remounting the layer on every ward click destroys any popup Leaflet was
   mid-way through opening on that same click, use a `ref` + `.setStyle()` for selection restyling
   instead and reserve `key` for changes that genuinely need `onEachFeature` to rebind (like
   fullscreen toggling, which needs popups bound only in fullscreen).
@@ -108,5 +108,6 @@ card grids, em dashes in copy.
 master-detail sidebar covered ward detail; it does not. `dashboard/page.tsx`'s `<aside>` is
 `hidden md:block` and is unmounted entirely in fullscreen, so between them the sidebar and the
 old fullscreen-only Leaflet popup left phones and fullscreen with no way to read a ward at all.
-`WardDialog` is now the single ward surface on every viewport, and the sidebar is a list again.
+`WardDialog` is the ward surface on phones and in fullscreen; on desktop the sidebar
+renders the same `WardDetail` inline beside the list.
 Do not reintroduce modals elsewhere on this argument: the rule stands everywhere else.

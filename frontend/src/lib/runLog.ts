@@ -86,7 +86,7 @@ export function formatWindowDate(isoDate: string | null | undefined): string | n
 }
 
 /**
- * {"start": "2025-11-01", "end": "2026-02-28"} -> "1 Nov 2025 – 28 Feb 2026".
+ * {"start": "2025-11-01", "end": "2026-02-28"} -> "1 Nov 2025 to 28 Feb 2026".
  * Returns null when either bound is missing or unparseable.
  */
 export function formatCompositeWindow(
@@ -96,5 +96,5 @@ export function formatCompositeWindow(
   const start = formatWindowDate(window.start);
   const end = formatWindowDate(window.end);
   if (!start || !end) return null;
-  return `${start} – ${end}`;
+  return `${start} to ${end}`;
 }

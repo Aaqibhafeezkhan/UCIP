@@ -9,13 +9,13 @@ export default function Mission() {
           Not another heat map
         </p>
         <h2 className="mt-3 max-w-2xl text-2xl font-bold leading-snug sm:text-3xl">
-          Most tools stop at a map. UCIP turns a cited vulnerability score into a specific,
-          ecologically-checked action for every ward.
+          Most tools stop at a map. UCIP adds the reason behind each ward&apos;s score and an
+          ecologically checked option for cooling it.
         </h2>
         <p className="mt-4 max-w-2xl leading-relaxed text-white/90">
           Rank the wards, explain each score factor by factor, then recommend the right
-          intervention, including rejecting tree-planting where it would backfire. Every step is
-          traceable to published research.
+          intervention, including rejecting tree-planting where it would backfire. Each step cites
+          its source, and the ones that rest on our own judgement are labelled.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link

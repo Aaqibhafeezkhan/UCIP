@@ -29,7 +29,7 @@ The pipeline scripts (`00`-`15`) require a Google Earth Engine project and Supab
 credentials to run end-to-end; the committed GeoJSON snapshots in `data/` let the frontend
 run without either. Run the full chain in order with `python pipeline/run_pipeline.py`
 rather than invoking each script by hand; see [pipeline/README.md](pipeline/README.md)
-for usage, the monthly refresh cadence, and the post-refresh change-diff tool.
+for usage, the twice-weekly refresh schedule, and the post-refresh change-diff tool.
 
 ## How to contribute
 
@@ -46,8 +46,8 @@ Open an issue using the [feature request template](.github/ISSUE_TEMPLATE/featur
 
 1. Fork the repo and create a branch: `git checkout -b feat/your-feature`.
 2. Make your change.
-3. Verify: `npm run lint && npm run build` (inside `frontend/`) — must pass clean. There's no
-   test suite yet; a PR that adds one for a previously-untested area is welcome.
+3. Verify inside `frontend/`: `npm run lint && npx vitest run && npm run build` must pass
+   clean. Pipeline changes also need `python -m pytest` inside `pipeline/`. CI runs both.
 4. Open a PR against `main` using the template.
 
 ## Data and methodology changes
@@ -57,23 +57,23 @@ changes an HVI weight, an NBS rule, or a data source:
 
 - Update `docs/methodology.md` and `docs/references.md` in the same PR, not a follow-up.
 - Cite the paper or dataset (DOI where one exists) in `frontend/src/lib/citations.ts`.
-- Don't hardcode a data vintage silently — see `pipeline/03_vectors.py`'s `WORLDPOP_YEAR`
+- Don't hardcode a data vintage silently; see `pipeline/03_vectors.py`'s `WORLDPOP_YEAR`
   pin for the pattern (explicit, disclosed, not just "whatever the API returns first").
 
 ## Code style
 
 - TypeScript/React: follow the existing ESLint config (`npm run lint`), Tailwind v4
-  CSS-first tokens in `globals.css` — don't hand-roll new color values.
+  CSS-first tokens in `globals.css`; don't hand-roll new color values.
 - Python: match the existing numbered-script style in `pipeline/` (`01_grid.py`,
   `02_gee_layers.py`, ...); each script does one pipeline stage and is runnable standalone.
 - No em dashes in prose (docs, commit messages, UI copy).
 
 ## PR guidelines
 
-- One PR per change — keep scope tight.
+- One PR per change. Keep scope tight.
 - PR description explains *why*, not just *what*.
 - Map/legend colors (`WardChoropleth.tsx`'s HVI/plantability/NDVI-change palettes) are
-  semantic and DO NOT get restyled for aesthetics — see `DESIGN.md`.
+  semantic and DO NOT get restyled for aesthetics; see `DESIGN.md`.
 - AI-assisted code is welcome, provided you've reviewed and tested the output.
 
 ## Commit style

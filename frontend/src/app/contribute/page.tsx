@@ -45,8 +45,7 @@ export default function ContributePage() {
           Built by one student, open to everyone.
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          UCIP is a solo, open project. If it is useful to you, here is how to make it better. The
-          repository goes public in August 2026; if a link does not resolve yet, check back then.
+          UCIP is a solo, open project. If it is useful to you, here is how to make it better.
         </p>
 
         <Reveal>

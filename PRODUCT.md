@@ -1,10 +1,10 @@
-# PRODUCT.md — UCIP
+# PRODUCT.md: UCIP
 
 ## What this is
 
-UCIP (Urban Climate Intelligence Platform) is a decision-support tool for Mumbai's urban heat
-problem. It computes a Heat Vulnerability Index (HVI) for each of the 24 BMC wards from satellite
-and demographic data, explains every score with a transparent per-factor breakdown, and recommends
+UCIP (Urban Climate Intelligence Platform) is a heat vulnerability index and dashboard for
+Mumbai's wards. It computes a Heat Vulnerability Index (HVI) for each of the 24 BMC wards from free,
+open satellite and map data, explains every score with a transparent per-factor breakdown, and recommends
 cited nature-based cooling interventions gated by an ecological plantability filter. Built solo as
 an independent research prototype. Code is Apache License 2.0.
 

@@ -1,11 +1,23 @@
 import Link from "next/link";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
+import fs from "fs";
+import path from "path";
 import { CITY_REGISTRY } from "@/lib/city";
+import { formatRunDate, type RunLog } from "@/lib/runLog";
+
+/** The published city's refresh date, from the run log the pipeline commits. */
+function publishedRefreshDate(): string | null {
+  const p = path.join(process.cwd(), "public", "pipeline_run_log.json");
+  if (!fs.existsSync(p)) return null;
+  const log = JSON.parse(fs.readFileSync(p, "utf-8")) as RunLog;
+  return formatRunDate(log.finished_at ?? log.started_at);
+}
 
 export const metadata = { title: "City registry | UCIP" };
 
 export default function CityRegistryPage() {
+  const refreshed = publishedRefreshDate();
   return (
     <>
       <SiteHeader />
@@ -16,7 +28,7 @@ export default function CityRegistryPage() {
         <div className="mt-8 overflow-hidden rounded-xl border border-border">
           <table className="w-full text-left text-sm">
             <thead className="bg-muted/50 text-muted-foreground"><tr><th className="p-4">City</th><th className="p-4">Status</th><th className="p-4">Last refresh</th><th className="p-4">Maintainer</th></tr></thead>
-            <tbody>{CITY_REGISTRY.map((city) => <tr key={city.slug} className="border-t border-border align-top"><td className="p-4 font-medium">{city.published ? <Link className="underline" href="/dashboard">{city.name}</Link> : city.name}<p className="mt-1 text-xs font-normal text-muted-foreground">{city.country}</p></td><td className="p-4">{city.published ? "Live" : "In progress"}<p className="mt-1 text-xs text-muted-foreground">{city.note}</p></td><td className="p-4">{city.lastRefreshed ?? "Not yet published"}</td><td className="p-4">{city.maintainer}</td></tr>)}</tbody>
+            <tbody>{CITY_REGISTRY.map((city) => <tr key={city.slug} className="border-t border-border align-top"><td className="p-4 font-medium">{city.published ? <Link className="underline" href="/dashboard">{city.name}</Link> : city.name}<p className="mt-1 text-xs font-normal text-muted-foreground">{city.country}</p></td><td className="p-4">{city.published ? "Live" : "In progress"}<p className="mt-1 text-xs text-muted-foreground">{city.note}</p></td><td className="p-4">{city.published ? (refreshed ?? "Not recorded") : (city.lastRefreshed ?? "Not yet published")}</td><td className="p-4">{city.maintainer}</td></tr>)}</tbody>
           </table>
         </div>
       </main>
