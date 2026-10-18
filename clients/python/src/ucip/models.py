@@ -52,7 +52,7 @@ class Ward(TypedDict, total=False):
     dominant_share: float | None
     """
     That indicator's share of total absolute contribution, 0 to 1. An even
-    spread across the seven indicators is about 0.143.
+    spread across the five indicators is 0.2.
     """
     single_factor_dominated: bool | None
     """
@@ -119,6 +119,10 @@ class Cell(TypedDict, total=False):
     """
     pop_density_km2: float | None
     slum_pct: float | None
+    """
+    Share of the cell inside mapped slum-cluster polygons (Datameet),
+    percent. Context only: not scored in the index since 2026-10-17.
+    """
     hospital_dist_m: float | None
     """
     Distance to the nearest hospital, metres.
