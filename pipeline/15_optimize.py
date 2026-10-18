@@ -5,11 +5,14 @@ What it does:
     wards. Benefit is estimated cooling multiplied by the people who experience
     it, weighted by default by how vulnerable those people are.
 
-    The objective is a real choice and it changes the answer completely. On a
-    5 crore budget the two available objectives share no wards at all:
+    The objective is a real choice and it changes the answer completely. On the
+    first 5 crore run the two available objectives shared no wards at all:
 
-        exposure       funds wards ranked 17, 19, 22 and 24 of 24
-        vulnerability  funds wards ranked 5, 8 and 12
+        exposure       funded wards ranked 17, 19, 22 and 24 of 24
+        vulnerability  funded wards ranked 5, 8 and 12
+
+    The output's objective_note recomputes both for the current data, so the
+    comparison shown on the site is never a figure from an older run.
 
     Maximising bare person-degrees sends the whole budget to whichever wards have
     the most roof and the most people, which in Mumbai are not the wards at risk.
@@ -112,6 +115,27 @@ def load_costs() -> dict:
 def cool_roof_cooling_c(albedo_gain: float = ASSUMED_ALBEDO_GAIN) -> float:
     """Estimated peak ambient cooling from a given albedo increase."""
     return (albedo_gain / 0.1) * COOL_ROOF_C_PER_0_1_ALBEDO
+
+
+def ranks_funded(candidates: list[dict], benefit_key: str, budget: float) -> list[int]:
+    """Ranks of the wards a fractional knapsack funds under one benefit measure."""
+    order = sorted(candidates, key=lambda c: c[benefit_key] / c["full_cost_inr"], reverse=True)
+    left, ranks = budget, []
+    for c in order:
+        if left <= 0:
+            break
+        if c["rank"] is not None:
+            ranks.append(c["rank"])
+        left -= min(c["full_cost_inr"], left)
+    return sorted(ranks)
+
+
+def join_ranks(ranks: list[int]) -> str:
+    """[5, 8, 12] -> "5, 8 and 12"."""
+    words = [str(r) for r in ranks]
+    if len(words) <= 1:
+        return words[0] if words else "none"
+    return ", ".join(words[:-1]) + " and " + words[-1]
 
 
 def main() -> int:
@@ -231,6 +255,8 @@ def main() -> int:
             "benefit": round(benefit),
             "benefit_person_degrees": round(exposure_benefit),
             "benefit_per_rupee": benefit / cost,
+            "exposure_benefit": exposure_benefit,
+            "vulnerability_benefit": vulnerability_benefit,
         })
 
     if not candidates:
@@ -260,6 +286,11 @@ def main() -> int:
 
     spent = args.budget - remaining
     total_benefit = sum(a["benefit_person_degrees"] for a in allocation)
+    funded = {
+        objective: ranks_funded(candidates, f"{objective}_benefit", args.budget)
+        for objective in ("exposure", "vulnerability")
+    }
+    n_ranked = len(wards)
 
     payload = {
         "city": city.slug,
@@ -284,11 +315,12 @@ def main() -> int:
         ),
         "objective_note": (
             "Allocated by fractional knapsack, provably optimal for a divisible intervention. "
-            "The choice of objective moves the answer a long way: on a 5 crore budget the "
-            "exposure objective funded wards ranked 17, 19, 22 and 24 of 24, because dense "
-            "wards yield the most person-degrees per rupee whether or not they are the wards "
-            "at risk. That is why the default weights by vulnerability, and why the objective "
-            "is recorded in the output rather than left implicit."
+            f"The choice of objective moves the answer: on this budget the exposure objective "
+            f"funds wards ranked {join_ranks(funded['exposure'])} of {n_ranked}, and the "
+            f"vulnerability objective funds wards ranked {join_ranks(funded['vulnerability'])}. "
+            "Dense wards yield the most person-degrees per rupee whether or not they are the "
+            "wards at risk, which is why the default weights by vulnerability and why the "
+            "objective is recorded in the output rather than left implicit."
         ),
         "assumptions": [
             f"Albedo gain from a cool roof: +{ASSUMED_ALBEDO_GAIN}. An assumption, not a measurement.",

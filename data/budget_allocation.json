@@ -15,10 +15,10 @@
   "unspent_inr": 0,
   "wards_funded": 3,
   "wards_fully_funded": 2,
-  "total_benefit_person_degrees": 7032741,
+  "total_benefit_person_degrees": 7470327,
   "objective": "vulnerability",
   "objective_description": "Maximise vulnerability-weighted cooling: degrees C x people exposed x ward HVI, allocated by benefit per rupee.",
-  "objective_note": "Allocated by fractional knapsack, provably optimal for a divisible intervention. The choice of objective moves the answer a long way: on a 5 crore budget the exposure objective funded wards ranked 17, 19, 22 and 24 of 24, because dense wards yield the most person-degrees per rupee whether or not they are the wards at risk. That is why the default weights by vulnerability, and why the objective is recorded in the output rather than left implicit.",
+  "objective_note": "Allocated by fractional knapsack, provably optimal for a divisible intervention. The choice of objective moves the answer: on this budget the exposure objective funds wards ranked 17, 19, 22 and 24 of 24, and the vulnerability objective funds wards ranked 6, 7 and 9. Dense wards yield the most person-degrees per rupee whether or not they are the wards at risk, which is why the default weights by vulnerability and why the objective is recorded in the output rather than left implicit.",
   "assumptions": [
     "Albedo gain from a cool roof: +0.4. An assumption, not a measurement.",
     "Cooling: 0.6 C per +0.1 albedo, the conservative end of Santamouris 2014's 0.57-2.3 K range.",
@@ -37,8 +37,8 @@
   "allocation": [
     {
       "ward_id": "H/E",
-      "rank": 4,
-      "hvi": 56.71,
+      "rank": 7,
+      "hvi": 66.87,
       "population_est": 1052716,
       "spend_inr": 16109379,
       "share_of_ward_treated": 1.0,
@@ -46,24 +46,24 @@
       "benefit_person_degrees": 2526519
     },
     {
-      "ward_id": "L",
-      "rank": 1,
-      "hvi": 66.32,
-      "population_est": 1243325,
-      "spend_inr": 23909127,
-      "share_of_ward_treated": 1.0,
-      "roof_m2_treated": 4444076,
-      "benefit_person_degrees": 2983980
-    },
-    {
       "ward_id": "M/W",
       "rank": 9,
-      "hvi": 52.91,
+      "hvi": 63.53,
       "population_est": 1229691,
-      "spend_inr": 9981494,
-      "share_of_ward_treated": 0.516,
-      "roof_m2_treated": 1855296,
-      "benefit_person_degrees": 1522242
+      "spend_inr": 19351699,
+      "share_of_ward_treated": 1.0,
+      "roof_m2_treated": 3596970,
+      "benefit_person_degrees": 2951259
+    },
+    {
+      "ward_id": "F/S",
+      "rank": 6,
+      "hvi": 68.88,
+      "population_est": 926979,
+      "spend_inr": 14538922,
+      "share_of_ward_treated": 0.896,
+      "roof_m2_treated": 2702402,
+      "benefit_person_degrees": 1992549
     }
   ],
   "skipped_wards": []
