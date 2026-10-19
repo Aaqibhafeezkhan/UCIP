@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { hviColor } from "@/lib/hvi";
 import { areasForWard } from "@/lib/wardAreas";
@@ -29,9 +30,10 @@ import type { HoverPayload } from "./HeroCityScene";
  * suppress for reduced-motion users; the renderer only paints on resize, theme
  * change or hover.
  *
- * Hovering a ward names it. That is a mouse-only affordance on a decorative
- * surface, so the canvas stays aria-hidden and the dashboard remains the real,
- * keyboard-reachable way to read any of this.
+ * Hovering a ward names it; clicking or tapping one opens it in the dashboard.
+ * Both are pointer-only affordances on a decorative surface, so the canvas stays
+ * aria-hidden and the dashboard's own ward list remains the keyboard-reachable
+ * way to get to the same place.
  */
 
 const HeroCityScene = dynamic(() => import("./HeroCityScene"), { ssr: false });
@@ -135,10 +137,12 @@ function HeroCityFlat({
   data,
   region,
   onReady,
+  onSelect,
 }: {
   data: HeroCityData;
   region: HeroRegionData | null;
   onReady: () => void;
+  onSelect: (wardId: string) => void;
 }) {
   const { width, height } = data.extent;
   const pad = 0.32;
@@ -168,7 +172,11 @@ function HeroCityFlat({
           />
         ))}
         {data.wards.map((ward) => (
-          <g key={ward.ward_id}>
+          <g
+            key={ward.ward_id}
+            className="cursor-pointer hover:opacity-80"
+            onClick={() => onSelect(ward.ward_id)}
+          >
             {ward.parts.map((part, i) => (
               <path
                 key={i}
@@ -192,6 +200,7 @@ export default function HeroCity() {
   const [region, setRegion] = useState<HeroRegionData | null>(null);
   const [hover, setHover] = useState<HoverPayload>(null);
   const [revealed, setRevealed] = useState(false);
+  const router = useRouter();
   const webGL = useSyncExternalStore(noopSubscribe, getWebGLSnapshot, () => false);
   const backgroundColor = useSyncExternalStore(
     subscribeTheme,
@@ -249,6 +258,12 @@ export default function HeroCity() {
 
   const hoveredAreas = hover ? areasForWard(hover.ward.ward_id) : [];
 
+  // Ward ids such as "F/N" contain a slash, so the value is encoded.
+  const openWard = useCallback(
+    (wardId: string) => router.push(`/dashboard?ward=${encodeURIComponent(wardId)}`),
+    [router]
+  );
+
   return (
     // Absolute rather than h-full: as a flex item with `flex-basis: 0%`, the
     // parent has no definite height for a percentage to resolve against, so
@@ -281,10 +296,11 @@ export default function HeroCity() {
               backgroundColor={backgroundColor}
               hoveredId={hover?.ward.ward_id ?? null}
               onHover={setHover}
+              onSelect={openWard}
               onReady={handleReady}
             />
           ) : (
-            <HeroCityFlat data={data} region={region} onReady={handleReady} />
+            <HeroCityFlat data={data} region={region} onReady={handleReady} onSelect={openWard} />
           )}
         </div>
       )}
@@ -296,6 +312,7 @@ export default function HeroCity() {
           style={{ left: hover.x, top: hover.y - 12 }}
         >
           <p className="text-xs font-semibold text-foreground">Ward {hover.ward.ward_id}</p>
+          <p className="text-[11px] text-brand-teal">Click to open in dashboard</p>
           {hoveredAreas.length > 0 && (
             <p className="mt-0.5 max-w-[15rem] text-[11px] leading-snug text-muted-foreground">
               {hoveredAreas.join(", ")}

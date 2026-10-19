@@ -19,7 +19,8 @@ import type { HeroCityData, HeroCityWard, HeroRegionData, HeroPart } from "./her
  *     as out-of-focus geography and never competes with a scored ward.
  *
  * North is up and the model does not rotate: it reads as a map that happens to
- * have height, not a turntable. The only motion is the hover response.
+ * have height, not a turntable. The only motion is the hover response. Clicking
+ * a ward hands its id to the caller, which opens it in the dashboard.
  *
  * Kept in its own file so `three` only enters the bundle through HeroCity.tsx's
  * dynamic import, never on the server render or on a no-WebGL client.
@@ -144,10 +145,12 @@ function WardMesh({
   ward,
   hovered,
   onHover,
+  onSelect,
 }: {
   ward: HeroCityWard;
   hovered: boolean;
   onHover: (payload: HoverPayload) => void;
+  onSelect: (wardId: string) => void;
 }) {
   const geometry = useMemo(
     () =>
@@ -174,6 +177,10 @@ function WardMesh({
       geometry={geometry}
       onPointerOver={track}
       onPointerMove={track}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(ward.ward_id);
+      }}
       onPointerOut={(e) => {
         e.stopPropagation();
         onHover(null);
@@ -263,12 +270,14 @@ function Scene({
   region,
   hoveredId,
   onHover,
+  onSelect,
   palette,
 }: {
   data: HeroCityData;
   region: HeroRegionData | null;
   hoveredId: string | null;
   onHover: (payload: HoverPayload) => void;
+  onSelect: (wardId: string) => void;
   palette: { land: string; ocean: string; fog: string };
 }) {
   const regionRadius = region?.region_radius_units ?? 7.5;
@@ -304,6 +313,7 @@ function Scene({
               ward={ward}
               hovered={hoveredId === ward.ward_id}
               onHover={onHover}
+              onSelect={onSelect}
             />
           ))}
         </group>
@@ -319,6 +329,7 @@ export default function HeroCityScene({
   backgroundColor,
   hoveredId,
   onHover,
+  onSelect,
   onReady,
 }: {
   data: HeroCityData;
@@ -327,6 +338,8 @@ export default function HeroCityScene({
   backgroundColor: string | null;
   hoveredId: string | null;
   onHover: (payload: HoverPayload) => void;
+  /** A ward was clicked or tapped. */
+  onSelect: (wardId: string) => void;
   /** Fired once the renderer exists, so the caller can fade the canvas in on a
    *  painted frame rather than on an empty one. */
   onReady?: () => void;
@@ -356,6 +369,7 @@ export default function HeroCityScene({
         region={region}
         hoveredId={hoveredId}
         onHover={onHover}
+        onSelect={onSelect}
         palette={palette}
       />
     </Canvas>

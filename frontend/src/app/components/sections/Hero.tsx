@@ -31,19 +31,23 @@ export default function Hero() {
           top of a separate model panel. The model frames itself into the space
           the copy leaves empty (see framingFor in HeroCityScene). */}
       <HeroCity />
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pt-12 sm:px-8 md:pt-16">
+      {/* The copy sits above the canvas, so its boxes are click-through and only
+          the text and controls themselves take the pointer (w-fit shrinks each
+          block to its text). Otherwise the empty parts of these boxes would
+          swallow clicks and hovers meant for the wards behind them. */}
+      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-6 pt-12 sm:px-8 md:pt-16">
         {/* Centred on phones, where the model sits centred behind the copy and
             there is no side column to align against; left-aligned from md up,
             where the model moves right and the copy holds the left. */}
         <div className="max-w-3xl animate-fade-up text-center md:text-left">
-          <p className="hero-text-shadow kicker !text-foreground">Urban Climate Intelligence Platform</p>
-          <h1 className="hero-text-shadow mt-4 text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-5xl">
+          <p className="hero-text-shadow kicker pointer-events-auto mx-auto w-fit md:mx-0 !text-foreground">Urban Climate Intelligence Platform</p>
+          <h1 className="hero-text-shadow pointer-events-auto mx-auto mt-4 w-fit text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:mx-0 md:text-5xl">
             Mumbai&apos;s ward-level
             <br />
             heat vulnerability.
           </h1>
           <div className="mx-auto mt-6 h-1.5 w-44 rounded-full bg-gradient-to-r from-brand-teal to-brand-emerald md:mx-0" />
-          <p className="hero-text-shadow mx-auto mt-6 max-w-xl text-lg leading-relaxed text-foreground md:mx-0">
+          <p className="hero-text-shadow pointer-events-auto mx-auto mt-6 w-fit max-w-xl text-lg leading-relaxed text-foreground md:mx-0">
             Satellite and population data, scored ward by ward.
             <br />
             Every number sourced.
@@ -51,19 +55,21 @@ export default function Hero() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:justify-start">
             <Link
               href="/dashboard"
-              className="rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-teal-hover"
+              className="pointer-events-auto rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-teal-hover"
             >
               Open the dashboard
             </Link>
             <Link
               href="/methodology"
-              className="rounded-lg border border-border bg-surface/60 px-5 py-2.5 text-sm font-semibold text-foreground backdrop-blur-sm transition-colors hover:bg-surface-hover"
+              className="pointer-events-auto rounded-lg border border-border bg-surface/60 px-5 py-2.5 text-sm font-semibold text-foreground backdrop-blur-sm transition-colors hover:bg-surface-hover"
             >
               Methodology
             </Link>
           </div>
           <div className="mt-6 flex justify-center md:block">
-            <LiveTempStrip />
+            <div className="pointer-events-auto w-fit">
+              <LiveTempStrip />
+            </div>
           </div>
         </div>
       </div>
