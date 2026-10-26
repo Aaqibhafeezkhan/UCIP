@@ -1,19 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import posthog from "posthog-js";
+import { useBoundaryErrorReporting } from "@/lib/reportBoundaryError";
 
 export default function GlobalError({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
-  useEffect(() => {
-    posthog.captureException(error, { boundary: "global", digest: error.digest });
-    console.error("Global render error:", error);
-  }, [error]);
+  useBoundaryErrorReporting(error, "global");
 
   return (
     <html lang="en">
@@ -32,7 +28,7 @@ export default function GlobalError({
         }}
       >
         <main style={{ maxWidth: "32rem" }}>
-          <p style={{ color: "#0e8792", fontSize: "0.875rem", fontWeight: 600 }}>
+          <p style={{ color: "#0EA5B3", fontSize: "0.875rem", fontWeight: 600 }}>
             UCIP
           </p>
           <h1 style={{ fontSize: "1.75rem" }}>Something went wrong</h1>
@@ -41,13 +37,13 @@ export default function GlobalError({
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.75rem", marginTop: "1.5rem" }}>
             <button
-              onClick={reset}
+              onClick={retry}
               style={{
                 cursor: "pointer",
                 border: 0,
                 borderRadius: "0.375rem",
                 padding: "0.625rem 1rem",
-                background: "#0e8792",
+                background: "#0EA5B3",
                 color: "#fff",
                 fontWeight: 600,
               }}
