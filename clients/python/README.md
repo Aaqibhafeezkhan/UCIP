@@ -62,7 +62,7 @@ Three fields exist because the numbers deserve caveats, and a client that hides
 them is doing you a disservice.
 
 **`single_factor_dominated`**, on each ward, marks a score driven by one
-indicator rather than a real combination of seven. Check it before treating a
+indicator rather than a real combination of five. Check it before treating a
 rank as a composite:
 
 ```python

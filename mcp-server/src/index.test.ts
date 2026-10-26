@@ -50,7 +50,7 @@ const stubFetch = vi.fn(async (input: RequestInfo | URL) => {
 
 vi.stubGlobal("fetch", stubFetch);
 
-const { callTool, TOOLS, RANKING_CAVEAT } = await import("./index.js");
+const { callTool, TOOLS, RANKING_CAVEAT, INDEX_CAVEAT } = await import("./index.js");
 
 beforeEach(() => {
   lastUrl = "";
@@ -200,6 +200,12 @@ describe("failure handling", () => {
 });
 
 describe("caveats", () => {
+  it("describes the current five-indicator index", () => {
+    expect(INDEX_CAVEAT).toContain("five standardised indicators");
+    expect(INDEX_CAVEAT).not.toContain("seven");
+  });
+
+
   it("attaches notes to every tool that returns scores or ranks", async () => {
     for (const name of ["list_wards", "get_ward", "lookup_ward", "get_recommendations", "get_methodology"]) {
       const args = name === "get_ward" ? { ward_id: "C" } : name === "lookup_ward" ? { lat: 19, lon: 72 } : {};

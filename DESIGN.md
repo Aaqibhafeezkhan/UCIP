@@ -70,7 +70,7 @@ generated from the current vector brand kit). Summary:
   opened by clicking a ward on any layer or in the list. Reads: localities, plain-language
   description generated from the real indicators (`lib/wardProfile.ts` over
   `public/ward_profiles.json`), a ward-versus-city table, percentile and top driver, clickable
-  neighbour chips, then the seven contribution bars (F2) and the cited interventions (F3). Sits at
+  neighbour chips, then the five contribution bars (F2) and the cited interventions (F3). Sits at
   `z-[2000]`, above the map chrome's `z-[1000]`. `dashboard/page.tsx`'s Escape handler is gated on
   no dialog being open, or one press would close the dialog and exit fullscreen together.
 - `HeroCity.tsx` / `HeroCityScene.tsx`: the landing hero's subject. The 24 real BMC ward polygons
