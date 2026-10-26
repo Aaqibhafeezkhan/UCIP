@@ -34,7 +34,7 @@ export const RANKING_CAVEAT =
 
 export const INDEX_CAVEAT =
   "HVI is a 0-100 relative index within Mumbai, not an absolute or " +
-  "cross-city measure. It combines seven standardised indicators with " +
+  "cross-city measure. It combines five standardised indicators with " +
   "PCA-derived weights (Reid et al. 2009).";
 
 export const TOOLS = [

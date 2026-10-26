@@ -60,7 +60,7 @@ them is doing you a disservice:
   identical either way, so you never need to branch on it; it is there for when
   you are debugging or when data vintage matters.
 - **`single_factor_dominated`** on a ward marks a score driven by one indicator
-  rather than a real combination of seven. On the current dataset no ward is
+  rather than a real combination of five. On the current dataset no ward is
   flagged, but do not assume that for a future refresh or another city.
 - **`composite_window`** from `meta()` is the Landsat window the measurements
   come from. It is older than `generated_at`, and it is the one that says how
