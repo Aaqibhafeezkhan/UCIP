@@ -176,7 +176,14 @@ export async function GET(request: Request) {
         const [[minLat, minLon], [maxLat, maxLon]] = b;
         // Overlap, not containment: a cell straddling the edge is still in view.
         return !(maxLon < bbox[0] || minLon > bbox[2] || maxLat < bbox[1] || minLat > bbox[3]);
-      });
+      })
+      .sort((a, b) =>
+        String(a.properties.grid_id ?? "").localeCompare(
+          String(b.properties.grid_id ?? ""),
+          undefined,
+          { numeric: true }
+        )
+      );
     const total = matching.length;
     const cells = matching
       .slice(offset, offset + limit)
