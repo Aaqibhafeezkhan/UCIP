@@ -220,7 +220,9 @@ export type CellListResponse = {
    * behind.
    */
   source: "database" | "snapshot";
+  /** Number of cells returned in this page. */
   count: number;
+  /** Total matching cells before limit and offset are applied. */
   total: number;
   cells: Cell[];
 };
