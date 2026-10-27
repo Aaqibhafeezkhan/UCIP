@@ -5,7 +5,7 @@
  * from. This is the endpoint for anyone who wants to check the working rather
  * than take the ward rollup on trust.
  *
- * Geometry is off by default. All 541 cell polygons is roughly a megabyte, and
+ * Geometry is off by default. All cell polygons are roughly a megabyte, and
  * most consumers want the indicator values, not the squares.
  */
 
