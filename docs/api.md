@@ -184,6 +184,7 @@ visible through [`/meta`](#get-meta).
 
 | Date | Change |
 |---|---|
+| 2026-10-27 | `/cells` takes an `offset` param and now returns a `total` field alongside `count`, so a client can page through the full grid instead of relying on the default limit covering it. Additive, but the default `limit` moved from 541 (the current cell count) to 1000 (the endpoint's ceiling), so an unpaged request against a larger future grid returns more rows than before. |
 | 2026-10-27 | `/wards`, `/cells` and `/recommendations` return `400` when `limit` is not a positive integer. Omitted limits still use their defaults, and values above each endpoint's maximum are clamped. |
 | 2026-10-17 | **Removed the `child_pct` and `slum_pct` keys from every `contrib` object**, and `contrib_child_pct` and `contrib_slum_pct` from the ward export, because the index no longer scores those two indicators. The raw values stay as context: `slum_pct` on `/cells` and `/export`, `child_pct` on `/export`. A field removal, so the reason is in [the note below](#the-2026-10-17-change-to-the-scored-indicators). |
 | 2026-10-17 | `/wards/{wardId}`, `/cells?ward=` and `/recommendations?ward=` accept the slug form of a split ward code (`F-N` for `F/N`). Additive. A malformed percent-encoded code now returns `400` like any other invalid code, where it used to return `500`. |
