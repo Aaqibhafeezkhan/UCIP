@@ -188,6 +188,23 @@ describe("convenience methods", () => {
     expect(await c.allWards()).toEqual([{ ward_id: "C" }]);
   });
 
+  it("allCells pages until the reported total is reached", async () => {
+    const calls: string[] = [];
+    const fetch = vi.fn(async (input: string | URL | Request) => {
+      const url = new URL(String(input));
+      calls.push(url.toString());
+      const offset = Number(url.searchParams.get("offset") ?? 0);
+      const total = 2500;
+      const cells = Array.from({ length: Math.min(1000, total - offset) }, (_, i) => ({
+        grid_id: `cell_${offset + i}`, ward_id: "C"
+      }));
+      return new Response(JSON.stringify({ source: "database", count: cells.length, total, cells }), { status: 200 });
+    }) as unknown as typeof globalThis.fetch;
+    const c = new UcipClient({ fetch });
+    expect(await c.allCells()).toHaveLength(2500);
+    expect(calls.map((call) => new URL(call).searchParams.get("offset"))).toEqual(["0", "1000", "2000"]);
+  });
+
   it("export asks for geojson", async () => {
     const { client: c, calls } = client({ type: "FeatureCollection", features: [] });
     await c.export("wards");

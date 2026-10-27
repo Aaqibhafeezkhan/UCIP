@@ -372,7 +372,8 @@ export function buildSpec(origin: string) {
                 "minLon,minLat,maxLon,maxLat. Returns cells overlapping the box. " +
                 "A bbox query is served from the snapshot, which is the source that carries geometry.",
             },
-            { name: "limit", in: "query", schema: { type: "integer", maximum: 1000, default: 541 } },
+            { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 1000, default: 1000 } },
+            { name: "offset", in: "query", schema: { type: "integer", minimum: 0, default: 0 } },
             { name: "geometry", in: "query", schema: { type: "boolean", default: false } },
           ],
           responses: {
@@ -477,10 +478,11 @@ export function buildSpec(origin: string) {
         },
         CellListResponse: {
           type: "object",
-          required: ["source", "count", "cells"],
+          required: ["source", "count", "total", "cells"],
           properties: {
             source: sourceField,
-            count: { type: "integer" },
+            count: { type: "integer", description: "Number of cells returned in this page." },
+            total: { type: "integer", description: "Total matching cells before limit and offset are applied." },
             cells: { type: "array", items: ref("Cell") },
           },
         },

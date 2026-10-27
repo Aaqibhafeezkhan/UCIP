@@ -1,5 +1,5 @@
 /**
- * GET /api/v1/cells?ward=&bbox=&limit=&geometry=
+ * GET /api/v1/cells?ward=&bbox=&limit=&offset=&geometry=
  *
  * The 1 km analysis grid: the per-cell measurements the ward scores are built
  * from. This is the endpoint for anyone who wants to check the working rather
@@ -120,7 +120,12 @@ export async function GET(request: Request) {
   if (limited) return limited;
 
   const url = new URL(request.url);
-  const limit = parseLimit(url.searchParams.get("limit"), 541, 1000);
+  const limit = parseLimit(url.searchParams.get("limit"), 1000, 1000);
+  const rawOffset = url.searchParams.get("offset");
+  const offset = rawOffset === null ? 0 : Number(rawOffset);
+  if (!Number.isSafeInteger(offset) || offset < 0) {
+    return errorResponse(400, "'offset' must be a non-negative integer.");
+  }
   const wantGeometry = url.searchParams.get("geometry") === "true";
   const rawWard = url.searchParams.get("ward");
 
@@ -145,14 +150,14 @@ export async function GET(request: Request) {
   if (db) {
     let query = db
       .from("grid_cells")
-      .select(wantGeometry ? `${CELL_COLUMNS},geom_geojson` : CELL_COLUMNS)
+      .select(wantGeometry ? `${CELL_COLUMNS},geom_geojson` : CELL_COLUMNS, { count: "exact" })
       .order("grid_id", { ascending: true })
-      .limit(limit);
+      .range(offset, offset + limit - 1);
     if (wardId) query = query.eq("ward_id", wardId);
 
-    const { data, error } = await query;
+    const { data, error, count: total } = await query;
     if (!error && data) {
-      return jsonResponse({ source: "database", count: data.length, cells: data });
+      return jsonResponse({ source: "database", count: data.length, total: total ?? data.length, cells: data });
     }
     logFallback("/cells", error);
   }
@@ -162,7 +167,7 @@ export async function GET(request: Request) {
       "cells_nbs.geojson"
     );
 
-    const cells = geo.features
+    const matching = geo.features
       .filter((f) => !wardId || f.properties.ward_id === wardId)
       .filter((f) => {
         if (!bbox) return true;
@@ -171,14 +176,16 @@ export async function GET(request: Request) {
         const [[minLat, minLon], [maxLat, maxLon]] = b;
         // Overlap, not containment: a cell straddling the edge is still in view.
         return !(maxLon < bbox[0] || minLon > bbox[2] || maxLat < bbox[1] || minLat > bbox[3]);
-      })
-      .slice(0, limit)
+      });
+    const total = matching.length;
+    const cells = matching
+      .slice(offset, offset + limit)
       .map((f) => ({
         ...fromSnapshot(f.properties),
         ...(wantGeometry ? { geom_geojson: f.geometry } : {}),
       }));
 
-    return jsonResponse({ source: "snapshot", count: cells.length, cells });
+    return jsonResponse({ source: "snapshot", count: cells.length, total, cells });
   } catch {
     return errorResponse(503, "Cell data is temporarily unavailable.");
   }

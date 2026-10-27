@@ -275,9 +275,24 @@ describe("GET /api/v1/recommendations", () => {
 });
 
 describe("GET /api/v1/cells", () => {
-  it("returns the analysis grid", async () => {
+  it("returns the analysis grid with the matching total", async () => {
     const json = await body(await getCells(req("/api/v1/cells")));
     expect(json.count).toBeGreaterThan(0);
+    expect(json.total).toBeGreaterThanOrEqual(json.count);
+  });
+
+  it("applies offset after sorting and reports the unpaged total", async () => {
+    const all = await body(await getCells(req("/api/v1/cells?limit=4")));
+    const page = await body(await getCells(req("/api/v1/cells?limit=2&offset=2")));
+    expect(page.cells.map((cell: { grid_id: string | number }) => cell.grid_id))
+      .toEqual(all.cells.slice(2, 4).map((cell: { grid_id: string | number }) => cell.grid_id));
+    expect(page.total).toBe(all.total);
+    expect(page.count).toBe(2);
+  });
+
+  it("rejects invalid offsets", async () => {
+    expect((await getCells(req("/api/v1/cells?offset=-1"))).status).toBe(400);
+    expect((await getCells(req("/api/v1/cells?offset=1.5"))).status).toBe(400);
   });
 
   it("filters by ward", async () => {

@@ -320,7 +320,17 @@
             "schema": {
               "type": "integer",
               "maximum": 1000,
-              "default": 541
+              "default": 1000,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
             }
           },
           {
@@ -979,6 +989,7 @@
         "required": [
           "source",
           "count",
+          "total",
           "cells"
         ],
         "properties": {
@@ -991,7 +1002,12 @@
             "description": "Which backend answered. `snapshot` means the database was unavailable and the committed static files were served instead, at most one refresh behind."
           },
           "count": {
-            "type": "integer"
+            "type": "integer",
+            "description": "Number of cells returned in this page."
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total matching cells before limit and offset are applied."
           },
           "cells": {
             "type": "array",

@@ -221,6 +221,7 @@ export type CellListResponse = {
    */
   source: "database" | "snapshot";
   count: number;
+  total: number;
   cells: Cell[];
 };
 
@@ -253,6 +254,7 @@ export type ListCellsParams = {
    */
   bbox?: string;
   limit?: number;
+  offset?: number;
   geometry?: boolean;
 };
 

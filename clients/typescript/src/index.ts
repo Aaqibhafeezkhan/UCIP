@@ -170,7 +170,18 @@ export class UcipClient {
 
   /** Every grid cell, as a plain array. */
   async allCells(signal?: AbortSignal): Promise<Cell[]> {
-    return (await this.cells({ limit: 1000 }, signal)).cells;
+    const pageSize = 1000;
+    const cells: Cell[] = [];
+    let offset = 0;
+    let total = Infinity;
+    while (cells.length < total) {
+      const page = await this.cells({ limit: pageSize, offset }, signal);
+      cells.push(...page.cells);
+      total = page.total;
+      if (!page.cells.length) break;
+      offset += page.cells.length;
+    }
+    return cells.slice(0, total);
   }
 
   #url(path: string, params: Record<string, unknown>): string {

@@ -303,13 +303,33 @@ def test_wards_frame_keeps_the_dominance_flag():
 
 def test_cells_frame_is_indexed_by_grid_id():
     api, session = client(
-        {"source": "database", "count": 1, "cells": [{"grid_id": "cell_0000", "ward_id": "C", "hvi": 30.6}]}
+        {"source": "database", "count": 1, "total": 1, "cells": [{"grid_id": "cell_0000", "ward_id": "C", "hvi": 30.6}]}
     )
     frame = api.cells_frame()
     assert frame.index.name == "grid_id"
     assert frame.loc["cell_0000", "ward_id"] == "C"
-    # One request at the endpoint ceiling, not a paging loop.
     assert session.calls[0]["params"]["limit"] == 1000
+    assert session.calls[0]["params"]["offset"] == 0
+
+
+def test_cells_frame_pages_until_total_is_reached():
+    class PagedSession:
+        def __init__(self):
+            self.calls = []
+
+        def get(self, url, params=None, timeout=None, headers=None):
+            params = params or {}
+            self.calls.append({"url": url, "params": params, "headers": headers})
+            offset = params.get("offset", 0)
+            total = 2500
+            cells = [{"grid_id": f"cell_{i}", "ward_id": "C"} for i in range(offset, min(offset + 1000, total))]
+            return FakeResponse({"source": "database", "count": len(cells), "total": total, "cells": cells})
+
+    session = PagedSession()
+    api = Ucip(session=session)
+    frame = api.cells_frame()
+    assert len(frame) == 2500
+    assert [call["params"]["offset"] for call in session.calls] == [0, 1000, 2000]
 
 
 def test_recommendations_frame_keeps_the_citation():

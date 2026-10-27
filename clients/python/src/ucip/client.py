@@ -141,10 +141,11 @@ class Ucip:
         ward: str | None = None,
         bbox: str | None = None,
         limit: int | None = None,
+        offset: int | None = None,
         geometry: bool | None = None,
     ) -> CellListResponse:
         """The 1 km analysis grid the ward scores are built from."""
-        return self._get("/cells", ward=ward, bbox=bbox, limit=limit, geometry=geometry)
+        return self._get("/cells", ward=ward, bbox=bbox, limit=limit, offset=offset, geometry=geometry)
 
     def export(self, dataset: Dataset = "cells") -> dict[str, Any]:
         """The whole dataset as a GeoJSON FeatureCollection, in one request."""
@@ -174,10 +175,19 @@ class Ucip:
     def cells_frame(self, *, ward: str | None = None) -> "pd.DataFrame":
         """The analysis grid as a DataFrame, indexed by cell id."""
         pd = _require("pandas")
-        # 1000 is the endpoint's ceiling and comfortably above the 541 cells
-        # Mumbai has, so this is one request rather than a paging loop.
-        payload = self.cells(ward=ward, limit=1000)
-        frame = pd.DataFrame(list(payload.get("cells", [])))
+        # Follow the response total rather than assuming the grid fits in one request.
+        rows: list[dict[str, Any]] = []
+        offset = 0
+        total = 0
+        while offset == 0 or offset < total:
+            payload = self.cells(ward=ward, limit=1000, offset=offset)
+            page = list(payload.get("cells", []))
+            rows.extend(page)
+            total = payload.get("total", len(page))
+            if not page:
+                break
+            offset += len(page)
+        frame = pd.DataFrame(rows)
         if "grid_id" in frame.columns:
             frame = frame.set_index("grid_id")
         return frame

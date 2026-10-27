@@ -295,6 +295,7 @@ class CellListResponse(TypedDict, total=False):
     behind.
     """
     count: int
+    total: int
     cells: list[Cell]
 
 
