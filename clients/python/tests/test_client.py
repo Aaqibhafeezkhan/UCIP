@@ -316,6 +316,7 @@ def test_cells_frame_pages_until_total_is_reached():
     class PagedSession:
         def __init__(self):
             self.calls = []
+            self.headers = {}
 
         def get(self, url, params=None, timeout=None, headers=None):
             params = params or {}

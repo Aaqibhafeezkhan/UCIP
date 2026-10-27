@@ -295,7 +295,13 @@ class CellListResponse(TypedDict, total=False):
     behind.
     """
     count: int
+    """
+    Number of cells returned in this page.
+    """
     total: int
+    """
+    Total matching cells before limit and offset are applied.
+    """
     cells: list[Cell]
 
 
