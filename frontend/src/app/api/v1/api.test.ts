@@ -129,6 +129,16 @@ describe("GET /api/v1/wards", () => {
     expect(json.wards).toHaveLength(24);
   });
 
+  it("rejects invalid limits with the standard 400 error", async () => {
+    for (const limit of ["abc", "-5", "0", "1.5"]) {
+      const res = await getWards(req("/api/v1/wards?limit=" + limit));
+      expect(res.status).toBe(400);
+      expect(await body(res)).toEqual({
+        error: { status: 400, message: "'limit' must be a positive integer.", hint: "Example: limit=10" },
+      });
+    }
+  });
+
   it("omits geometry unless asked", async () => {
     const plain = await body(await getWards(req("/api/v1/wards?limit=1")));
     expect(plain.wards[0].geom_geojson).toBeUndefined();
@@ -261,6 +271,16 @@ describe("GET /api/v1/recommendations", () => {
     expect((await getRecs(req("/api/v1/recommendations?ward=%3Cscript%3E"))).status).toBe(400);
   });
 
+  it("rejects invalid limits with the standard 400 error", async () => {
+    for (const limit of ["abc", "-5", "0", "1.5"]) {
+      const res = await getRecs(req("/api/v1/recommendations?limit=" + limit));
+      expect(res.status).toBe(400);
+      expect(await body(res)).toEqual({
+        error: { status: 400, message: "'limit' must be a positive integer.", hint: "Example: limit=10" },
+      });
+    }
+  });
+
   it("has no duplicate rows, the bug fixed in ed1e335", async () => {
     // The Supabase table held every recommendation twice because an identity
     // primary key gave upsert nothing to conflict on. The snapshot is the
@@ -312,6 +332,16 @@ describe("GET /api/v1/cells", () => {
     expect((await getCells(req("/api/v1/cells?bbox=1,2,3"))).status).toBe(400);
     // Inverted box: min greater than max.
     expect((await getCells(req("/api/v1/cells?bbox=73,19.2,72.8,19"))).status).toBe(400);
+  });
+
+  it("rejects invalid limits with the standard 400 error", async () => {
+    for (const limit of ["abc", "-5", "0", "1.5"]) {
+      const res = await getCells(req("/api/v1/cells?limit=" + limit));
+      expect(res.status).toBe(400);
+      expect(await body(res)).toEqual({
+        error: { status: 400, message: "'limit' must be a positive integer.", hint: "Example: limit=10" },
+      });
+    }
   });
 
   it("omits geometry unless asked", async () => {

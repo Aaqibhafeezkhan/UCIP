@@ -121,6 +121,9 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const limit = parseLimit(url.searchParams.get("limit"), 1000, 1000);
+  if (limit === null) {
+    return errorResponse(400, "'limit' must be a positive integer.", "Example: limit=10");
+  }
   const rawOffset = url.searchParams.get("offset");
   const offset = rawOffset === null ? 0 : Number(rawOffset);
   if (!Number.isSafeInteger(offset) || offset < 0) {

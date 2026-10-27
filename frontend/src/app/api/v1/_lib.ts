@@ -127,10 +127,11 @@ export function logFallback(route: string, error: { message?: string; code?: str
 }
 
 /** Parses and validates a `limit` query param against a sane ceiling. */
-export function parseLimit(raw: string | null, fallback: number, max: number): number {
+export function parseLimit(raw: string | null, fallback: number, max: number): number | null {
+  if (raw === null) return fallback;
   const n = Number(raw);
-  if (!Number.isFinite(n) || n <= 0) return fallback;
-  return Math.min(Math.floor(n), max);
+  if (!Number.isInteger(n) || n <= 0) return null;
+  return Math.min(n, max);
 }
 
 /**
