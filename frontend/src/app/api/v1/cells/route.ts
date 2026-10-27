@@ -121,6 +121,9 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const limit = parseLimit(url.searchParams.get("limit"), 541, 1000);
+  if (limit === null) {
+    return errorResponse(400, "'limit' must be a positive integer.", "Example: limit=10");
+  }
   const wantGeometry = url.searchParams.get("geometry") === "true";
   const rawWard = url.searchParams.get("ward");
 
