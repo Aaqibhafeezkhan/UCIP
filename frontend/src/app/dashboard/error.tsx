@@ -1,23 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
-import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
+import { useBoundaryErrorReporting } from "@/lib/reportBoundaryError";
 
 export default function DashboardError({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
-  useEffect(() => {
-    // PostHog is initialized globally in instrumentation-client.ts; this
-    // boundary catches an error before it reaches window.onerror, so report it
-    // explicitly rather than relying on automatic exception capture.
-    posthog.captureException(error, { route: "/dashboard", digest: error.digest });
-    console.error("Dashboard render error:", error);
-  }, [error]);
+  useBoundaryErrorReporting(error, "dashboard");
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8 text-center">
@@ -26,7 +19,7 @@ export default function DashboardError({
         The dashboard hit an unexpected error. Try reloading, if it keeps happening
         let us know.
       </p>
-      <Button onClick={reset}>Try again</Button>
+      <Button onClick={retry}>Try again</Button>
     </div>
   );
 }
