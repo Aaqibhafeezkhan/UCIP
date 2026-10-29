@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { areasForWard } from "@/lib/wardAreas";
 import { hviColor } from "@/lib/hvi";
 import { useWardData } from "@/lib/useWardData";
+import { rankRangeLabel } from "@/lib/rankUncertainty";
 import WardDetail from "./WardDetail";
 import WardDetailHeader from "./WardDetailHeader";
 import WardStaticMap from "./WardStaticMap";
@@ -35,7 +36,7 @@ export default function WardPanel({
   onToggleTracked?: (wardId: string) => void;
   onCompare?: () => void;
 }) {
-  const { wards, recs, profiles, error } = useWardData();
+  const { wards, recs, profiles, intervals, error } = useWardData();
   const [search, setSearch] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -95,6 +96,7 @@ export default function WardPanel({
           ward={props}
           totalWards={profiles?.n_wards ?? wards.length}
           onClose={() => onSelectWard(null)}
+          interval={intervals.get(props.ward_id)}
         />
         {/* Native scroller (see .ward-scroll in globals.css): the profile runs
             taller than the panel and needs an unambiguous, always-present
@@ -186,7 +188,16 @@ export default function WardPanel({
                       style={{ background: hviColor(p.HVI) }}
                       aria-hidden
                     />
-                    <span className="truncate text-sm font-medium text-foreground">Ward {p.ward_id}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium text-foreground">Ward {p.ward_id}</span>
+                      {intervals.get(p.ward_id) && (
+                        // The interval, not just the integer: ranks are bootstrap
+                        // estimates and neighbours overlap heavily (issue #169).
+                        <span className="block truncate text-[11px] text-muted-foreground">
+                          likely {rankRangeLabel(intervals.get(p.ward_id)!)}
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <span className="shrink-0 font-mono text-xs text-muted-foreground">{p.HVI?.toFixed(1)}</span>
                 </button>

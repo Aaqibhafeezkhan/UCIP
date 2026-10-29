@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { NbsRec, WardProps } from "./wardTypes";
 import { WARD_PROFILES_URL, type WardProfileData } from "./wardProfile";
+import {
+  UNCERTAINTY_URL,
+  indexIntervals,
+  type UncertaintyFile,
+  type WardInterval,
+} from "./rankUncertainty";
 
 /**
  * Everything the ward surfaces read, fetched once per consumer.
@@ -18,6 +24,12 @@ export type WardData = {
   wards: Feature<Geometry, WardProps>[] | null;
   recs: NbsRec[] | null;
   profiles: WardProfileData | null;
+  /**
+   * 95% bootstrap rank intervals by ward id (issue #169). Empty until loaded,
+   * and empty for good when the file is absent: the ranks then show bare, as
+   * they did before, rather than the page failing.
+   */
+  intervals: Map<string, WardInterval>;
   error: string | null;
 };
 
@@ -28,6 +40,9 @@ type ApiWard = {
   rank: number | null;
   n_cells: number | null;
   contrib: Record<string, number> | null;
+  dominant_factor?: string | null;
+  dominant_share?: number | null;
+  single_factor_dominated?: boolean | null;
   geom_geojson?: Geometry;
 };
 
@@ -45,6 +60,11 @@ function apiWardToFeature(w: ApiWard): Feature<Geometry, WardProps> {
     HVI: w.hvi,
     rank: w.rank,
     n_cells: w.n_cells,
+    // The single-factor flag (issue #97) is in the API response; dropping it
+    // here left the dashboard unable to show it.
+    dominant_factor: w.dominant_factor ?? null,
+    dominant_share: w.dominant_share ?? null,
+    single_factor_dominated: w.single_factor_dominated ?? null,
   };
   for (const [key, value] of Object.entries(w.contrib ?? {})) {
     props[`contrib_${key}`] = value;
@@ -80,6 +100,7 @@ export function useWardData(): WardData {
   const [wards, setWards] = useState<Feature<Geometry, WardProps>[] | null>(null);
   const [recs, setRecs] = useState<NbsRec[] | null>(null);
   const [profiles, setProfiles] = useState<WardProfileData | null>(null);
+  const [intervals, setIntervals] = useState<Map<string, WardInterval>>(() => new Map());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,10 +147,18 @@ export function useWardData(): WardData {
       })
       .catch(() => undefined);
 
+    // Likewise additive: a missing interval file means a bare rank, not an error.
+    fetch(UNCERTAINTY_URL)
+      .then((r) => (r.ok ? (r.json() as Promise<UncertaintyFile>) : null))
+      .then((json) => {
+        if (!cancelled && json) setIntervals(indexIntervals(json));
+      })
+      .catch(() => undefined);
+
     return () => {
       cancelled = true;
     };
   }, []);
 
-  return { wards, recs, profiles, error };
+  return { wards, recs, profiles, intervals, error };
 }

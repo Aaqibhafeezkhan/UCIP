@@ -26,7 +26,7 @@ export default function WardDialog({
   /** False whenever the sidebar is showing the ward instead. */
   enabled: boolean;
 }) {
-  const { wards, recs, profiles, error } = useWardData();
+  const { wards, recs, profiles, intervals, error } = useWardData();
 
   const selected = wards?.find((f) => f.properties.ward_id === selectedWardId) ?? null;
   const props = selected?.properties;
@@ -59,6 +59,7 @@ export default function WardDialog({
             ward={props}
             totalWards={totalWards}
             onClose={() => onSelectWard(null)}
+          interval={intervals.get(props.ward_id)}
             titleId="ward-dialog-title"
           />
         ) : (

@@ -63,9 +63,9 @@ export function rankRangeLabel(interval: Pick<WardInterval, "rank_ci_low" | "ran
   return low === high ? ordinal(low) : `${ordinal(low)} to ${ordinal(high)}`;
 }
 
-/** How many places the interval spans, counting both ends (3rd to 5th is 3). */
+/** The interval's width in places, high minus low, as hvi_uncertainty.json's summary counts it (3rd to 5th is 2). */
 export function intervalWidth(interval: Pick<WardInterval, "rank_ci_low" | "rank_ci_high">): number {
-  return interval.rank_ci_high - interval.rank_ci_low + 1;
+  return interval.rank_ci_high - interval.rank_ci_low;
 }
 
 /** True when the two wards' rank intervals share at least one place. */
