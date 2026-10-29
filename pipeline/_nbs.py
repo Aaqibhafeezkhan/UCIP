@@ -61,6 +61,60 @@ def normalise_worldcover_class(value: float | int | None) -> int | None:
     return code if code in WORLDCOVER_CLASSES else None
 
 
+# Below this share of a cell's pixels, the dominant WorldCover class is not even
+# a majority, so the cell is genuinely mixed and its one class is a close call
+# (issue #168). Chosen on principle, not from the data: 0.5 is where "the
+# dominant class" stops meaning "most of the cell". It has NOT been checked
+# against the distribution of shares across the 541 cells, which needs an Earth
+# Engine run; stage 06 prints that distribution so the number can be tightened
+# once somebody has looked. It is deliberately not borrowed from
+# DOMINANCE_THRESHOLD in _hvi.py, which means something different: with seven
+# classes a 45% plurality is a mixed cell, whereas 45% of the total contribution
+# across five indicators is strong dominance.
+WORLDCOVER_MIXED_SHARE = 0.5
+
+
+def dominant_class_and_share(histogram: dict[Any, Any] | None) -> tuple[int | None, float | None]:
+    """The most common WorldCover class in a cell and the fraction of pixels it holds.
+
+    Takes the per-class pixel counts Earth Engine's frequencyHistogram reducer
+    returns ({"10": 120.0, "50": 880.0}) and decides the class here. The mode
+    reducer decided it inside Earth Engine, and for a cell split nearly evenly
+    between two classes it could return either, depending on how the reduction
+    was scheduled: re-running the stage on unchanged input flipped the class of
+    two cells and one of them flipped `plantable` (#166). Counting here is
+    deterministic, and a tie goes to the lower class code so reruns agree.
+
+    Keys that are not WorldCover codes and non-positive counts are ignored, and
+    the share is over the recognised pixels only. (None, None) when nothing is
+    left, so an empty reduction is refused rather than guessed at.
+    """
+    counts: dict[int, float] = {}
+    for key, count in (histogram or {}).items():
+        code = normalise_worldcover_class(key)
+        try:
+            n = float(count)
+        except (TypeError, ValueError):
+            continue
+        if code is None or not n > 0:
+            continue
+        counts[code] = counts.get(code, 0.0) + n
+    total = sum(counts.values())
+    if total <= 0:
+        return None, None
+    winner = min(counts, key=lambda c: (-counts[c], c))
+    return winner, round(counts[winner] / total, 4)
+
+
+def is_mixed_cell(share: float | None, threshold: float = WORLDCOVER_MIXED_SHARE) -> bool:
+    """True when the dominant class holds less than `threshold` of the cell.
+
+    A missing share is not "mixed": there is no class to be uncertain about, and
+    is_plantable already refuses a cell with no class.
+    """
+    return share is not None and share < threshold
+
+
 def is_plantable(
     worldcover_class: float | None,
     impervious_pct: float | None,

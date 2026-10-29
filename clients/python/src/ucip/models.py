@@ -156,7 +156,21 @@ class Cell(TypedDict, total=False):
     """
     worldcover_class: int | None
     """
-    ESA WorldCover class code.
+    ESA WorldCover class code of the most common class in the cell, by pixel
+    count.
+    """
+    worldcover_share: float | None
+    """
+    Fraction of the cell's WorldCover pixels that carry `worldcover_class`,
+    0 to 1. A low value means the cell is mixed and its class is a close
+    call.
+    """
+    worldcover_mixed: bool | None
+    """
+    True when `worldcover_share` is below the mixed-cell threshold (0.5: the
+    class is not even a majority of the cell). `plantable` still follows
+    `worldcover_class`, so a mixed cell's recommendation rests on a
+    near-tie.
     """
     geom_geojson: CellGeomGeojson | None
     """

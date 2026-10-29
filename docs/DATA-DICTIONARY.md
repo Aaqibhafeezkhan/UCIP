@@ -50,7 +50,9 @@ Carried through to the published cells so a reader can see them, but never stand
 | `grid_id` | Cell identifier | Numeric in the committed GeoJSON (`01_grid.py`); the database stores it as text `cell_0001`. |
 | `ward_id`, `ward_gid` | Containing ward | Datameet BMC boundaries (`ward_gid` is the source id; `ward_id` is the split-ward code used everywhere in the UI/API). |
 | `area_m2` | Cell area | Database only. |
-| `worldcover_class` | ESA WorldCover class code of the cell | Codes follow WorldCover (50 = built-up, 30 = herbaceous/grassland, 80/90 = water/wetland, 10/20 = trees/shrubs). |
+| `worldcover_share` | Fraction of the cell's WorldCover pixels in `worldcover_class` | 0 to 1. Added for #168; absent from data produced before it. |
+| `worldcover_mixed` | Whether that share is below 0.5 | True means no class is a majority, so `worldcover_class` (and the `plantable` flag that follows it) rests on a near-tie. Flagged, not reclassified. |
+| `worldcover_class` | ESA WorldCover class code of the cell, the most common class by pixel count | Codes follow WorldCover (50 = built-up, 30 = herbaceous/grassland, 80/90 = water/wetland, 10/20 = trees/shrubs). |
 | `plantable` | Whether the cell ecologically qualifies for tree planting | `true` only where restoration is supported: not water/wetland/mangrove/built-up, **not native grassland (class 30)**, and `impervious_pct` below the run's 75th percentile. Non-plantable hot cells get non-tree cooling instead (stage 06, Bastin 2019 constrained by Veldman 2019). |
 | `hvi` | Heat Vulnerability Index, 0-100 | Z-scored indicators, oriented so higher = more vulnerable, PCA-weighted per Reid et al. 2009, rescaled 0-100. Higher = more vulnerable. |
 | `contrib_*` (×5) | Per-factor contribution = weight × z-score, one per scored indicator | The explainability layer: a ward/cell score decomposes exactly into these. Mostly within ±0.3. Named `contrib_<indicator>`, e.g. `contrib_LST_C`. |

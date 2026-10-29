@@ -139,6 +139,20 @@ def get_client() -> Client | None:
     return create_client(url, key)
 
 
+def table_has_column(client: Client, table: str, column: str) -> bool:
+    """Whether a migration that adds `column` to `table` has been applied.
+
+    Probed rather than assumed, for the reason wards_has_dominance_columns gives:
+    writing a column that does not exist fails the whole upsert, not just the
+    field.
+    """
+    try:
+        client.table(table).select(column).limit(1).execute()
+        return True
+    except Exception:
+        return False
+
+
 def wards_has_dominance_columns(client: Client) -> bool:
     """Whether migration 0007 has been applied to this database.
 
@@ -305,6 +319,10 @@ def main() -> int:
         if not with_dominance:
             print("[note] wards has no dominant_* columns; apply "
                   "supabase/migrations/0007_ward_factor_dominance.sql to store them")
+        with_worldcover_share = table_has_column(client, "grid_cells", "worldcover_share")
+        if not with_worldcover_share:
+            print("[note] grid_cells has no worldcover_share column; apply "
+                  "supabase/migrations/0010_worldcover_share.sql to store it")
         ward_rows = []
         for _, r in wards.iterrows():
             ward_rows.append({
@@ -350,6 +368,16 @@ def main() -> int:
                 "hvi": float(r["HVI"]),
                 "contrib": {c: r.get(f"contrib_{c}") for c in CONTRIB_COLS if f"contrib_{c}" in r},
                 "worldcover_class": int(r["worldcover_class"]) if r.get("worldcover_class") is not None else None,
+                **(
+                    {
+                        "worldcover_share": optional_float(r.get("worldcover_share")),
+                        "worldcover_mixed": (
+                            None if r.get("worldcover_mixed") is None else bool(r["worldcover_mixed"])
+                        ),
+                    }
+                    if with_worldcover_share
+                    else {}
+                ),
                 "dist_to_water_m": float(r["dist_to_water_m"]) if r.get("dist_to_water_m") is not None else None,
                 "plantable": bool(r["plantable"]),
                 "geom_geojson": json.loads(gpd.GeoSeries([r.geometry]).to_json())["features"][0]["geometry"],

@@ -42,11 +42,12 @@ Run:
     python 06_nbs.py
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from pathlib import Path
 
-import ee
 import geopandas as gpd
 import _provenance
 
@@ -84,25 +85,42 @@ from _nbs import (  # noqa: E402
     FLOOD_PRONE_DIST_M,
     WORLDCOVER_GRASSLAND,
     WORLDCOVER_NONPLANTABLE,
+    WORLDCOVER_MIXED_SHARE,
     WORLDCOVER_WATER_LIKE,
+    dominant_class_and_share,
     fire_rules,
+    is_mixed_cell,
     is_plantable,
-    normalise_worldcover_class,
 )
 
 
 def load_grid_fc(gdf: gpd.GeoDataFrame) -> ee.FeatureCollection:
+    import ee
+
     features = [ee.Feature(ee.Geometry(row.geometry.__geo_interface__), {"grid_id": row.grid_id}) for row in gdf.itertuples()]
     return ee.FeatureCollection(features)
 
 
-def pull_landcover_and_flood_proxy(gdf: gpd.GeoDataFrame) -> dict:
+def pull_landcover_and_flood_proxy(gdf: gpd.GeoDataFrame) -> tuple[dict, dict]:
+    """Per-cell WorldCover pixel counts and mean distance to water.
+
+    Returns (class histogram by grid_id, distance by grid_id). The histogram
+    rather than the modal class: the class is decided in Python from the counts,
+    which is deterministic and also yields the share (issue #168).
+    """
+    import ee
+
     init_ee(GEE_PROJECT)
     grid_fc = load_grid_fc(gdf)
     worldcover = ee.ImageCollection("ESA/WorldCover/v200").first()
 
-    dominant_class = worldcover.reduceRegions(
-        collection=grid_fc, reducer=ee.Reducer.mode(), scale=ZONAL_SCALE
+    # setOutputs is not optional, for the reason stage 03 spells out: with a
+    # single band reduceRegions names the output after the reducer, so the
+    # histogram is read back from "histogram" rather than from the band name.
+    class_counts = worldcover.reduceRegions(
+        collection=grid_fc,
+        reducer=ee.Reducer.frequencyHistogram().setOutputs(["histogram"]),
+        scale=ZONAL_SCALE,
     ).getInfo()
 
     water_mask = worldcover.remap(list(WORLDCOVER_WATER_LIKE), [1] * len(WORLDCOVER_WATER_LIKE), 0)
@@ -111,7 +129,7 @@ def pull_landcover_and_flood_proxy(gdf: gpd.GeoDataFrame) -> dict:
         collection=grid_fc, reducer=ee.Reducer.mean(), scale=ZONAL_SCALE
     ).getInfo()
 
-    landcover_by_id = {f["properties"]["grid_id"]: f["properties"].get("mode") for f in dominant_class["features"]}
+    landcover_by_id = {f["properties"]["grid_id"]: f["properties"].get("histogram") for f in class_counts["features"]}
     dist_by_id = {f["properties"]["grid_id"]: f["properties"].get("mean") for f in flood_proxy["features"]}
     return landcover_by_id, dist_by_id
 
@@ -125,19 +143,32 @@ def main() -> int:
     print(f"[ok] loaded {len(gdf)} cells")
 
     print("[..] pulling WorldCover dominant class + water-distance proxy per cell")
-    landcover_by_id, dist_by_id = pull_landcover_and_flood_proxy(gdf)
-    # Normalised to an integer class code on the way in. Earth Engine's mode
-    # reducer returns a float, so a built-up cell can arrive as
-    # 50.00000000000015, which is not equal to 50 and defeats every comparison
-    # downstream. Storing the raw float also published a land-cover class that
-    # is not a valid WorldCover code. See normalise_worldcover_class.
-    gdf["worldcover_class"] = (
-        gdf["grid_id"].map(landcover_by_id).map(normalise_worldcover_class)
-    )
+    histogram_by_id, dist_by_id = pull_landcover_and_flood_proxy(gdf)
+    # The class is the most common one by pixel count, as an integer code, and
+    # worldcover_share is the fraction of the cell's pixels that carry it
+    # (issue #168). Both come from one histogram. Earth Engine's mode reducer
+    # returned a float, so a built-up cell could arrive as 50.00000000000015
+    # (#166), and for a near-even split it could return either class from one
+    # run to the next. See dominant_class_and_share.
+    resolved = [dominant_class_and_share(histogram_by_id.get(g)) for g in gdf["grid_id"]]
+    # A plain Series, so the column is int64 when every cell resolved and float64
+    # with NaN otherwise, which is what the published file has always held.
+    gdf["worldcover_class"] = pd.Series([c for c, _ in resolved], index=gdf.index)
+    gdf["worldcover_share"] = [sh for _, sh in resolved]
+    # Flagged, not reclassified: plantable below still follows worldcover_class,
+    # and a near-tie between tree cover (plantable) and built-up (refused) flips
+    # the recommendation, so the cell says so instead of passing as a fact.
+    gdf["worldcover_mixed"] = [is_mixed_cell(sh) for sh in gdf["worldcover_share"]]
     unreadable = int(gdf["worldcover_class"].isna().sum())
     if unreadable:
         print(f"[WARN] {unreadable} cells have no recognisable WorldCover class; "
               "they are treated as not plantable")
+    shares = gdf["worldcover_share"].dropna()
+    if len(shares):
+        q = shares.quantile([0.05, 0.25, 0.5, 0.75]).round(3).to_dict()
+        print(f"[ok] worldcover_share quantiles {q}; "
+              f"{int(gdf['worldcover_mixed'].sum())}/{len(gdf)} cells below the "
+              f"{WORLDCOVER_MIXED_SHARE:.0%} mixed-cell threshold")
     gdf["dist_to_water_m"] = gdf["grid_id"].map(dist_by_id)
 
     thresholds = {
@@ -180,6 +211,8 @@ def main() -> int:
         collections=["ESA/WorldCover/v200"],
         cells_in=len(gdf),
         cells_plantable=int(gdf["plantable"].sum()),
+        cells_worldcover_mixed=int(gdf["worldcover_mixed"].sum()),
+        worldcover_mixed_share_threshold=WORLDCOVER_MIXED_SHARE,
         cells_with_recommendation=int(gdf["nbs_fired"].sum()),
         thresholds={k: round(float(v), 4) for k, v in thresholds.items()},
     )

@@ -45,6 +45,9 @@ export type CellNbsProps = {
   HVI: number | null;
   plantable: boolean | number | null;
   worldcover_class: number | null;
+  /** Fraction of the cell's pixels in worldcover_class, 0 to 1 (issue #168). */
+  worldcover_share?: number | null;
+  worldcover_mixed?: boolean | null;
   [key: string]: unknown;
 };
 

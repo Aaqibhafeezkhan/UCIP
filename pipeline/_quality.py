@@ -88,6 +88,14 @@ CELL_BOUNDS: dict[str, Bound] = {
         "hundreds of thousands means metres and kilometres were confused.",
     ),
     "HVI": Bound(0.0, 100.0, "Rescaled to 0-100 by stage 05.", physical=True),
+    # A fraction of pixels, so it is 0..1 and cannot be a percentage by mistake.
+    # Optional: a dataset from before issue #168 has no share.
+    "worldcover_share": Bound(
+        0.0, 1.0,
+        "Fraction of the cell's WorldCover pixels in its dominant class.",
+        physical=True,
+        optional=True,
+    ),
 }
 
 WARD_BOUNDS: dict[str, Bound] = {
