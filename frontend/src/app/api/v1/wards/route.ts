@@ -7,16 +7,22 @@
  * Query params:
  *   limit     1-24, default 24
  *   geometry  "true" to include ward polygons (large; off by default)
+ *
+ * Each ward also carries rank_ci_low / rank_ci_high (and hvi_ci_low /
+ * hvi_ci_high), the 95% bootstrap interval from hvi_uncertainty.json. They are
+ * omitted when that file has no entry for the ward.
  */
 
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { WardProps } from "@/lib/wardTypes";
 import {
   errorResponse,
+  intervalFields,
   jsonResponse,
   logFallback,
   optionsResponse,
   parseLimit,
+  readIntervals,
   readSnapshot,
   rateLimited,
   supabase,
@@ -83,6 +89,8 @@ export async function GET(request: Request) {
   }
   const wantGeometry = url.searchParams.get("geometry") === "true";
 
+  const intervals = await readIntervals();
+
   const db = supabase();
   if (db) {
     // The dominance columns are selected explicitly. They were added to the
@@ -100,7 +108,11 @@ export async function GET(request: Request) {
       .limit(limit);
 
     if (!error && data) {
-      return jsonResponse({ source: "database", count: data.length, wards: data });
+      const wards = (data as unknown as WardRow[]).map((w) => ({
+        ...w,
+        ...intervalFields(intervals, w.ward_id),
+      }));
+      return jsonResponse({ source: "database", count: wards.length, wards });
     }
     logFallback("/wards", error);
     // Fall through to the snapshot rather than surfacing a database outage as a
@@ -114,6 +126,7 @@ export async function GET(request: Request) {
       .slice(0, limit)
       .map((f: Feature<Geometry, WardProps>) => ({
         ...fromSnapshot(f.properties),
+        ...intervalFields(intervals, f.properties.ward_id),
         ...(wantGeometry ? { geom_geojson: f.geometry } : {}),
       }));
     return jsonResponse({ source: "snapshot", count: wards.length, wards });

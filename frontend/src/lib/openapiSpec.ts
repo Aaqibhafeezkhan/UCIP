@@ -73,6 +73,26 @@ const ward: Schema = {
         "True when one indicator accounts for half or more of the movement in " +
         "the score, so the ranking is effectively driven by that one measure.",
     },
+    rank_ci_low: {
+      ...nullableInteger,
+      description:
+        "Best rank in the 95% bootstrap interval (1 is most vulnerable). Omitted " +
+        "when the uncertainty file has no entry for the ward. Covers sampling " +
+        "uncertainty in the grid cells only, not measurement error or the " +
+        "choice of indicators and weighting.",
+    },
+    rank_ci_high: {
+      ...nullableInteger,
+      description: "Worst rank in the 95% bootstrap interval. Always at or above `rank_ci_low`.",
+    },
+    hvi_ci_low: {
+      ...nullableNumber,
+      description: "Lower bound of the 95% bootstrap interval on `hvi`.",
+    },
+    hvi_ci_high: {
+      ...nullableNumber,
+      description: "Upper bound of the 95% bootstrap interval on `hvi`.",
+    },
     geom_geojson: geometry,
   },
 };

@@ -40,6 +40,22 @@ export type Ward = {
    * score, so the ranking is effectively driven by that one measure.
    */
   single_factor_dominated?: boolean | null;
+  /**
+   * Best rank in the 95% bootstrap interval (1 is most vulnerable). Omitted
+   * when the uncertainty file has no entry for the ward. Covers sampling
+   * uncertainty in the grid cells only, not measurement error or the choice
+   * of indicators and weighting.
+   */
+  rank_ci_low?: number | null;
+  /**
+   * Worst rank in the 95% bootstrap interval. Always at or above
+   * `rank_ci_low`.
+   */
+  rank_ci_high?: number | null;
+  /** Lower bound of the 95% bootstrap interval on `hvi`. */
+  hvi_ci_low?: number | null;
+  /** Upper bound of the 95% bootstrap interval on `hvi`. */
+  hvi_ci_high?: number | null;
   /** GeoJSON geometry. Only present when `geometry=true` was requested. */
   geom_geojson?: {
     type?: string;

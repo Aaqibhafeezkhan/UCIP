@@ -41,8 +41,10 @@ a confident recommendation with the uncertainty sanded off, which is exactly
 the failure this dataset is built to avoid. So each response includes a
 `_notes` array:
 
-- Ranks travel with the bootstrap result: the median 95% interval spans about
-  6 places and no ward's rank is certain.
+- Ranks travel with the bootstrap result: every ward row carries
+  `rank_ci_low` and `rank_ci_high`, the note quotes the median and widest
+  interval in that response, and no ward's rank is certain. The interval covers
+  sampling uncertainty in the grid cells only.
 - Recommendations travel with the reason trees are absent where they are
   absent. The plantability filter refuses native grassland (Veldman 2019), and
   without that note an assistant reads a missing intervention as an oversight

@@ -20,9 +20,11 @@ import type { FeatureCollection, Geometry, Polygon, MultiPolygon, Position } fro
 import type { NbsRec, WardProps } from "@/lib/wardTypes";
 import {
   errorResponse,
+  intervalFields,
   jsonResponse,
   optionsResponse,
   parseCoordinate,
+  readIntervals,
   readSnapshot,
   rateLimited,
   supabase,
@@ -96,6 +98,8 @@ export async function GET(request: Request) {
       "UCIP currently covers the 24 BMC wards of Mumbai only."
     );
 
+  const intervals = await readIntervals();
+
   const db = supabase();
   if (db) {
     const { data, error } = await db.rpc("ward_at", { lat, lon });
@@ -111,7 +115,7 @@ export async function GET(request: Request) {
       return jsonResponse({
         source: "database",
         query: { lat, lon },
-        ward,
+        ward: { ...ward, ...intervalFields(intervals, ward.ward_id) },
         top_recommendation: recs?.[0] ?? null,
       });
     }
@@ -137,7 +141,13 @@ export async function GET(request: Request) {
     return jsonResponse({
       source: "snapshot",
       query: { lat, lon },
-      ward: { ward_id: p.ward_id, hvi: p.HVI, rank: p.rank, n_cells: p.n_cells },
+      ward: {
+        ward_id: p.ward_id,
+        hvi: p.HVI,
+        rank: p.rank,
+        n_cells: p.n_cells,
+        ...intervalFields(intervals, p.ward_id),
+      },
       top_recommendation: top
         ? {
             intervention: top.intervention,
