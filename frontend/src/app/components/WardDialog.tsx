@@ -12,7 +12,7 @@ import { useWardData } from "@/lib/useWardData";
  * which unmounts the aside, and viewports below `md`, where the aside is
  * hidden. Everywhere else WardPanel shows the same content in place.
  *
- * Open state is derived from the URL's `?ward=` param, which dashboard/page.tsx
+ * Open state is derived from the URL's `?ward=` param, which dashboard/DashboardClient.tsx
  * owns, so there is no second source of truth for selection and browser Back
  * still steps through selections.
  */

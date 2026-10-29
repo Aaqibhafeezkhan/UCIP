@@ -291,7 +291,7 @@ function DashboardContent() {
   );
 }
 
-export default function Dashboard() {
+export default function DashboardClient() {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center text-muted-foreground">Loading…</div>}>
       <DashboardContent />

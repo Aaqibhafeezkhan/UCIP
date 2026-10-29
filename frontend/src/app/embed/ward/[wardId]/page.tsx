@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { FeatureCollection, Geometry } from "geojson";
 import Link from "next/link";
@@ -42,6 +43,22 @@ export function generateStaticParams() {
 }
 
 export const dynamicParams = false;
+
+// Twenty-four near-identical iframe fragments should not compete with the real
+// pages in search results, so the cards are kept out of the index.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ wardId: string }>;
+}): Promise<Metadata> {
+  const { wardId } = await params;
+  const id = wardIdFromSlug(wardId);
+  return {
+    title: `Ward ${id} heat vulnerability | UCIP`,
+    description: `Heat vulnerability score and rank for ${ACTIVE_CITY.name} ward ${id}.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function WardEmbed({ params }: { params: Promise<{ wardId: string }> }) {
   const { wardId } = await params;
