@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import WardPanel from "../components/WardPanel";
+import WardListSheet from "../components/WardListSheet";
 import WardDialog from "../components/WardDialog";
 import WardCompare from "../components/WardCompare";
 import SiteHeader from "../components/SiteHeader";
@@ -260,6 +261,16 @@ function DashboardContent() {
             mapView={mapView}
             onMapViewChange={(view) => updateMapState(activeLayer, view)}
           />
+          {/* Below md the aside is hidden, so the list opens from a button here
+              instead (issue #199). It is md:hidden itself. */}
+          {!isFullscreen && (
+            <WardListSheet
+              onSelectWard={selectWard}
+              trackedWards={trackedWards}
+              onToggleTracked={toggleTracked}
+              onCompare={openComparison}
+            />
+          )}
         </div>
         {!isFullscreen && (
           // Narrower than it was: the list is an index into the map, not the
