@@ -6,6 +6,59 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Added
+- `/wards`, `/wards/{wardId}` and `/lookup` return `rank_ci_low`, `rank_ci_high`,
+  `hvi_ci_low` and `hvi_ci_high`, the 95% bootstrap interval from
+  `hvi_uncertainty.json`, and the MCP server passes them through and builds its
+  ranking caveat from them instead of quoting a fixed figure (#192). The
+  dashboard shows the interval in the ward header, the ward list and the
+  comparison view, says when two wards' ranges overlap, and shows the
+  single-factor note for a ward where that flag is set (#169).
+- A Wards button opens the ranked, searchable ward list as a bottom sheet below
+  the `md` breakpoint, where the sidebar is hidden (#199).
+- `cells.worldcover_share` and `cells.worldcover_mixed` record how much of a
+  cell its dominant land-cover class covers and whether that is under half, so a
+  near-tied cell is flagged instead of published as a fact. The class is now
+  decided from per-class pixel counts, which is deterministic, and ties go to
+  the lower class code. `plantable` still follows `worldcover_class` (#168).
+  Needs migration `0010_worldcover_share.sql`.
+- Security headers on every route (`X-Content-Type-Options`, `Referrer-Policy`,
+  `Permissions-Policy`, `frame-ancestors 'self'`) except `/embed/ward/*`, which
+  stays frameable, and a full `Content-Security-Policy-Report-Only` (#200).
+- Automated accessibility checks: an axe-core suite over the layer switcher,
+  ward dialog and mobile ward sheet, and a Lighthouse accessibility assertion
+  that now fails the build, on five routes (#223).
+- CI runs stages 01, 04, 05 and 06 end to end on a three-ward fixture city with
+  geopandas installed, including a check that a run whose population came back
+  empty fails at stage 04 (#207).
+- `publish-ts-client.yml` publishes the TypeScript client to npm from a
+  `ts-client-v*` tag (#103). Nothing is published yet.
+
+### Fixed
+- **Every `grid_id` is renumbered once**, on the first refresh after this
+  change. Cells are now numbered in fishnet order; before, ties among the 189
+  equal-area cells were ordered differently on different machines, so the
+  committed data and the scheduled refresh gave different ids to the same 187
+  cells (#217). Anything keyed on an old `grid_id` must be re-joined by
+  location, and the database needs a full reload.
+- `slum_pct` is null, not 0, for a city with no slum layer, and the layer path
+  is part of the city config (#201).
+- The Supabase load deletes rows that are no longer in the dataset (six stale
+  cells were still being served), replaces recommendations in one transaction
+  through `replace_nbs_recommendations()` (migration `0009`), and exits non-zero
+  when a database write fails with credentials set (#203).
+- The scheduled refresh no longer writes the database. Supabase is loaded from
+  `main` after a refresh PR merges, so a run the quality gate rejects, or a PR
+  nobody has merged, cannot change what the API serves (#218).
+- A scheduled refresh opens a PR only when a rank, recommendation or
+  green-cover class changed or a ward's HVI moved by more than 1.0 (#205).
+- `/dashboard` has its own title and description, `/embed/ward/*` is `noindex`,
+  and sitemap dates for data pages come from the last refresh instead of the
+  build time (#211).
+- Production dependencies: `npm audit --omit=dev` reports 0 vulnerabilities
+  (was 21, 3 critical), `shadcn` moved to devDependencies, and CI fails on a
+  critical advisory (#202).
+
 ### Changed
 - The index now scores five indicators, all from free, open, global data that
   any city can re-pull: land surface temperature and NDVI (Landsat 8/9),
