@@ -62,6 +62,9 @@ class CityConfig:
     # The whole boundaries block, so an adapter can read its own keys without
     # every one of them becoming a field here.
     boundaries_config: dict
+    # The mapped slum-cluster layer under data/, or None for a city without one
+    # (issue #201). None means slum_pct is null for every cell, not zero.
+    slums_path: Path | None
     cell_size_m: float
     projected_crs: str
     gee_project: str | None
@@ -248,6 +251,7 @@ def load_city(slug: str | None = None) -> CityConfig:
         expected_ward_count=boundaries.get("expected_ward_count"),
         boundaries_adapter=boundaries.get("adapter", "file"),
         boundaries_config=boundaries,
+        slums_path=(DATA_DIR / raw["slums"]["file"]) if raw.get("slums") else None,
         cell_size_m=_cell_size_override(grid.get("cell_size_m", DEFAULT_CELL_SIZE_M)),
         # Derived when absent, so a new city cannot silently inherit Mumbai's zone.
         projected_crs=grid.get("projected_crs") or utm_crs_for(bbox),  # type: ignore[arg-type]

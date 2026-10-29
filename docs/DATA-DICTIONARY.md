@@ -38,7 +38,7 @@ Carried through to the published cells so a reader can see them, but never stand
 
 | Column | Unit | Observed range | Source dataset | Derived | Why not scored |
 |---|---|---|---|---|---|
-| `slum_pct` | percent (0-100) | 0.00-68.55 | Datameet slum-cluster polygons | Share of cell area covered by mapped slum clusters | A one-off Mumbai digitisation that is never updated. Mapped clusters, not a slum census: any cell with no mapped cluster reads 0. On `/cells` and `/export`. |
+| `slum_pct` | percent (0-100) | 0.00-68.55 | Datameet slum-cluster polygons | Share of cell area covered by mapped slum clusters | A one-off Mumbai digitisation that is never updated. Mapped clusters, not a slum census: in a city with a layer, any cell with no mapped cluster reads 0. A city with no slum layer has null for every cell, which means no data. On `/cells` and `/export`. |
 | `child_pct` | percent (0-100) | 6.75-13.09 | Census of India 2011 Primary Census Abstract, Census-ward level, republished by OpenCity | Population aged 0-6 / total population per BMC ward, assigned to every cell in the ward | Fifteen years old, Mumbai-only, and flat within a ward. Built by `pipeline/build_census_table.py`. On `/export` only. |
 
 `NDVI_prev` (the green-cover baseline, used only for the change layer) is the same NDVI composite over a dry-season window ~9 years earlier so seasons are comparable.
@@ -207,6 +207,6 @@ What the last refresh actually did, and the site's data-age statement (issue #12
 - `slum_pct` is a **mapped proxy**, not a slum census, and is named as such everywhere it surfaces.
 - `child_source` records where a cell's age structure came from, so a change of source is visible per cell rather than silently blended into the same column.
 - LST is **land-surface temperature**, not air temperature; the dashboard copy says "about 3.1 C hotter than the city average" from LST, not a weather reading.
-- `hospital_dist_m` is Euclidean; `slum_pct` treats unmapped areas as zero.
+- `hospital_dist_m` is Euclidean; `slum_pct` treats unmapped areas as zero where a layer exists, and is null everywhere where none does.
 - Scale traps: `*_pct` is 0-100 (not 0-1); NDVI is an index (not percent); HVI is ordinal-ish 0-100 and should be compared as ranks, not ratio differences.
 - Anything not listed here that ships in a snapshot, the database, or the API is a gap in this dictionary: add it before it ships.

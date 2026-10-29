@@ -73,7 +73,14 @@ CELL_BOUNDS: dict[str, Bound] = {
         physical=True,
         optional=True,
     ),
-    "slum_pct": Bound(0.0, 100.0, "A percentage.", physical=True),
+    # Optional like child_pct: a city with no slum layer publishes null for every
+    # cell (issue #201), which must pass the gate while a value of 150 still fails.
+    "slum_pct": Bound(
+        0.0, 100.0,
+        "A percentage. Share of the cell inside mapped slum-cluster polygons.",
+        physical=True,
+        optional=True,
+    ),
     "impervious_pct": Bound(0.0, 100.0, "A percentage.", physical=True),
     "hospital_dist_m": Bound(
         0.0, 100_000.0,

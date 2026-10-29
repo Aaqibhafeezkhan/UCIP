@@ -252,7 +252,9 @@ def main() -> int:
                 "ndvi": float(r["NDVI"]),
                 "ndvi_prev": float(r["NDVI_prev"]) if r.get("NDVI_prev") is not None else None,
                 "pop_density_km2": float(r["pop_density_km2"]),
-                "slum_pct": float(r["slum_pct"]),
+                # Null when the city has no slum layer (issue #201); the column
+                # is nullable and 0 would claim a measurement.
+                "slum_pct": None if r["slum_pct"] is None or r["slum_pct"] != r["slum_pct"] else float(r["slum_pct"]),
                 "hospital_dist_m": float(r["hospital_dist_m"]),
                 "impervious_pct": float(r["impervious_pct"]),
                 "hvi": float(r["HVI"]),

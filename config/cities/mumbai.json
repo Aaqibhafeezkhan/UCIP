@@ -15,6 +15,11 @@
     "expected_ward_count": 24
   },
 
+  "slums": {
+    "file": "slumClusters.geojson",
+    "source": "Datameet slum-cluster polygons (a one-off Mumbai digitisation)"
+  },
+
   "grid": {
     "cell_size_m": 1000,
     "projected_crs": "EPSG:32643"
