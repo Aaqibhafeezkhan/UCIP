@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 gpd = pytest.importorskip("geopandas", reason="geopandas is not installed")
+pytest.importorskip("shapely", reason="shapely is not installed in CI")
 from shapely.geometry import box  # noqa: E402
 
 PIPELINE_DIR = Path(__file__).resolve().parent.parent

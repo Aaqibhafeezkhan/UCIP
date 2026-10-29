@@ -89,6 +89,28 @@ jobs:
           fi
       - run: python -m pytest tests/ -q
 
+  # The geospatial stages (issue #207). The job below installs only
+  # requirements-dev.txt, so every test that needs geopandas skips there and
+  # stages 01, 03, 04, 05 and 06 were exercised only by the live refresh against
+  # Earth Engine: a regression surfaced as a failed Tuesday run rather than a
+  # failed pull request. This job installs the credential-free geospatial stack
+  # and runs them for real on a three-ward fixture city, with the Earth Engine
+  # and OpenStreetMap calls stubbed at the function boundary. No credentials, no
+  # network, a few seconds of test time.
+  pipeline-geospatial:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: "pip"
+          cache-dependency-path: pipeline/requirements-geo.txt
+      - run: pip install -r pipeline/requirements-geo.txt
+      - name: Run the pipeline tests with geopandas present
+        # -rs lists skips, so a test that silently stops running shows up in the log.
+        run: pytest pipeline/tests/ -rs
+
   pipeline:
     runs-on: ubuntu-latest
     steps:

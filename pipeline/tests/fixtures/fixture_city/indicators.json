@@ -1,0 +1,152 @@
+{
+ "cell_0000": {
+  "LST_C": 36.0,
+  "NDVI_prev": 0.3,
+  "NDVI": 0.28,
+  "pop_density_km2": 21000,
+  "hospital_dist_m": 1500,
+  "impervious_pct": 55,
+  "slum_pct": 8.0,
+  "ward": "A"
+ },
+ "cell_0001": {
+  "LST_C": 36.3,
+  "NDVI_prev": 0.3,
+  "NDVI": 0.3,
+  "pop_density_km2": 21000,
+  "hospital_dist_m": 1600,
+  "impervious_pct": 55,
+  "slum_pct": 8.0,
+  "ward": "A"
+ },
+ "cell_0002": {
+  "LST_C": 41.0,
+  "NDVI_prev": 0.12,
+  "NDVI": 0.1,
+  "pop_density_km2": 52000,
+  "hospital_dist_m": 3800,
+  "impervious_pct": 88,
+  "slum_pct": 40.0,
+  "ward": "C"
+ },
+ "cell_0003": {
+  "LST_C": 36.2,
+  "NDVI_prev": 0.3,
+  "NDVI": 0.28,
+  "pop_density_km2": 21500,
+  "hospital_dist_m": 1500,
+  "impervious_pct": 56,
+  "slum_pct": 8.0,
+  "ward": "A"
+ },
+ "cell_0004": {
+  "LST_C": 36.5,
+  "NDVI_prev": 0.3,
+  "NDVI": 0.3,
+  "pop_density_km2": 21500,
+  "hospital_dist_m": 1600,
+  "impervious_pct": 56,
+  "slum_pct": 8.0,
+  "ward": "A"
+ },
+ "cell_0005": {
+  "LST_C": 41.3,
+  "NDVI_prev": 0.12,
+  "NDVI": 0.11,
+  "pop_density_km2": 53000,
+  "hospital_dist_m": 3900,
+  "impervious_pct": 87,
+  "slum_pct": 25.0,
+  "ward": "C"
+ },
+ "cell_0006": {
+  "LST_C": 36.4,
+  "NDVI_prev": 0.3,
+  "NDVI": 0.28,
+  "pop_density_km2": 22000,
+  "hospital_dist_m": 1500,
+  "impervious_pct": 57,
+  "slum_pct": 8.0,
+  "ward": "A"
+ },
+ "cell_0007": {
+  "LST_C": 36.7,
+  "NDVI_prev": 0.3,
+  "NDVI": 0.3,
+  "pop_density_km2": 22000,
+  "hospital_dist_m": 1600,
+  "impervious_pct": 57,
+  "slum_pct": 8.0,
+  "ward": "A"
+ },
+ "cell_0008": {
+  "LST_C": 41.6,
+  "NDVI_prev": 0.12,
+  "NDVI": 0.12,
+  "pop_density_km2": 54000,
+  "hospital_dist_m": 4000,
+  "impervious_pct": 86,
+  "slum_pct": 25.0,
+  "ward": "C"
+ },
+ "cell_0009": {
+  "LST_C": 31.0,
+  "NDVI_prev": 0.52,
+  "NDVI": 0.55,
+  "pop_density_km2": 6000,
+  "hospital_dist_m": 600,
+  "impervious_pct": 22,
+  "slum_pct": 0.0,
+  "ward": "B"
+ },
+ "cell_0010": {
+  "LST_C": 31.2,
+  "NDVI_prev": 0.52,
+  "NDVI": 0.55,
+  "pop_density_km2": 6300,
+  "hospital_dist_m": 650,
+  "impervious_pct": 23,
+  "slum_pct": 0.0,
+  "ward": "B"
+ },
+ "cell_0011": {
+  "LST_C": 31.4,
+  "NDVI_prev": 0.52,
+  "NDVI": 0.55,
+  "pop_density_km2": 6600,
+  "hospital_dist_m": 700,
+  "impervious_pct": 24,
+  "slum_pct": 0.0,
+  "ward": "B"
+ },
+ "cell_0012": {
+  "LST_C": 31.1,
+  "NDVI_prev": 0.52,
+  "NDVI": 0.56,
+  "pop_density_km2": 6000,
+  "hospital_dist_m": 600,
+  "impervious_pct": 22,
+  "slum_pct": 0.0,
+  "ward": "B"
+ },
+ "cell_0013": {
+  "LST_C": 31.3,
+  "NDVI_prev": 0.52,
+  "NDVI": 0.56,
+  "pop_density_km2": 6300,
+  "hospital_dist_m": 650,
+  "impervious_pct": 23,
+  "slum_pct": 0.0,
+  "ward": "B"
+ },
+ "cell_0014": {
+  "LST_C": 31.5,
+  "NDVI_prev": 0.52,
+  "NDVI": 0.56,
+  "pop_density_km2": 6600,
+  "hospital_dist_m": 700,
+  "impervious_pct": 24,
+  "slum_pct": 0.0,
+  "ward": "B"
+ }
+}

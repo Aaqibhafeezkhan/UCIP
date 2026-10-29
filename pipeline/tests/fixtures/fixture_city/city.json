@@ -1,0 +1,14 @@
+{
+  "slug": "fixture",
+  "name": "Fixture City",
+  "timezone": "Asia/Kolkata",
+  "bbox": [72.7, 18.8, 73.0, 19.3],
+  "boundaries": {
+    "file": "fixture_wards.geojson",
+    "ward_id_field": "name",
+    "expected_ward_count": 3
+  },
+  "grid": { "cell_size_m": 1000, "projected_crs": "EPSG:32643" },
+  "map": { "center": [19.0, 72.85], "zoom": 11 },
+  "ecology": { "calibrated": false }
+}
