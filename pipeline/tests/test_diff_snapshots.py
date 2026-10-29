@@ -346,3 +346,95 @@ def test_to_json_roundtrip_is_serializable():
         # Must not raise — this is exactly what the CLI and the CI workflow do.
         serialized = json.dumps(payload)
         assert "rank_changes" in json.loads(serialized)
+
+
+# --- materiality (issue #205) ---
+
+from diff_snapshots import HVI_MATERIAL_DELTA, assess_materiality  # noqa: E402
+
+
+def _runs(tmp_path, old_wards, new_wards, old_recs=None, new_recs=None):
+    old_dir, new_dir = tmp_path / "old", tmp_path / "new"
+    old_dir.mkdir()
+    new_dir.mkdir()
+    _write_wards_hvi(old_dir, old_wards)
+    _write_wards_hvi(new_dir, new_wards)
+    _write_nbs_recs(old_dir, old_recs or [])
+    _write_nbs_recs(new_dir, new_recs if new_recs is not None else (old_recs or []))
+    return compute_diff(old_dir, new_dir)
+
+
+WARDS = [{"ward_id": "A", "hvi": 70.0, "rank": 1}, {"ward_id": "B", "hvi": 60.0, "rank": 2}]
+
+
+def test_hvi_noise_below_the_threshold_is_not_material(tmp_path):
+    """The 2026-10-20 run: nothing changed rank, largest HVI move 0.42."""
+    moved = [{"ward_id": "A", "hvi": 70.42, "rank": 1}, {"ward_id": "B", "hvi": 59.8, "rank": 2}]
+    material, reasons = assess_materiality(_runs(tmp_path, WARDS, moved))
+    assert material is False
+    assert "0.42" in reasons[0]
+
+
+def test_a_rank_change_is_material(tmp_path):
+    swapped = [{"ward_id": "A", "hvi": 60.0, "rank": 2}, {"ward_id": "B", "hvi": 70.0, "rank": 1}]
+    material, reasons = assess_materiality(_runs(tmp_path, WARDS, swapped))
+    assert material is True
+    assert any("changed rank" in r for r in reasons)
+
+
+def test_a_recommendation_change_is_material_even_with_identical_scores(tmp_path):
+    rec = {"ward_id": "A", "intervention": "Pocket parks", "rationale": "r", "citation": "c", "priority": 1}
+    material, reasons = assess_materiality(_runs(tmp_path, WARDS, WARDS, old_recs=[], new_recs=[rec]))
+    assert material is True
+    assert any("recommendations" in r for r in reasons)
+
+
+def test_an_hvi_move_over_the_threshold_is_material_without_a_rank_change(tmp_path):
+    moved = [{"ward_id": "A", "hvi": 70.0 + HVI_MATERIAL_DELTA + 0.5, "rank": 1},
+             {"ward_id": "B", "hvi": 60.0, "rank": 2}]
+    material, reasons = assess_materiality(_runs(tmp_path, WARDS, moved))
+    assert material is True
+    assert "A" in reasons[-1]
+
+
+def test_a_move_exactly_at_the_threshold_is_not_material(tmp_path):
+    moved = [{"ward_id": "A", "hvi": 70.0 + HVI_MATERIAL_DELTA, "rank": 1},
+             {"ward_id": "B", "hvi": 60.0, "rank": 2}]
+    assert assess_materiality(_runs(tmp_path, WARDS, moved))[0] is False
+
+
+def test_no_previous_run_is_material(tmp_path):
+    old_dir, new_dir = tmp_path / "old", tmp_path / "new"
+    old_dir.mkdir()
+    new_dir.mkdir()
+    _write_wards_hvi(new_dir, WARDS)
+    assert assess_materiality(compute_diff(old_dir, new_dir))[0] is True
+
+
+def test_run_log_timings_never_make_a_refresh_material(tmp_path):
+    result = _runs(tmp_path, WARDS, WARDS)
+    (tmp_path / "old" / "pipeline_run_log.json").write_text('{"started_at": "a", "stages": []}')
+    (tmp_path / "new" / "pipeline_run_log.json").write_text('{"started_at": "b", "stages": [{"seconds": 9}]}')
+    assert assess_materiality(compute_diff(tmp_path / "old", tmp_path / "new"))[0] is False
+    assert assess_materiality(result)[0] is False
+
+
+def test_the_cli_writes_the_workflow_outputs(tmp_path):
+    result_dir = tmp_path
+    old_dir, new_dir = result_dir / "old", result_dir / "new"
+    old_dir.mkdir()
+    new_dir.mkdir()
+    _write_wards_hvi(old_dir, WARDS)
+    _write_wards_hvi(new_dir, WARDS)
+    out = tmp_path / "gh_output"
+    argv = ["diff_snapshots.py", "--old-dir", str(old_dir), "--new-dir", str(new_dir),
+            "--out", str(tmp_path / "diff.json"), "--github-output", str(out)]
+    import diff_snapshots
+    old_argv, sys.argv = sys.argv, argv
+    try:
+        assert diff_snapshots.main() == 0
+    finally:
+        sys.argv = old_argv
+    text = out.read_text()
+    assert "material=false" in text and "reasons=" in text
+    assert json.loads((tmp_path / "diff.json").read_text())["material"]["is_material"] is False

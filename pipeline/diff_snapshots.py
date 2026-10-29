@@ -50,6 +50,18 @@ WARDS_HVI_FILENAME = "wards_hvi.geojson"
 NBS_RECS_FILENAME = "nbs_recommendations.json"
 NDVI_CHANGE_FILENAME = "cells_ndvi_change.geojson"
 
+# How far a ward's HVI (a 0-100 score) may move before a refresh counts as
+# material on that ground alone (issue #205). A rank change, a recommendation
+# change or a green-cover flip is material at any size; this covers the case
+# where scores shift but nobody's rank does.
+#
+# 1.0 because that is more than twice the movement seen between two runs on
+# identical inputs: the 2026-10-20 scheduled run moved no ward's rank, kept the
+# same composite window and 541 cells, and its largest ward HVI change was 0.42
+# (the cause of that movement was not investigated). Raise it if routine
+# refreshes still open PRs nobody needs; lower it if a real drift slips under it.
+HVI_MATERIAL_DELTA = 1.0
+
 
 def _load_json(path: Path) -> Optional[dict]:
     if not path.exists():
@@ -169,6 +181,9 @@ class DiffResult:
     had_rank_baseline: bool
     had_nbs_baseline: bool
     had_green_cover_baseline: bool
+    # ward_id -> absolute HVI change, for wards scored in both runs. Kept for the
+    # materiality decision: rank_changes only lists wards whose RANK moved.
+    hvi_deltas: dict[str, float] = field(default_factory=dict)
 
     def to_json(self) -> dict:
         return {
@@ -182,6 +197,7 @@ class DiffResult:
                 "rank_changes": len(self.rank_changes),
                 "nbs_changes": len(self.nbs_changes),
                 "green_cover_changes": len(self.green_cover_changes),
+                "max_hvi_change": round(max(self.hvi_deltas.values(), default=0.0), 4),
             },
             "rank_changes": [
                 {
@@ -248,6 +264,54 @@ def diff_green_cover(old: dict[str, str], new: dict[str, str]) -> list[GreenCove
     return changes
 
 
+def diff_hvi(old: dict[str, dict], new: dict[str, dict]) -> dict[str, float]:
+    """Absolute HVI change per ward scored in both runs."""
+    out: dict[str, float] = {}
+    for ward_id in sorted(set(old) & set(new)):
+        a, b = old[ward_id].get("hvi"), new[ward_id].get("hvi")
+        if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+            out[ward_id] = abs(b - a)
+    return out
+
+
+def assess_materiality(
+    result: DiffResult, hvi_threshold: float = HVI_MATERIAL_DELTA
+) -> tuple[bool, list[str]]:
+    """Whether a refresh is worth a pull request, and why (issue #205).
+
+    Material when anything a reader would notice changed: any rank, any
+    recommendation, any green-cover class, or an HVI move above the threshold.
+    Run-log timings are not an input here, which is the point: they change on
+    every run. Errs toward publishing when it cannot compare: no previous run, or
+    no previous HVI file, counts as material.
+    """
+    if not result.had_baseline:
+        return True, ["no previous run to compare against"]
+    if not result.had_rank_baseline:
+        return True, ["no previous wards_hvi.geojson to compare against"]
+
+    reasons: list[str] = []
+    if result.rank_changes:
+        reasons.append(f"{len(result.rank_changes)} ward(s) changed rank")
+    if result.nbs_changes:
+        reasons.append(f"{len(result.nbs_changes)} ward(s) changed recommendations")
+    if result.green_cover_changes:
+        reasons.append(f"{len(result.green_cover_changes)} ward(s) changed green-cover class")
+    over = {w: d for w, d in result.hvi_deltas.items() if d > hvi_threshold}
+    if over:
+        worst = max(over, key=over.get)
+        reasons.append(
+            f"{len(over)} ward(s) moved more than {hvi_threshold:g} HVI "
+            f"(largest: {worst} by {over[worst]:.2f})"
+        )
+    if reasons:
+        return True, reasons
+
+    largest = max(result.hvi_deltas.values(), default=0.0)
+    return False, [f"no rank, recommendation or green-cover change and the largest HVI move was "
+                   f"{largest:.2f} (threshold {hvi_threshold:g})"]
+
+
 def compute_diff(old_dir: Path, new_dir: Path) -> DiffResult:
     """Diff two runs' output, one category at a time.
 
@@ -280,6 +344,10 @@ def compute_diff(old_dir: Path, new_dir: Path) -> DiffResult:
         if had_green_baseline else []
     )
 
+    hvi_deltas = (
+        diff_hvi(load_ward_hvi(old_dir), load_ward_hvi(new_dir)) if had_rank_baseline else {}
+    )
+
     return DiffResult(
         old_dir=str(old_dir),
         new_dir=str(new_dir),
@@ -290,6 +358,7 @@ def compute_diff(old_dir: Path, new_dir: Path) -> DiffResult:
         had_rank_baseline=had_rank_baseline,
         had_nbs_baseline=had_nbs_baseline,
         had_green_cover_baseline=had_green_baseline,
+        hvi_deltas=hvi_deltas,
     )
 
 
@@ -298,6 +367,10 @@ def main() -> int:
     parser.add_argument("--old-dir", required=True, type=Path, help="directory holding the PREVIOUS run's output")
     parser.add_argument("--new-dir", required=True, type=Path, help="directory holding the CURRENT run's output")
     parser.add_argument("--out", type=Path, default=None, help="write the diff JSON here (default: print only)")
+    parser.add_argument(
+        "--github-output", type=Path, default=None,
+        help="append material=true|false and reasons=... here, for a workflow step to branch on",
+    )
     args = parser.parse_args()
 
     if not args.new_dir.exists():
@@ -319,7 +392,15 @@ def main() -> int:
                 print(f"[WARN] no previous {label} found at {args.old_dir} — that category was not diffed "
                       "(reported as zero changes below, not verified unchanged).")
 
+    material, reasons = assess_materiality(result)
     payload = result.to_json()
+    payload["material"] = {
+        "is_material": material, "reasons": reasons, "hvi_threshold": HVI_MATERIAL_DELTA,
+    }
+    if args.github_output:
+        with open(args.github_output, "a", encoding="utf-8") as handle:
+            handle.write(f"material={'true' if material else 'false'}\n")
+            handle.write(f"reasons={'; '.join(reasons)}\n")
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -350,7 +431,8 @@ def main() -> int:
         else:
             print(f"  {c.ward_id}: {c.old_class} -> {c.new_class}")
 
-    print("\nGO")
+    print(f"\nMaterial: {'yes' if material else 'no'} ({'; '.join(reasons)})")
+    print("GO")
     return 0
 
 
