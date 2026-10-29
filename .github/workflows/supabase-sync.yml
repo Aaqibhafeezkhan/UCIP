@@ -110,3 +110,18 @@ jobs:
 
           echo "Anon read returned $count ward(s):"
           cat "$body"
+
+          # Row counts must agree with what was just published. Upserts never
+          # delete, so a grid that shrank used to leave its dropped cells in the
+          # table and /api/v1/cells served them (issue #203).
+          expected=$(python -c "import json; print(len(json.load(open('data/snapshot_cells.geojson'))['features']))")
+          actual=$(curl -sS --max-time 30 --retry 2 --retry-delay 5 -D - -o /dev/null -H "Prefer: count=exact" \
+            "${SUPABASE_URL}/rest/v1/grid_cells?select=grid_id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            | tr -d '\r' | awk -F'/' 'tolower($1) ~ /^content-range/ {print $2}')
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::grid_cells has ${actual:-an unknown number of} rows but the published snapshot has ${expected}."
+            exit 1
+          fi
+          echo "grid_cells row count matches the snapshot (${expected})."
