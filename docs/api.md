@@ -184,6 +184,7 @@ visible through [`/meta`](#get-meta).
 
 | Date | Change |
 |---|---|
+| 2026-10-29 | **`grid_id` values are renumbered once**, on the first data refresh after this change. Stage 01 now numbers cells in fishnet order instead of from an area sort whose ties were broken differently on different machines, so the same cell location could carry different ids in different environments. Ids are still `cell_NNNN`, contiguous from `cell_0000`, and are now reproducible. Anything keyed on a `grid_id` from before the refresh must be re-joined by location, and the database needs a full reload. |
 | 2026-10-29 | `/wards`, `/wards/{wardId}` and `/lookup` gain optional `rank_ci_low`, `rank_ci_high`, `hvi_ci_low` and `hvi_ci_high`, the 95% bootstrap interval from `hvi_uncertainty.json`. Additive. The fields are omitted for a ward the file has no entry for. They cover sampling uncertainty in the grid cells only. |
 | 2026-10-27 | `/cells` takes an `offset` param and now returns a `total` field alongside `count`, so a client can page through the full grid instead of relying on the default limit covering it. Additive, but the default `limit` moved from 541 (the current cell count) to 1000 (the endpoint's ceiling), so an unpaged request against a larger future grid returns more rows than before. |
 | 2026-10-27 | `/wards`, `/cells` and `/recommendations` return `400` when `limit` is not a positive integer. Omitted limits still use their defaults, and values above each endpoint's maximum are clamped. |

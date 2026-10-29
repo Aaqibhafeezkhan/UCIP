@@ -120,8 +120,6 @@ def _from_osm(city: Any) -> "gpd.GeoDataFrame":
     against a real city, because doing so needs a live Overpass query for a
     city this project does not yet have. Treat the first run as the test.
     """
-    import osmnx as ox
-
     config = getattr(city, "boundaries_config", {}) or {}
     place = config.get("osm_place")
     admin_level = config.get("osm_admin_level")
@@ -130,6 +128,10 @@ def _from_osm(city: Any) -> "gpd.GeoDataFrame":
         raise BoundaryError(
             "the osm adapter needs boundaries.osm_place, e.g. 'Nairobi, Kenya'."
         )
+
+    # After the config check, so a misconfigured city is told what is wrong
+    # without needing osmnx installed to hear it.
+    import osmnx as ox
 
     tags: dict[str, Any] = {"boundary": "administrative"}
     if admin_level is not None:
