@@ -3,12 +3,26 @@
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { FACTOR_LABELS, INDICATOR_KEYS } from "@/lib/wardTypes";
 import { useWardData } from "@/lib/useWardData";
+import { intervalsOverlap, rankRangeLabel } from "@/lib/rankUncertainty";
 
 export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; onClose: () => void }) {
-  const { wards, recs, error } = useWardData();
+  const { wards, recs, intervals, error } = useWardData();
   const compared = wardIds
     .map((id) => wards?.find((ward) => ward.properties.ward_id === id))
     .filter((ward): ward is NonNullable<typeof ward> => Boolean(ward));
+
+  // Pairs whose rank intervals share a place: a gap of a few places between
+  // them is within the uncertainty, not a difference (issue #169).
+  const overlapping: [string, string][] = [];
+  for (let i = 0; i < compared.length; i++) {
+    for (let j = i + 1; j < compared.length; j++) {
+      const a = compared[i].properties.ward_id;
+      const b = compared[j].properties.ward_id;
+      const ia = intervals.get(a);
+      const ib = intervals.get(b);
+      if (ia && ib && intervalsOverlap(ia, ib)) overlapping.push([a, b]);
+    }
+  }
 
   return (
     <Dialog open={wardIds.length >= 2} onOpenChange={(open) => !open && onClose()} modal={false}>
@@ -23,6 +37,13 @@ export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; o
         </DialogDescription>
         {error && <p className="px-4 pb-4 text-sm text-destructive">Failed to load wards: {error}</p>}
         {!error && !wards && <p className="px-4 pb-4 text-sm text-muted-foreground">Loading wards…</p>}
+        {overlapping.length > 0 && (
+          <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground" role="note">
+            Rank ranges overlap for{" "}
+            {overlapping.map(([a, b]) => `${a} and ${b}`).join("; ")}. A gap of a few places between
+            these wards is within the uncertainty of the ranking, not a real difference.
+          </p>
+        )}
         {compared.length >= 2 && (
           <div className="overflow-auto border-t border-border">
             <table className="w-full min-w-[36rem] text-left text-xs">
@@ -35,6 +56,9 @@ export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; o
               <tbody>
                 <tr className="border-b border-border"><th className="p-3 font-medium">HVI</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{properties.HVI?.toFixed(1) ?? "n/a"}</td>)}</tr>
                 <tr className="border-b border-border"><th className="p-3 font-medium">City rank</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{properties.rank ?? "n/a"}</td>)}</tr>
+                {intervals.size > 0 && (
+                  <tr className="border-b border-border"><th className="p-3 font-medium">Likely rank (95%)</th>{compared.map(({ properties }) => { const iv = intervals.get(properties.ward_id); return <td key={properties.ward_id} className="p-3">{iv ? rankRangeLabel(iv) : "n/a"}</td>; })}</tr>
+                )}
                 {INDICATOR_KEYS.map((key) => (
                   <tr key={key} className="border-b border-border"><th className="p-3 font-medium">{FACTOR_LABELS[key]}</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{typeof properties[`contrib_${key}`] === "number" ? (properties[`contrib_${key}`] as number).toFixed(2) : "n/a"}</td>)}</tr>
                 ))}

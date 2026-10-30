@@ -15,8 +15,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const wards = [
-  { ward_id: "C", hvi: 73.56, rank: 1, n_cells: 2, contrib: { LST_C: 0.22 }, dominant_factor: "LST_C" },
-  { ward_id: "G/N", hvi: 69.67, rank: 2, n_cells: 9, contrib: { NDVI: 0.19 }, dominant_factor: "NDVI" },
+  {
+    ward_id: "C", hvi: 73.56, rank: 1, n_cells: 2, contrib: { LST_C: 0.22 }, dominant_factor: "LST_C",
+    rank_ci_low: 1, rank_ci_high: 2, hvi_ci_low: 70.1, hvi_ci_high: 80.2,
+  },
+  {
+    ward_id: "G/N", hvi: 69.67, rank: 2, n_cells: 9, contrib: { NDVI: 0.19 }, dominant_factor: "NDVI",
+    rank_ci_low: 1, rank_ci_high: 6, hvi_ci_low: 60.0, hvi_ci_high: 75.5,
+  },
 ];
 
 const recommendations = [
@@ -215,7 +221,25 @@ describe("caveats", () => {
     }
   });
 
-  it("states the uncertainty as a number, not as a vague hedge", () => {
-    expect(RANKING_CAVEAT).toMatch(/6 places/);
+  it("hardcodes no figure in the caveat; the numbers come from the data", async () => {
+    expect(RANKING_CAVEAT).not.toMatch(/\d+ places|about \d|\b541\b/);
+    const result = await parse("list_wards");
+    // Widths in the stub are 1 and 5 (high minus low), so the median is 3 and the widest 5.
+    expect(result._notes.join(" ")).toContain("median 95% rank interval is 3 places wide and the widest is 5");
+  });
+
+  it("passes each ward's interval through in list_wards and get_ward", async () => {
+    const list = await parse("list_wards");
+    expect(list.wards[1].rank_ci_low).toBe(1);
+    expect(list.wards[1].rank_ci_high).toBe(6);
+    const one = await parse("get_ward", { ward_id: "C" });
+    expect(one.ward.rank_ci_high).toBe(2);
+  });
+
+  it("falls back to the generic caveat when the API sends no intervals", async () => {
+    routes["/wards"] = { source: "database", count: 1, wards: [{ ward_id: "C", rank: 1 }] };
+    const result = await parse("list_wards");
+    expect(result._notes).toContain(RANKING_CAVEAT);
+    expect(result._notes.join(" ")).not.toContain("median 95%");
   });
 });

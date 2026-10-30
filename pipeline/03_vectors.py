@@ -44,24 +44,29 @@ Run:
     python 03_vectors.py
 """
 
+from __future__ import annotations
+
 import json
 import sys
 import time
 from pathlib import Path
 
-import ee
 import geopandas as gpd
-import osmnx as ox
 
+# ee and osmnx are imported where they are used, not here, so the local geometry
+# work below (compute_slum_pct, compute_hospital_distance) can be imported and
+# tested without Earth Engine or osmnx installed (issue #207).
+import _provenance
 from _gee_auth import init_ee, resolve_project
 from _city import load_city
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 _CITY = load_city()
 WARDS_PATH = _CITY.boundaries_path
-# Mumbai-specific input asset, and a documented limitation rather than an
-# oversight: see the "Known limits" section of docs/adding-a-city.md.
-SLUMS_PATH = DATA_DIR / "slumClusters.geojson"
+# From the city config's "slums" block (issue #201). None for a city with no
+# mapped layer, which is the normal case for any city but Mumbai; see the "Known
+# limits" section of docs/adding-a-city.md.
+SLUMS_PATH = _CITY.slums_path
 # Derived from the config for the same reason as stage 02. This stage already
 # read _CITY for its boundaries and projection while writing to the default
 # city's hardcoded paths, so a Pune run pulled Pune's wards and then wrote the
@@ -93,6 +98,8 @@ OVERPASS_RETRY_WAIT_S = 20
 
 
 def load_grid_fc(path: Path) -> ee.FeatureCollection:
+    import ee
+
     with open(path, encoding="utf-8") as f:
         gj = json.load(f)
     features = [ee.Feature(ee.Geometry(f["geometry"]), {"grid_id": f["properties"]["grid_id"]}) for f in gj["features"]]
@@ -101,6 +108,8 @@ def load_grid_fc(path: Path) -> ee.FeatureCollection:
 
 def pull_worldpop(grid_fc: ee.FeatureCollection) -> dict:
     """Total population per cell, via GEE reduceRegions(sum)."""
+    import ee
+
     img = (
         ee.ImageCollection("WorldPop/GP/100m/pop_age_sex")
         .filterBounds(grid_fc)
@@ -129,19 +138,38 @@ def pull_worldpop(grid_fc: ee.FeatureCollection) -> dict:
     return out
 
 
-def compute_slum_pct(grid_gdf: gpd.GeoDataFrame) -> dict:
-    if not SLUMS_PATH.exists():
-        print(f"[WARN] {SLUMS_PATH} missing — slum_pct will be 0 for all cells.")
-        return {gid: 0.0 for gid in grid_gdf["grid_id"]}
+def compute_slum_pct(
+    grid_gdf: gpd.GeoDataFrame,
+    slums_path: Path | None = SLUMS_PATH,
+    utm_crs: str = UTM_CRS,
+) -> dict:
+    """Percent of each cell covered by mapped slum clusters.
 
-    slums = gpd.read_file(SLUMS_PATH)
+    With no layer, every cell is None, not 0.0 (issue #201). "0% slum cover" and
+    "no slum data for this city" are different statements, and a zero here was
+    published through /cells and /export as a measurement that the quality gate
+    could not tell from a real one. The column is context only, so scores are
+    unaffected either way.
+    """
+    if slums_path is None:
+        print("[WARN] no slum layer configured for this city; slum_pct will be null for all cells.")
+        return {gid: None for gid in grid_gdf["grid_id"]}
+    if not Path(slums_path).exists():
+        # Configured but absent is a broken checkout, not a city without a layer.
+        # Writing null here would pass the gate (the column is optional) and
+        # publish "no data" for a city that has data.
+        raise FileNotFoundError(
+            f"the city config declares a slum layer at {slums_path}, but the file is missing"
+        )
+
+    slums = gpd.read_file(slums_path)
     if slums.crs is None:
         slums = slums.set_crs(WGS84)
-    slums_utm = slums.to_crs(UTM_CRS)
+    slums_utm = slums.to_crs(utm_crs)
     slums_utm["geometry"] = slums_utm.geometry.buffer(0)  # fix invalid ring topology
     slums_utm = slums_utm[slums_utm.geometry.is_valid & ~slums_utm.geometry.is_empty]
 
-    grid_utm = grid_gdf[["grid_id", "geometry"]].to_crs(UTM_CRS).copy()
+    grid_utm = grid_gdf[["grid_id", "geometry"]].to_crs(utm_crs).copy()
     grid_utm["cell_area"] = grid_utm.geometry.area
 
     inter = gpd.overlay(grid_utm, slums_utm[["geometry"]], how="intersection")
@@ -153,22 +181,34 @@ def compute_slum_pct(grid_gdf: gpd.GeoDataFrame) -> dict:
     return dict(zip(grid_utm["grid_id"], grid_utm["slum_pct"]))
 
 
-def compute_hospital_distance(grid_gdf: gpd.GeoDataFrame, wards_path: Path) -> dict:
+def fetch_hospitals(ward_union_wgs84):
+    """OSM hospitals inside the polygon, retrying across Overpass instances.
+
+    None when every endpoint failed. Split out so tests can stub the one network
+    call and exercise the distance arithmetic around it.
+    """
+    import osmnx as ox
+
+    for attempt, url in enumerate(OVERPASS_URLS, start=1):
+        ox.settings.overpass_url = url
+        try:
+            return ox.features_from_polygon(ward_union_wgs84, tags={"amenity": "hospital"})
+        except Exception as exc:
+            print(f"[WARN] OSM hospital query {attempt}/{len(OVERPASS_URLS)} failed at {url} ({exc})")
+            if attempt < len(OVERPASS_URLS):
+                time.sleep(OVERPASS_RETRY_WAIT_S)
+    return None
+
+
+def compute_hospital_distance(
+    grid_gdf: gpd.GeoDataFrame, wards_path: Path, utm_crs: str = UTM_CRS
+) -> dict:
     wards = gpd.read_file(wards_path)
     if wards.crs is None:
         wards = wards.set_crs(WGS84)
     ward_union_wgs84 = wards.union_all()
 
-    hospitals = None
-    for attempt, url in enumerate(OVERPASS_URLS, start=1):
-        ox.settings.overpass_url = url
-        try:
-            hospitals = ox.features_from_polygon(ward_union_wgs84, tags={"amenity": "hospital"})
-            break
-        except Exception as exc:
-            print(f"[WARN] OSM hospital query {attempt}/{len(OVERPASS_URLS)} failed at {url} ({exc})")
-            if attempt < len(OVERPASS_URLS):
-                time.sleep(OVERPASS_RETRY_WAIT_S)
+    hospitals = fetch_hospitals(ward_union_wgs84)
     if hospitals is None:
         print("[WARN] every Overpass endpoint failed; hospital_dist will be null for all cells.")
         return {gid: None for gid in grid_gdf["grid_id"]}
@@ -177,12 +217,12 @@ def compute_hospital_distance(grid_gdf: gpd.GeoDataFrame, wards_path: Path) -> d
         print("[WARN] no OSM hospitals returned; hospital_dist will be null for all cells.")
         return {gid: None for gid in grid_gdf["grid_id"]}
 
-    hospitals_utm = hospitals.set_crs(WGS84, allow_override=True).to_crs(UTM_CRS)
+    hospitals_utm = hospitals.set_crs(WGS84, allow_override=True).to_crs(utm_crs)
     hospitals_utm = hospitals_utm.set_geometry(hospitals_utm.geometry.centroid)
     hosp_union = hospitals_utm.geometry.union_all()
     print(f"[ok] {len(hospitals_utm)} OSM hospitals found")
 
-    grid_utm = grid_gdf.to_crs(UTM_CRS)
+    grid_utm = grid_gdf.to_crs(utm_crs)
     centroids = grid_utm.geometry.centroid
     dists = centroids.distance(hosp_union)
     return dict(zip(grid_gdf["grid_id"], dists))
@@ -205,6 +245,16 @@ def main() -> int:
 
     print("[..] computing slum_pct from mapped slum-cluster polygons")
     slum_by_id = compute_slum_pct(grid_gdf)
+    # Why the column may be null, kept with the run so a null slum_pct is
+    # explained rather than guessed at (issue #201).
+    _provenance.record(
+        "03",
+        slum_layer=SLUMS_PATH.name if SLUMS_PATH is not None else None,
+        slum_pct_unavailable_reason=(
+            None if SLUMS_PATH is not None
+            else "no slum layer configured for this city; slum_pct is null, not 0"
+        ),
+    )
 
     print("[..] querying OSM hospitals + computing per-cell distance")
     hosp_by_id = compute_hospital_distance(grid_gdf, WARDS_PATH)
@@ -245,8 +295,9 @@ def main() -> int:
 
     # ------------------------------------------------------- sanity checks --
     ok = True
-    mean_slum = grid_gdf["slum_pct"].dropna().mean()
-    print(f"\nmean slum_pct={mean_slum:.2f}, "
+    slum_known = grid_gdf["slum_pct"].dropna()
+    mean_slum = f"{slum_known.mean():.2f}" if len(slum_known) else "n/a (no layer)"
+    print(f"\nmean slum_pct={mean_slum}, "
           f"hospital_dist non-null={grid_gdf['hospital_dist_m'].notna().sum()}/{len(grid_gdf)}")
     print("GO" if ok else "CHECK WARNINGS")
     return 0 if ok else 2

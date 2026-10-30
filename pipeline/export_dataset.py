@@ -63,6 +63,8 @@ COLUMNS = [
     "hospital_dist_m",
     "impervious_pct",
     "worldcover_class",
+    "worldcover_share",
+    "worldcover_mixed",
     "dist_to_water_m",
     "HVI",
     "contrib_LST_C",

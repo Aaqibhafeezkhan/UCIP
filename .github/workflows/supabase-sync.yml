@@ -13,6 +13,12 @@
 #    data/ into the tables, so the database is never more than a few days from
 #    matching what the site is serving.
 #
+# 3. Publication of a refresh (issue #218). pipeline-refresh.yml no longer
+#    writes the database: it would do so before the quality gate and before
+#    anyone had reviewed the PR. Instead this runs when a refresh PR merges, so
+#    the database is loaded from the merged data/ on main and the API and the
+#    site's snapshots describe the same data.
+#
 # What it deliberately does NOT do: re-run the pipeline. Stage 07 reads the
 # committed output and upserts it. None of the Earth Engine stages run, so this
 # costs no GEE quota. Running the full chain twice a week would refetch the same
@@ -29,6 +35,10 @@ on:
     # inside the free tier's inactivity window.
     - cron: "23 4 * * 1,4"
   workflow_dispatch:
+  # Same trigger as deploy-on-refresh.yml: a merged refresh PR.
+  pull_request:
+    types: [closed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -40,10 +50,20 @@ concurrency:
 jobs:
   sync:
     # Forks have no LIVE_URL, Supabase secrets or issues tab, so scheduled runs there only fail.
-    if: github.repository == 'AnayDhawan/UCIP'
+    # On a pull_request event only a merged refresh PR counts; every other PR
+    # closing must not start a sync.
+    if: >-
+      github.repository == 'AnayDhawan/UCIP' &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.merged == true &&
+        github.event.pull_request.head.ref == 'automated/pipeline-refresh'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The merged commit, so the sync loads what landed on main and not the
+          # PR's pre-merge state.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.merge_commit_sha || github.sha }}
 
       - uses: actions/setup-python@v7
         with:
@@ -110,3 +130,18 @@ jobs:
 
           echo "Anon read returned $count ward(s):"
           cat "$body"
+
+          # Row counts must agree with what was just published. Upserts never
+          # delete, so a grid that shrank used to leave its dropped cells in the
+          # table and /api/v1/cells served them (issue #203).
+          expected=$(python -c "import json; print(len(json.load(open('data/snapshot_cells.geojson'))['features']))")
+          actual=$(curl -sS --max-time 30 --retry 2 --retry-delay 5 -D - -o /dev/null -H "Prefer: count=exact" \
+            "${SUPABASE_URL}/rest/v1/grid_cells?select=grid_id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            | tr -d '\r' | awk -F'/' 'tolower($1) ~ /^content-range/ {print $2}')
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::grid_cells has ${actual:-an unknown number of} rows but the published snapshot has ${expected}."
+            exit 1
+          fi
+          echo "grid_cells row count matches the snapshot (${expected})."

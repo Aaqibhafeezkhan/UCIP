@@ -4,7 +4,8 @@ import { Check, Code2, Printer, X } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { hviColor } from "@/lib/hvi";
-import type { WardProps } from "@/lib/wardTypes";
+import { FACTOR_LABELS, INDICATOR_KEYS, type WardProps } from "@/lib/wardTypes";
+import { intervalWidth, rankRangeLabel, type WardInterval } from "@/lib/rankUncertainty";
 import { wardSlug } from "@/lib/wardSlug";
 
 /**
@@ -19,12 +20,15 @@ export default function WardDetailHeader({
   totalWards,
   onClose,
   titleId,
+  interval,
 }: {
   ward: WardProps;
   totalWards: number;
   onClose: () => void;
   /** Set when the header's title doubles as a dialog's accessible name. */
   titleId?: string;
+  /** The ward's 95% rank interval, when the uncertainty file has one (issue #169). */
+  interval?: WardInterval;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -83,6 +87,22 @@ export default function WardDetailHeader({
       <p className="mt-1 text-xs text-muted-foreground">
         Priority {ward.rank} of {totalWards} &middot; {ward.n_cells ?? "n/a"} grid cells
       </p>
+      {interval && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Rank is uncertain: likely {rankRangeLabel(interval)} (95% range, {intervalWidth(interval)} places
+          wide). Based on sampling of grid cells only.
+        </p>
+      )}
+      {ward.single_factor_dominated && ward.dominant_factor && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Mostly driven by one measure:{" "}
+          {FACTOR_LABELS[ward.dominant_factor as (typeof INDICATOR_KEYS)[number]] ?? ward.dominant_factor}
+          {typeof ward.dominant_share === "number"
+            ? ` (${Math.round(ward.dominant_share * 100)}% of the score's movement)`
+            : ""}
+          .
+        </p>
+      )}
     </div>
   );
 }

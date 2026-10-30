@@ -246,10 +246,12 @@ frontend bundle; CI fails if that mirror is stale.
 
 ## Known limits
 
-- **`data/slumClusters.geojson` is Mumbai-specific.** Stage 03 uses it for the
-  `slum_pct` context column and writes zero for every cell without it. Nothing
-  scored depends on it, but another city's context column will read zero until
-  the path is made per-city.
+- **The slum layer is optional and per-city.** A city's `slums.file` in its
+  config names a GeoJSON of mapped slum clusters under `data/`; Mumbai's is
+  `slumClusters.geojson`. Without one, stage 03 writes `slum_pct` as null for
+  every cell, logs why, and records the reason in its provenance sidecar. Null
+  means "no data for this city", and is not the same as 0% slum cover. Nothing
+  scored depends on the column.
 - **Hospital locations come from OpenStreetMap**, whose completeness varies a
   lot between cities. Sparse coverage silently weakens the access indicator.
 - **WorldPop is pinned to a specific India image** in `pipeline/03_vectors.py`.

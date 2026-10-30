@@ -73,6 +73,26 @@ const ward: Schema = {
         "True when one indicator accounts for half or more of the movement in " +
         "the score, so the ranking is effectively driven by that one measure.",
     },
+    rank_ci_low: {
+      ...nullableInteger,
+      description:
+        "Best rank in the 95% bootstrap interval (1 is most vulnerable). Omitted " +
+        "when the uncertainty file has no entry for the ward. Covers sampling " +
+        "uncertainty in the grid cells only, not measurement error or the " +
+        "choice of indicators and weighting.",
+    },
+    rank_ci_high: {
+      ...nullableInteger,
+      description: "Worst rank in the 95% bootstrap interval. Always at or above `rank_ci_low`.",
+    },
+    hvi_ci_low: {
+      ...nullableNumber,
+      description: "Lower bound of the 95% bootstrap interval on `hvi`.",
+    },
+    hvi_ci_high: {
+      ...nullableNumber,
+      description: "Upper bound of the 95% bootstrap interval on `hvi`.",
+    },
     geom_geojson: geometry,
   },
 };
@@ -125,7 +145,24 @@ const cell: Schema = {
         "Whether the ecological filter allows tree planting here. False on native " +
         "open habitat, water, wetland, mangrove and heavily sealed cells.",
     },
-    worldcover_class: { ...nullableInteger, description: "ESA WorldCover class code." },
+    worldcover_class: {
+      ...nullableInteger,
+      description:
+        "ESA WorldCover class code of the most common class in the cell, by pixel count.",
+    },
+    worldcover_share: {
+      ...nullableNumber,
+      description:
+        "Fraction of the cell's WorldCover pixels that carry `worldcover_class`, 0 to 1. " +
+        "A low value means the cell is mixed and its class is a close call.",
+    },
+    worldcover_mixed: {
+      type: ["boolean", "null"],
+      description:
+        "True when `worldcover_share` is below the mixed-cell threshold (0.5: the class " +
+        "is not even a majority of the cell). `plantable` still follows `worldcover_class`, " +
+        "so a mixed cell's recommendation rests on a near-tie.",
+    },
     geom_geojson: geometry,
   },
 };

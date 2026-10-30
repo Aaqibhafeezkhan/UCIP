@@ -13,8 +13,22 @@
 # Required repo secrets, all configured:
 #   GEE_PROJECT                 Earth Engine project id (see .env.example)
 #   GEE_SERVICE_ACCOUNT_JSON    Full service-account key JSON (see pipeline/_gee_auth.py)
-#   NEXT_PUBLIC_SUPABASE_URL    Supabase project URL
-#   SUPABASE_SERVICE_ROLE_KEY   Supabase service-role key (server-side upsert only)
+#
+# This workflow does NOT write the database (issue #218). The Supabase secrets
+# are deliberately not passed to the pipeline step, so stage 07 writes the
+# committed snapshots and skips Supabase. The database is published from main
+# by supabase-sync.yml, which also fires when a refresh PR merges. The order is
+# therefore: run, gate, diff, decide whether the change is material (#205),
+# open a PR, review and merge, then deploy and sync the database. Before this a
+# refresh loaded Supabase in the same step that ran the pipeline, ahead of the
+# quality gate and of any review, so a rejected run or an unmerged PR had
+# already changed what the API served.
+#
+# Not every run opens a PR (issue #205). The run log is rewritten on every run
+# with timestamps and stage timings, and a real run moves the scores slightly,
+# so "byte-identical" never happens. The "Decide whether the refresh is
+# material" step compares the diff against a threshold and, if nothing
+# meaningful moved, restores data/ and frontend/public/ and skips the PR.
 #
 # Diff baseline (issue #126): a refresh diffs its output against the LAST refresh
 # that actually landed, never against whatever happens to sit on main — see the
@@ -48,11 +62,18 @@ on:
     #
     # Two things stop the extra frequency creating noise. The quality gate
     # (#91) fails a run whose output is implausible rather than opening a pull
-    # request for it, and create-pull-request opens nothing when the data is
-    # byte-identical, which is the expected outcome mid-season.
+    # request for it, and the materiality step (#205) skips the PR when no rank,
+    # recommendation or green-cover class changed and no ward's HVI moved by more
+    # than HVI_MATERIAL_DELTA (pipeline/diff_snapshots.py). create-pull-request's
+    # own "nothing to commit" check cannot do this job: the run log changes on
+    # every run, so the tree is never clean.
     - cron: "17 3 * * 2,5"
   workflow_dispatch:
     inputs:
+      force_pr:
+        description: "Open the refresh PR even when nothing material changed (for example after a change that renumbers ids or adds columns, which the materiality check cannot see)"
+        type: boolean
+        default: false
       include_spike:
         description: "Also run 00_gee_spike.py as a GEE connectivity smoke test"
         type: boolean
@@ -145,8 +166,9 @@ jobs:
         working-directory: pipeline
         env:
           GEE_SERVICE_ACCOUNT_JSON: ${{ secrets.GEE_SERVICE_ACCOUNT_JSON }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # No Supabase variables here, on purpose (issue #218): without them
+          # 07_load.py writes the snapshots and skips the database. The database
+          # is published from main by supabase-sync.yml after the PR merges.
         # inputs.include_spike only exists on a workflow_dispatch run; on the schedule
         # trigger there are no inputs at all, so a bare `inputs.include_spike` reads as
         # empty rather than the declared "false" default. That happens to still take
@@ -174,12 +196,14 @@ jobs:
         run: python quality_gate.py --baseline-dir ../data-baseline
 
       - name: Compute alert-worthy diff against the previous run
+        id: diff
         working-directory: pipeline
         run: |
           python diff_snapshots.py \
             --old-dir ../data-baseline \
             --new-dir ../data \
-            --out ../data/pipeline_diff.json
+            --out ../data/pipeline_diff.json \
+            --github-output "$GITHUB_OUTPUT"
 
       - name: Upload run log and diff as workflow artifacts
         if: always()
@@ -191,7 +215,22 @@ jobs:
             data/pipeline_diff.json
           if-no-files-found: warn
 
+      - name: Skip the refresh when nothing material changed
+        # See the header (issue #205). The diff step decided; this restores the
+        # tracked and untracked files the pipeline wrote so the working tree is
+        # clean, which also keeps a no-op run from leaving anything behind for
+        # create-pull-request to commit. The diff and run log were uploaded above.
+        if: steps.diff.outputs.material != 'true' && !(github.event_name == 'workflow_dispatch' && inputs.force_pr)
+        env:
+          REASONS: ${{ steps.diff.outputs.reasons }}
+        run: |
+          git checkout -- data frontend/public
+          git clean -fdq -- data frontend/public
+          echo "No material change: ${REASONS}. No PR opened." | tee -a "$GITHUB_STEP_SUMMARY"
+          git status --short
+
       - name: Build PR body from the diff summary
+        if: steps.diff.outputs.material == 'true' || (github.event_name == 'workflow_dispatch' && inputs.force_pr)
         id: diff_summary
         run: |
           echo "body<<PR_BODY_EOF" >> "$GITHUB_OUTPUT"
@@ -205,6 +244,7 @@ jobs:
           echo "PR_BODY_EOF" >> "$GITHUB_OUTPUT"
 
       - name: Open a PR with the refreshed data
+        if: steps.diff.outputs.material == 'true' || (github.event_name == 'workflow_dispatch' && inputs.force_pr)
         uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore(pipeline): monthly automated data refresh"

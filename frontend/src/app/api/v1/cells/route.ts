@@ -43,6 +43,8 @@ export const CELL_FIELDS = [
   "hvi",
   "plantable",
   "worldcover_class",
+  "worldcover_share",
+  "worldcover_mixed",
 ] as const;
 
 const CELL_COLUMNS = CELL_FIELDS.join(",");
@@ -75,6 +77,10 @@ export type CellRow = {
   hvi: number | null;
   plantable: boolean | null;
   worldcover_class: number | null;
+  /** Fraction of the cell's WorldCover pixels in `worldcover_class`, 0 to 1 (issue #168). */
+  worldcover_share: number | null;
+  /** True when that share is below the mixed-cell threshold, so the class is a close call. */
+  worldcover_mixed: boolean | null;
 };
 
 function num(value: unknown): number | null {
@@ -96,6 +102,9 @@ function fromSnapshot(p: Record<string, unknown>): CellRow {
     // The snapshot stores this as 0/1 in places and as a boolean in others.
     plantable: p.plantable == null ? null : Boolean(p.plantable),
     worldcover_class: num(p.worldcover_class),
+    // Absent from a snapshot written before issue #168, hence null rather than a guess.
+    worldcover_share: num(p.worldcover_share),
+    worldcover_mixed: p.worldcover_mixed == null ? null : Boolean(p.worldcover_mixed),
   };
 }
 

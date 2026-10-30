@@ -33,6 +33,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { wardIdFromSlug } from "@/lib/wardSlug";
+import { indexIntervals, type UncertaintyFile, type WardInterval } from "@/lib/rankUncertainty";
 
 export const API_VERSION = "v1";
 
@@ -104,6 +105,43 @@ export function supabase(): SupabaseClient | null {
 export async function readSnapshot<T>(filename: string): Promise<T> {
   const path = join(process.cwd(), "public", filename);
   return JSON.parse(await readFile(path, "utf8")) as T;
+}
+
+/**
+ * The bootstrap rank intervals (issue #192), keyed by ward id, or an empty map
+ * when the file is missing or unreadable.
+ *
+ * Joined onto ward responses from the snapshot file whichever source answered,
+ * so it needs no database migration. An empty map means the interval fields are
+ * simply omitted: a missing file must never turn a ward response into an error.
+ */
+export async function readIntervals(): Promise<Map<string, WardInterval>> {
+  try {
+    return indexIntervals(await readSnapshot<UncertaintyFile>("hvi_uncertainty.json"));
+  } catch {
+    return new Map();
+  }
+}
+
+/**
+ * The interval fields for one ward, or nothing, ready to spread into a response.
+ *
+ * Dropped when `rank` falls outside the interval. hvi_uncertainty.json is not a
+ * pipeline stage (#193), so it can lag the ward scores: after a refresh moves a
+ * ward to rank 5, a committed interval of 2 to 3 would be served next to it and
+ * contradict it. An absent interval is honest; a wrong one is not.
+ */
+export function intervalFields(
+  intervals: Map<string, WardInterval>,
+  wardId: string,
+  rank: number | null | undefined
+): Partial<WardInterval> {
+  const interval = intervals.get(wardId);
+  if (!interval) return {};
+  if (typeof rank !== "number" || rank < interval.rank_ci_low || rank > interval.rank_ci_high) {
+    return {};
+  }
+  return interval;
 }
 
 /**

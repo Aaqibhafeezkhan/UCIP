@@ -64,14 +64,14 @@ generated from the current vector brand kit). Summary:
 - `WardPanel.tsx` (replaces the old `WardCards.tsx`): the ranked ward list, not 24 stacked cards
   and no longer master-detail. Compact searchable list (search matches ward code or locality name,
   via `lib/wardAreas.ts`), with the selected row highlighted. Selection is synced through the URL
-  (`?ward=`) via `dashboard/page.tsx`'s `useSearchParams`, not local state alone, so browser Back
+  (`?ward=`) via `dashboard/DashboardClient.tsx`'s `useSearchParams`, not local state alone, so browser Back
   steps back through selections instead of leaving the dashboard.
 - `WardDialog.tsx` + `WardDetail.tsx` + `components/ui/dialog.tsx`: the single ward-detail surface,
   opened by clicking a ward on any layer or in the list. Reads: localities, plain-language
   description generated from the real indicators (`lib/wardProfile.ts` over
   `public/ward_profiles.json`), a ward-versus-city table, percentile and top driver, clickable
   neighbour chips, then the five contribution bars (F2) and the cited interventions (F3). Sits at
-  `z-[2000]`, above the map chrome's `z-[1000]`. `dashboard/page.tsx`'s Escape handler is gated on
+  `z-[2000]`, above the map chrome's `z-[1000]`. `dashboard/DashboardClient.tsx`'s Escape handler is gated on
   no dialog being open, or one press would close the dialog and exit fullscreen together.
 - `HeroCity.tsx` / `HeroCityScene.tsx`: the landing hero's subject. The 24 real BMC ward polygons
   extruded in 3D, height and colour from their real HVI (same locked ramp, via `lib/hvi.ts`), on a
@@ -105,7 +105,7 @@ Side-stripe borders, gradient text, glassmorphism-by-default, hero-metric templa
 card grids, em dashes in copy.
 
 **Ward detail is a deliberate exception to the modal-first ban.** The ban assumed the
-master-detail sidebar covered ward detail; it does not. `dashboard/page.tsx`'s `<aside>` is
+master-detail sidebar covered ward detail; it does not. `dashboard/DashboardClient.tsx`'s `<aside>` is
 `hidden md:block` and is unmounted entirely in fullscreen, so between them the sidebar and the
 old fullscreen-only Leaflet popup left phones and fullscreen with no way to read a ward at all.
 `WardDialog` is the ward surface on phones and in fullscreen; on desktop the sidebar

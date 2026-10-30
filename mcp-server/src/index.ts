@@ -24,13 +24,41 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { pathToFileURL } from "node:url";
-import { UcipClient, UcipError } from "./client.js";
+import { UcipClient, UcipError, type Ward } from "./client.js";
 
+/**
+ * What every ranked response must say. No figure is written here: the interval
+ * widths come from the API's own data (`rank_ci_low`, `rank_ci_high`) and are
+ * added by `rankingNotes`, so the caveat cannot drift from the bootstrap that
+ * produced it.
+ */
 export const RANKING_CAVEAT =
-  "Ranks are not precise. A bootstrap over the 541 grid cells puts the median " +
-  "95% interval at about 6 places, and no ward's rank is certain. Treat the " +
-  "ranking as broad bands: the top few and the bottom few are real, the " +
-  "difference between 8th and 12th is not.";
+  "Ranks are not precise. Each ward carries a 95% bootstrap interval " +
+  "(rank_ci_low to rank_ci_high) and no ward's rank is certain. Treat the " +
+  "ranking as broad bands, and do not read a gap smaller than the interval as " +
+  "a real difference between two wards. The interval covers sampling " +
+  "uncertainty in the grid cells only, not measurement error in the " +
+  "indicators or the choice of indicators and weighting.";
+
+/** Notes that quote the intervals actually present in `wards`, if any. */
+export function rankingNotes(wards: Ward[]): string[] {
+  const widths: number[] = [];
+  for (const w of wards) {
+    if (typeof w.rank_ci_low === "number" && typeof w.rank_ci_high === "number") {
+      widths.push(w.rank_ci_high - w.rank_ci_low);
+    }
+  }
+  widths.sort((a, b) => a - b);
+  if (widths.length === 0) return [RANKING_CAVEAT];
+  const mid = Math.floor(widths.length / 2);
+  const median = widths.length % 2 ? widths[mid]! : (widths[mid - 1]! + widths[mid]!) / 2;
+  const widest = widths[widths.length - 1]!;
+  return [
+    RANKING_CAVEAT,
+    `In this response the median 95% rank interval is ${median} places wide ` +
+      `and the widest is ${widest}.`,
+  ];
+}
 
 export const INDEX_CAVEAT =
   "HVI is a 0-100 relative index within Mumbai, not an absolute or " +
@@ -119,7 +147,7 @@ export async function callTool(name: string, args: Record<string, unknown>): Pro
   switch (name) {
     case "list_wards": {
       const wards = await client.wards(args.limit as number | undefined);
-      return withNotes({ wards }, [INDEX_CAVEAT, RANKING_CAVEAT]);
+      return withNotes({ wards }, [INDEX_CAVEAT, ...rankingNotes(wards)]);
     }
 
     case "get_ward": {
@@ -128,7 +156,7 @@ export async function callTool(name: string, args: Record<string, unknown>): Pro
       const result = await client.ward(wardId);
       return withNotes(result, [
         INDEX_CAVEAT,
-        RANKING_CAVEAT,
+        ...rankingNotes([result.ward]),
         "Each recommendation's citation is the paper behind the rule that fired, " +
           "not a general reference. Quote it with the recommendation.",
       ]);
@@ -143,6 +171,7 @@ export async function callTool(name: string, args: Record<string, unknown>): Pro
       const result = await client.lookup(lat, lon);
       return withNotes(result, [
         INDEX_CAVEAT,
+        ...rankingNotes([result.ward]),
         "Coverage is the 24 BMC wards of Mumbai only. A point outside them has no answer here.",
       ]);
     }

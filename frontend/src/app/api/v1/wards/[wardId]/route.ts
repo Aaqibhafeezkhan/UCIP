@@ -12,10 +12,12 @@ import type { FeatureCollection, Geometry } from "geojson";
 import type { NbsRec, WardProps } from "@/lib/wardTypes";
 import {
   errorResponse,
+  intervalFields,
   jsonResponse,
   normaliseWardId,
   optionsResponse,
   rateLimited,
+  readIntervals,
   readSnapshot,
   supabase,
 } from "../../_lib";
@@ -43,6 +45,8 @@ export async function GET(
     );
   }
 
+  const intervals = await readIntervals();
+
   const db = supabase();
   if (db) {
     const [wardResult, recsResult] = await Promise.all([
@@ -57,7 +61,7 @@ export async function GET(
     if (!wardResult.error && wardResult.data) {
       return jsonResponse({
         source: "database",
-        ward: wardResult.data,
+        ward: { ...wardResult.data, ...intervalFields(intervals, wardId, wardResult.data.rank) },
         recommendations: recsResult.data ?? [],
       });
     }
@@ -93,6 +97,7 @@ export async function GET(
         rank: p.rank,
         n_cells: p.n_cells,
         contrib: Object.keys(contrib).length ? contrib : null,
+        ...intervalFields(intervals, wardId, p.rank),
       },
       recommendations: recs
         .filter((r) => r.ward_id === wardId)

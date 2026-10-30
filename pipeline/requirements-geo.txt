@@ -1,0 +1,18 @@
+# The credential-free geospatial stack, for the CI job that runs the real stages
+# on the fixture city (issue #207). Pinned to the same versions as
+# requirements.txt, so what CI exercises is what the scheduled refresh runs.
+#
+# Deliberately NOT here: earthengine-api and cryptography come in through
+# requirements-dev.txt only because test_gee_auth needs them, and nothing in this
+# job calls Earth Engine; osmnx and rasterio are left out because no stage that
+# runs on the fixture needs them (03 and 06 import ee/osmnx lazily, and the
+# network calls are stubbed at the function boundary); supabase and matplotlib
+# are not needed to read, score and write GeoJSON.
+-r requirements-dev.txt
+
+geopandas==1.2.0
+shapely==2.2.0
+pandas==3.0.6
+numpy==2.5.4
+scikit-learn==1.9.1
+scipy==1.18.1

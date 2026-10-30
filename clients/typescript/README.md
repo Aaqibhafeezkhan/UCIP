@@ -134,3 +134,11 @@ npm run build
 
 Apache-2.0. The data has its own per-source terms: see
 <https://uciplatform.vercel.app/legal>.
+
+## Publishing
+
+Maintainers: push a tag named `ts-client-v<version>` that matches `package.json`
+(for example `ts-client-v0.1.0`). `.github/workflows/publish-ts-client.yml`
+rebuilds, tests, checks the generated types are current and runs
+`npm publish --provenance`. It needs an npm automation token in the `NPM_TOKEN`
+repo secret and fails without publishing if that is missing.

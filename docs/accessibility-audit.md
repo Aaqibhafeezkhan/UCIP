@@ -93,6 +93,36 @@ in either.
 - **`/simulate` sliders** were checked for labels and keyboard operation but
   not for announcement behaviour during a drag.
 
+## What CI checks now (issue #223)
+
+The review above was a one-off. Two checks repeat the structural part of it on
+every pull request:
+
+- **axe-core in vitest** (`frontend/src/app/components/accessibility.test.tsx`).
+  Renders the layer switcher, the ward dialog with a ward open, and the mobile
+  ward list sheet, and runs axe against the WCAG 2.0/2.1 A and AA rules. It
+  also asserts that every layer tab's `aria-controls` names a panel that
+  exists, which is the critical failure the review found. Deleting the
+  `TabsContent` panels from `LayerSwitcher.tsx` makes it fail.
+- **Lighthouse accessibility score** (`lighthouserc.json`). An `error`
+  assertion at 0.9 on `/`, `/dashboard`, `/methodology`, `/simulate` and
+  `/embed/ward/C`. Measured on 2026-10-29 against a local production build:
+  0.95, 0.99, 0.94, 0.99 and 0.95. The threshold sits just under the lowest.
+
+What they do **not** cover:
+
+- **Colour contrast.** jsdom cannot compute resolved colours, so the vitest
+  run disables `color-contrast`. Lighthouse does check it, but only on the
+  page as loaded.
+- **Screen-reader behaviour.** Neither check announces anything. Reading order,
+  live-region wording and focus handoff still need a person with a screen reader.
+- **Drag announcements on `/simulate`.** Sliders are checked for labels, not for
+  what is announced while dragging.
+- **Interaction states.** Lighthouse audits the page at load, so it never sees
+  an open ward dialog or the mobile ward sheet. The vitest test covers those
+  two, in jsdom, at no particular viewport width. The 390 px run described
+  above is still a manual one.
+
 ## Reproducing
 
 ```bash

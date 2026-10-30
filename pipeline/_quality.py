@@ -73,7 +73,14 @@ CELL_BOUNDS: dict[str, Bound] = {
         physical=True,
         optional=True,
     ),
-    "slum_pct": Bound(0.0, 100.0, "A percentage.", physical=True),
+    # Optional like child_pct: a city with no slum layer publishes null for every
+    # cell (issue #201), which must pass the gate while a value of 150 still fails.
+    "slum_pct": Bound(
+        0.0, 100.0,
+        "A percentage. Share of the cell inside mapped slum-cluster polygons.",
+        physical=True,
+        optional=True,
+    ),
     "impervious_pct": Bound(0.0, 100.0, "A percentage.", physical=True),
     "hospital_dist_m": Bound(
         0.0, 100_000.0,
@@ -81,6 +88,14 @@ CELL_BOUNDS: dict[str, Bound] = {
         "hundreds of thousands means metres and kilometres were confused.",
     ),
     "HVI": Bound(0.0, 100.0, "Rescaled to 0-100 by stage 05.", physical=True),
+    # A fraction of pixels, so it is 0..1 and cannot be a percentage by mistake.
+    # Optional: a dataset from before issue #168 has no share.
+    "worldcover_share": Bound(
+        0.0, 1.0,
+        "Fraction of the cell's WorldCover pixels in its dominant class.",
+        physical=True,
+        optional=True,
+    ),
 }
 
 WARD_BOUNDS: dict[str, Bound] = {

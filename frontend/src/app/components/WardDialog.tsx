@@ -12,7 +12,7 @@ import { useWardData } from "@/lib/useWardData";
  * which unmounts the aside, and viewports below `md`, where the aside is
  * hidden. Everywhere else WardPanel shows the same content in place.
  *
- * Open state is derived from the URL's `?ward=` param, which dashboard/page.tsx
+ * Open state is derived from the URL's `?ward=` param, which dashboard/DashboardClient.tsx
  * owns, so there is no second source of truth for selection and browser Back
  * still steps through selections.
  */
@@ -26,7 +26,7 @@ export default function WardDialog({
   /** False whenever the sidebar is showing the ward instead. */
   enabled: boolean;
 }) {
-  const { wards, recs, profiles, error } = useWardData();
+  const { wards, recs, profiles, intervals, error } = useWardData();
 
   const selected = wards?.find((f) => f.properties.ward_id === selectedWardId) ?? null;
   const props = selected?.properties;
@@ -59,6 +59,7 @@ export default function WardDialog({
             ward={props}
             totalWards={totalWards}
             onClose={() => onSelectWard(null)}
+          interval={intervals.get(props.ward_id)}
             titleId="ward-dialog-title"
           />
         ) : (

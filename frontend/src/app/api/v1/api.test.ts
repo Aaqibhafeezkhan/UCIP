@@ -677,3 +677,61 @@ describe("database fallback logging", () => {
     spy.mockRestore();
   });
 });
+
+describe("rank intervals on ward responses (issue #192)", () => {
+  it("/wards carries rank_ci_low and rank_ci_high for all 24 wards, enclosing the rank", async () => {
+    const json = await body(await getWards(req("/api/v1/wards")));
+    expect(json.source).toBe("snapshot");
+    expect(json.wards).toHaveLength(24);
+    for (const w of json.wards) {
+      expect(typeof w.rank_ci_low).toBe("number");
+      expect(typeof w.rank_ci_high).toBe("number");
+      expect(w.rank_ci_low).toBeLessThanOrEqual(w.rank);
+      expect(w.rank).toBeLessThanOrEqual(w.rank_ci_high);
+      expect(w).toHaveProperty("hvi_ci_low");
+      expect(w).toHaveProperty("hvi_ci_high");
+    }
+  });
+
+  it("/wards/{id} and /lookup carry the same interval as the list", async () => {
+    const list = await body(await getWards(req("/api/v1/wards")));
+    const first = list.wards[0];
+    const one = await body(
+      await getWard(req(`/api/v1/wards/${encodeURIComponent(first.ward_id)}`), {
+        params: Promise.resolve({ wardId: first.ward_id }),
+      })
+    );
+    expect(one.ward.rank_ci_low).toBe(first.rank_ci_low);
+    expect(one.ward.rank_ci_high).toBe(first.rank_ci_high);
+
+    // A point inside the city: Colaba, ward A.
+    const looked = await body(await getLookup(req("/api/v1/lookup?lat=18.9067&lon=72.8147")));
+    const match = list.wards.find((w: Json) => w.ward_id === looked.ward.ward_id);
+    expect(looked.ward.rank_ci_low).toBe(match.rank_ci_low);
+    expect(looked.ward.rank_ci_high).toBe(match.rank_ci_high);
+  });
+
+  it("describes the interval fields in the OpenAPI Ward schema", async () => {
+    const spec = await body(await getSpec(req("/api/v1/openapi.json")));
+    const props = get(spec, "components", "schemas", "Ward", "properties");
+    for (const field of ["rank_ci_low", "rank_ci_high", "hvi_ci_low", "hvi_ci_high"]) {
+      expect(props).toHaveProperty(field);
+    }
+  });
+});
+
+describe("intervalFields (issue #192 review)", () => {
+  const intervals = new Map([["B", { rank_ci_low: 2, rank_ci_high: 3, hvi_ci_low: null, hvi_ci_high: null }]]);
+
+  it("returns the interval when the rank is inside it", async () => {
+    const { intervalFields } = await import("./_lib");
+    expect(intervalFields(intervals, "B", 2)).toMatchObject({ rank_ci_low: 2, rank_ci_high: 3 });
+  });
+
+  it("drops an interval the current rank contradicts", async () => {
+    const { intervalFields } = await import("./_lib");
+    expect(intervalFields(intervals, "B", 5)).toEqual({});
+    expect(intervalFields(intervals, "B", null)).toEqual({});
+    expect(intervalFields(intervals, "Z", 2)).toEqual({});
+  });
+});

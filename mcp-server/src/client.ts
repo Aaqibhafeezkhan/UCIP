@@ -30,6 +30,11 @@ export type Ward = {
   dominant_factor?: string | null;
   dominant_share?: number | null;
   single_factor_dominated?: boolean | null;
+  /** 95% bootstrap rank interval (1 is most vulnerable). Omitted when the API has none. */
+  rank_ci_low?: number | null;
+  rank_ci_high?: number | null;
+  hvi_ci_low?: number | null;
+  hvi_ci_high?: number | null;
 };
 
 export type Recommendation = {

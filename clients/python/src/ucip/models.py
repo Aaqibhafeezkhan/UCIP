@@ -59,6 +59,26 @@ class Ward(TypedDict, total=False):
     True when one indicator accounts for half or more of the movement in the
     score, so the ranking is effectively driven by that one measure.
     """
+    rank_ci_low: int | None
+    """
+    Best rank in the 95% bootstrap interval (1 is most vulnerable). Omitted
+    when the uncertainty file has no entry for the ward. Covers sampling
+    uncertainty in the grid cells only, not measurement error or the choice
+    of indicators and weighting.
+    """
+    rank_ci_high: int | None
+    """
+    Worst rank in the 95% bootstrap interval. Always at or above
+    `rank_ci_low`.
+    """
+    hvi_ci_low: float | None
+    """
+    Lower bound of the 95% bootstrap interval on `hvi`.
+    """
+    hvi_ci_high: float | None
+    """
+    Upper bound of the 95% bootstrap interval on `hvi`.
+    """
     geom_geojson: WardGeomGeojson | None
     """
     GeoJSON geometry. Only present when `geometry=true` was requested.
@@ -136,7 +156,21 @@ class Cell(TypedDict, total=False):
     """
     worldcover_class: int | None
     """
-    ESA WorldCover class code.
+    ESA WorldCover class code of the most common class in the cell, by pixel
+    count.
+    """
+    worldcover_share: float | None
+    """
+    Fraction of the cell's WorldCover pixels that carry `worldcover_class`,
+    0 to 1. A low value means the cell is mixed and its class is a close
+    call.
+    """
+    worldcover_mixed: bool | None
+    """
+    True when `worldcover_share` is below the mixed-cell threshold (0.5: the
+    class is not even a majority of the cell). `plantable` still follows
+    `worldcover_class`, so a mixed cell's recommendation rests on a
+    near-tie.
     """
     geom_geojson: CellGeomGeojson | None
     """

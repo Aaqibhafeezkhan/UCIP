@@ -63,6 +63,32 @@ def build_fishnet(
     return gpd.GeoSeries(cells, crs=crs)
 
 
+def assign_grid_ids(clipped: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """One fragment per fishnet cell, numbered in fishnet order (issue #217).
+
+    A cell that straddles a ward border clips into fragments; the largest one
+    is kept, so every cell maps to exactly one ward. The ids are then assigned
+    by `cell_idx`, the cell's position in the fishnet, which is fixed by the
+    ward bounds alone.
+
+    They used to follow the order after `sort_values("area_m2")`. In Mumbai's
+    grid 189 cells have exactly the same area (full 1 km squares), and the
+    default sort does not keep tied rows in input order, so cell_0000 to
+    cell_0188 depended on the platform and library build. The committed data and
+    the scheduled refresh on Actions gave different ids to the same 187 cells.
+    Ties in the area are now broken by `cell_idx` as well, so which fragment
+    survives is also deterministic.
+    """
+    kept = (
+        clipped.sort_values(["area_m2", "cell_idx"], ascending=[False, True], kind="stable")
+        .drop_duplicates("cell_idx", keep="first")
+        .sort_values("cell_idx", kind="stable")
+        .reset_index(drop=True)
+    )
+    kept["grid_id"] = [f"cell_{i:04d}" for i in range(len(kept))]
+    return kept
+
+
 def main() -> int:
     city = city_from_argv("Build the analysis grid for a city.")
     wards_path = city.boundaries_path
@@ -107,8 +133,7 @@ def main() -> int:
     # Some fishnet cells straddle a ward border and split into slivers on clip.
     # Keep the largest fragment per original cell so every cell maps to exactly one ward.
     clipped["area_m2"] = clipped.geometry.area
-    clipped = clipped.sort_values("area_m2", ascending=False).drop_duplicates("cell_idx", keep="first")
-    clipped["grid_id"] = [f"cell_{i:04d}" for i in range(len(clipped))]
+    clipped = assign_grid_ids(clipped)
 
     out = clipped[["grid_id", "ward_id", "ward_gid", "area_m2", "geometry"]].to_crs(WGS84)
     out = out.sort_values("grid_id").reset_index(drop=True)

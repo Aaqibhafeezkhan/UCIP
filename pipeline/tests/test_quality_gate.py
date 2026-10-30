@@ -178,3 +178,23 @@ def test_the_bounds_admit_the_real_data():
 
     rows = [f["properties"] for f in json.loads(path.read_text(encoding="utf-8"))["features"]]
     assert check_bounds(rows, CELL_BOUNDS, "grid_id", "cells") == []
+
+
+# --- slum_pct is optional context (issue #201) ---
+
+def test_an_all_null_slum_column_passes_the_gate():
+    """A city with no slum layer publishes null for every cell. That is 'no
+    data', not a failure, and not a zero."""
+    rows = [cell(slum_pct=None), cell(grid_id="cell_0002", slum_pct=None)]
+    assert check_bounds(rows, CELL_BOUNDS, "grid_id", "cells") == []
+
+
+def test_a_slum_column_missing_entirely_passes_the_gate():
+    row = cell()
+    del row["slum_pct"]
+    assert check_bounds([row], CELL_BOUNDS, "grid_id", "cells") == []
+
+
+def test_a_slum_value_of_150_still_fails_the_gate():
+    failures = check_bounds([cell(slum_pct=150.0)], CELL_BOUNDS, "grid_id", "cells")
+    assert any("slum_pct" in f for f in failures)

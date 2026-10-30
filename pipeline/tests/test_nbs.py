@@ -296,3 +296,52 @@ class TestWorldCoverClassNormalisation:
     def test_nonsense_input_is_refused_without_raising(self, bad):
         assert normalise_worldcover_class(bad) is None
         assert is_plantable(bad, 0.0, 50.0) is False
+
+
+# --- the dominant class and its share (issue #168) ---
+
+from _nbs import WORLDCOVER_MIXED_SHARE, dominant_class_and_share, is_mixed_cell  # noqa: E402
+
+
+def test_dominant_class_and_share_from_pixel_counts():
+    assert dominant_class_and_share({"10": 120.0, "50": 880.0}) == (50, 0.88)
+
+
+def test_a_near_tie_is_reported_as_a_near_tie():
+    cls, share = dominant_class_and_share({"10": 490, "50": 510})
+    assert (cls, share) == (50, 0.51)
+    # 51% built-up against 49% tree cover: published as built-up, and flagged only
+    # if the threshold says a bare plurality is not enough.
+    assert is_mixed_cell(share, threshold=0.6)
+
+
+def test_an_exact_tie_goes_to_the_lower_class_code_every_time():
+    """The mode reducer could return either side of a tie, run to run (#166)."""
+    first = dominant_class_and_share({"10": 500, "50": 500})
+    second = dominant_class_and_share({"50": 500, "10": 500})
+    assert first == second == (10, 0.5)
+
+
+def test_the_result_does_not_depend_on_key_order():
+    a = dominant_class_and_share({"30": 10, "10": 40, "50": 25})
+    b = dominant_class_and_share({"50": 25, "30": 10, "10": 40})
+    assert a == b == (10, round(40 / 75, 4))
+
+
+def test_unrecognised_keys_and_empty_counts_are_ignored():
+    assert dominant_class_and_share({"10": 30, "77": 900, "50": 0, "x": 5}) == (10, 1.0)
+    assert dominant_class_and_share({}) == (None, None)
+    assert dominant_class_and_share(None) == (None, None)
+    assert dominant_class_and_share({"77": 5}) == (None, None)
+
+
+def test_float_keys_from_earth_engine_still_resolve():
+    assert dominant_class_and_share({"50.0": 10, "10.00000000000001": 3}) == (50, round(10 / 13, 4))
+
+
+def test_mixed_follows_the_threshold_and_a_missing_share_is_not_mixed():
+    assert is_mixed_cell(0.45)
+    assert not is_mixed_cell(0.5)  # exactly half is not below the threshold
+    assert not is_mixed_cell(0.9)
+    assert not is_mixed_cell(None)
+    assert WORLDCOVER_MIXED_SHARE == 0.5
