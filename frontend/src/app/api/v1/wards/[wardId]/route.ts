@@ -61,7 +61,7 @@ export async function GET(
     if (!wardResult.error && wardResult.data) {
       return jsonResponse({
         source: "database",
-        ward: { ...wardResult.data, ...intervalFields(intervals, wardId) },
+        ward: { ...wardResult.data, ...intervalFields(intervals, wardId, wardResult.data.rank) },
         recommendations: recsResult.data ?? [],
       });
     }
@@ -97,7 +97,7 @@ export async function GET(
         rank: p.rank,
         n_cells: p.n_cells,
         contrib: Object.keys(contrib).length ? contrib : null,
-        ...intervalFields(intervals, wardId),
+        ...intervalFields(intervals, wardId, p.rank),
       },
       recommendations: recs
         .filter((r) => r.ward_id === wardId)

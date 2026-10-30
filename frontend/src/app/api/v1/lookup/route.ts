@@ -105,7 +105,7 @@ export async function GET(request: Request) {
     const { data, error } = await db.rpc("ward_at", { lat, lon });
     if (!error && Array.isArray(data)) {
       if (data.length === 0) return notFound();
-      const ward = data[0] as { ward_id: string };
+      const ward = data[0] as { ward_id: string; rank?: number | null };
       const { data: recs } = await db
         .from("nbs_recommendations")
         .select("intervention,rationale,citation,priority")
@@ -115,7 +115,7 @@ export async function GET(request: Request) {
       return jsonResponse({
         source: "database",
         query: { lat, lon },
-        ward: { ...ward, ...intervalFields(intervals, ward.ward_id) },
+        ward: { ...ward, ...intervalFields(intervals, ward.ward_id, ward.rank) },
         top_recommendation: recs?.[0] ?? null,
       });
     }
@@ -146,7 +146,7 @@ export async function GET(request: Request) {
         hvi: p.HVI,
         rank: p.rank,
         n_cells: p.n_cells,
-        ...intervalFields(intervals, p.ward_id),
+        ...intervalFields(intervals, p.ward_id, p.rank),
       },
       top_recommendation: top
         ? {

@@ -42,12 +42,12 @@ def grid():
     return cells.to_crs("EPSG:4326")
 
 
-def test_no_slum_layer_gives_none_for_every_cell_not_zero(vectors, tmp_path):
-    out = vectors.compute_slum_pct(grid(), slums_path=tmp_path / "absent.geojson", utm_crs=UTM)
-    assert out == {"cell_0000": None, "cell_0001": None}
+def test_a_declared_slum_file_that_is_missing_raises_instead_of_publishing_null(vectors, tmp_path):
+    with pytest.raises(FileNotFoundError, match="declares a slum layer"):
+        vectors.compute_slum_pct(grid(), slums_path=tmp_path / "absent.geojson", utm_crs=UTM)
 
 
-def test_a_city_with_no_configured_layer_gives_none(vectors):
+def test_a_city_with_no_configured_layer_gives_none_for_every_cell_not_zero(vectors):
     out = vectors.compute_slum_pct(grid(), slums_path=None, utm_crs=UTM)
     assert set(out.values()) == {None}
 

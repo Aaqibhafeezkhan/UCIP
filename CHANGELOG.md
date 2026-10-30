@@ -50,6 +50,7 @@ All notable changes to this project are documented here. Format based on
 - The scheduled refresh no longer writes the database. Supabase is loaded from
   `main` after a refresh PR merges, so a run the quality gate rejects, or a PR
   nobody has merged, cannot change what the API serves (#218).
+- `workflow_dispatch` on the refresh takes `force_pr`, to open the PR even when nothing material changed (for example after the `grid_id` renumbering). A declared slum file that is missing now fails stage 03 instead of publishing null, and an API rank interval that contradicts the current rank is dropped.
 - A scheduled refresh opens a PR only when a rank, recommendation or
   green-cover class changed or a ward's HVI moved by more than 1.0 (#205).
 - `/dashboard` has its own title and description, `/embed/ward/*` is `noindex`,

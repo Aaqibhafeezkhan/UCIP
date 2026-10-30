@@ -271,13 +271,16 @@ def prune_stale(client: Client, table: str, key: str, keep: list, page: int = 10
         print(f"[WARN] not pruning '{table}': the new key set is empty")
         return False
     try:
+        # Compared as strings on both sides: an id loaded as a number on one
+        # side and text on the other would otherwise make every row look stale.
+        keep = [str(k) for k in keep]
         existing: list = []
         start = 0
         while True:
             batch = (
                 client.table(table).select(key).range(start, start + page - 1).execute().data or []
             )
-            existing.extend(r[key] for r in batch)
+            existing.extend(str(r[key]) for r in batch)
             if len(batch) < page:
                 break
             start += page

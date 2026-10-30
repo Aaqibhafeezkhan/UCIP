@@ -99,6 +99,8 @@ jobs:
   # network, a few seconds of test time.
   pipeline-geospatial:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

@@ -110,7 +110,7 @@ export async function GET(request: Request) {
     if (!error && data) {
       const wards = (data as unknown as WardRow[]).map((w) => ({
         ...w,
-        ...intervalFields(intervals, w.ward_id),
+        ...intervalFields(intervals, w.ward_id, w.rank),
       }));
       return jsonResponse({ source: "database", count: wards.length, wards });
     }
@@ -126,7 +126,7 @@ export async function GET(request: Request) {
       .slice(0, limit)
       .map((f: Feature<Geometry, WardProps>) => ({
         ...fromSnapshot(f.properties),
-        ...intervalFields(intervals, f.properties.ward_id),
+        ...intervalFields(intervals, f.properties.ward_id, f.properties.rank),
         ...(wantGeometry ? { geom_geojson: f.geometry } : {}),
       }));
     return jsonResponse({ source: "snapshot", count: wards.length, wards });

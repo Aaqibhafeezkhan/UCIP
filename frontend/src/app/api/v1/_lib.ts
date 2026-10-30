@@ -123,12 +123,25 @@ export async function readIntervals(): Promise<Map<string, WardInterval>> {
   }
 }
 
-/** The interval fields for one ward, or nothing, ready to spread into a response. */
+/**
+ * The interval fields for one ward, or nothing, ready to spread into a response.
+ *
+ * Dropped when `rank` falls outside the interval. hvi_uncertainty.json is not a
+ * pipeline stage (#193), so it can lag the ward scores: after a refresh moves a
+ * ward to rank 5, a committed interval of 2 to 3 would be served next to it and
+ * contradict it. An absent interval is honest; a wrong one is not.
+ */
 export function intervalFields(
   intervals: Map<string, WardInterval>,
-  wardId: string
+  wardId: string,
+  rank: number | null | undefined
 ): Partial<WardInterval> {
-  return intervals.get(wardId) ?? {};
+  const interval = intervals.get(wardId);
+  if (!interval) return {};
+  if (typeof rank !== "number" || rank < interval.rank_ci_low || rank > interval.rank_ci_high) {
+    return {};
+  }
+  return interval;
 }
 
 /**

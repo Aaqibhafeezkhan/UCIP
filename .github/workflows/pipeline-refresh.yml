@@ -70,6 +70,10 @@ on:
     - cron: "17 3 * * 2,5"
   workflow_dispatch:
     inputs:
+      force_pr:
+        description: "Open the refresh PR even when nothing material changed (for example after a change that renumbers ids or adds columns, which the materiality check cannot see)"
+        type: boolean
+        default: false
       include_spike:
         description: "Also run 00_gee_spike.py as a GEE connectivity smoke test"
         type: boolean
@@ -216,7 +220,7 @@ jobs:
         # tracked and untracked files the pipeline wrote so the working tree is
         # clean, which also keeps a no-op run from leaving anything behind for
         # create-pull-request to commit. The diff and run log were uploaded above.
-        if: steps.diff.outputs.material != 'true'
+        if: steps.diff.outputs.material != 'true' && !(github.event_name == 'workflow_dispatch' && inputs.force_pr)
         env:
           REASONS: ${{ steps.diff.outputs.reasons }}
         run: |
@@ -226,7 +230,7 @@ jobs:
           git status --short
 
       - name: Build PR body from the diff summary
-        if: steps.diff.outputs.material == 'true'
+        if: steps.diff.outputs.material == 'true' || (github.event_name == 'workflow_dispatch' && inputs.force_pr)
         id: diff_summary
         run: |
           echo "body<<PR_BODY_EOF" >> "$GITHUB_OUTPUT"
@@ -240,7 +244,7 @@ jobs:
           echo "PR_BODY_EOF" >> "$GITHUB_OUTPUT"
 
       - name: Open a PR with the refreshed data
-        if: steps.diff.outputs.material == 'true'
+        if: steps.diff.outputs.material == 'true' || (github.event_name == 'workflow_dispatch' && inputs.force_pr)
         uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore(pipeline): monthly automated data refresh"

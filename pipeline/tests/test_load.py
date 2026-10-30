@@ -80,7 +80,7 @@ class FakeQuery:
                 for kind, col, val in self.filters:
                     if kind == "lte" and not r[col] <= val:
                         return False
-                    if kind == "in" and r[col] not in val:
+                    if kind == "in" and str(r[col]) not in [str(v) for v in val]:
                         return False
                 return True
             self.db.tables[self.table] = [r for r in rows if not hit(r)]
@@ -233,3 +233,12 @@ def test_a_failed_database_write_exits_2_when_credentials_are_set(load, staged, 
 def test_no_credentials_is_not_a_failure(load, staged, monkeypatch):
     monkeypatch.setattr(load, "get_client", lambda: None)
     assert load.main() == 0
+
+
+def test_prune_compares_ids_as_strings(load):
+    """A numeric id on one side and text on the other must not read as all stale."""
+    client = FakeClient({"grid_cells": [{"grid_id": 1}, {"grid_id": 2}, {"grid_id": 3}]})
+    assert load.prune_stale(client, "grid_cells", "grid_id", ["1", "2"])
+    assert sorted(str(r["grid_id"]) for r in client.tables["grid_cells"]) == ["1", "2"]
+    assert load.prune_stale(client, "grid_cells", "grid_id", [1, 2])
+    assert len(client.tables["grid_cells"]) == 2

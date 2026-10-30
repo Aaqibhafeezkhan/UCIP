@@ -151,10 +151,16 @@ def compute_slum_pct(
     could not tell from a real one. The column is context only, so scores are
     unaffected either way.
     """
-    if slums_path is None or not Path(slums_path).exists():
-        print(f"[WARN] no slum layer ({slums_path or 'none configured'}); "
-              "slum_pct will be null for all cells.")
+    if slums_path is None:
+        print("[WARN] no slum layer configured for this city; slum_pct will be null for all cells.")
         return {gid: None for gid in grid_gdf["grid_id"]}
+    if not Path(slums_path).exists():
+        # Configured but absent is a broken checkout, not a city without a layer.
+        # Writing null here would pass the gate (the column is optional) and
+        # publish "no data" for a city that has data.
+        raise FileNotFoundError(
+            f"the city config declares a slum layer at {slums_path}, but the file is missing"
+        )
 
     slums = gpd.read_file(slums_path)
     if slums.crs is None:
@@ -243,11 +249,10 @@ def main() -> int:
     # explained rather than guessed at (issue #201).
     _provenance.record(
         "03",
-        slum_layer=str(SLUMS_PATH.name) if SLUMS_PATH is not None and SLUMS_PATH.exists() else None,
+        slum_layer=SLUMS_PATH.name if SLUMS_PATH is not None else None,
         slum_pct_unavailable_reason=(
-            None
-            if SLUMS_PATH is not None and SLUMS_PATH.exists()
-            else "no slum layer configured or present for this city; slum_pct is null, not 0"
+            None if SLUMS_PATH is not None
+            else "no slum layer configured for this city; slum_pct is null, not 0"
         ),
     )
 

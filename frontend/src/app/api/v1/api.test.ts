@@ -719,3 +719,19 @@ describe("rank intervals on ward responses (issue #192)", () => {
     }
   });
 });
+
+describe("intervalFields (issue #192 review)", () => {
+  const intervals = new Map([["B", { rank_ci_low: 2, rank_ci_high: 3, hvi_ci_low: null, hvi_ci_high: null }]]);
+
+  it("returns the interval when the rank is inside it", async () => {
+    const { intervalFields } = await import("./_lib");
+    expect(intervalFields(intervals, "B", 2)).toMatchObject({ rank_ci_low: 2, rank_ci_high: 3 });
+  });
+
+  it("drops an interval the current rank contradicts", async () => {
+    const { intervalFields } = await import("./_lib");
+    expect(intervalFields(intervals, "B", 5)).toEqual({});
+    expect(intervalFields(intervals, "B", null)).toEqual({});
+    expect(intervalFields(intervals, "Z", 2)).toEqual({});
+  });
+});
