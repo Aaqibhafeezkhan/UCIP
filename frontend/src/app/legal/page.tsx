@@ -67,7 +67,8 @@ export default function LegalPage() {
           <li>
             <strong className="text-foreground">PostHog</strong> receives page views, interaction
             events and errors the site runs into, to show which pages are used and what breaks.
-            It keeps a random visitor id in a cookie and local storage so repeat visits count once.
+            It keeps a random visitor id in memory only, sets no cookie, and forgets it when you
+            close the page. Data is kept for the retention period set in PostHog.
           </li>
           <li>
             <strong className="text-foreground">Vercel Analytics</strong> receives page views, for

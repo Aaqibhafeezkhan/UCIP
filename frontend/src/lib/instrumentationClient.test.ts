@@ -39,6 +39,7 @@ describe("instrumentation-client", () => {
       api_host: "https://eu.i.posthog.com",
       defaults: "2026-01-30",
       capture_exceptions: true,
+      persistence: "memory",
       debug: false,
     });
     expect(register).toHaveBeenCalledWith({ site: "ucip" });

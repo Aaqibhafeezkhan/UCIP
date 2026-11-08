@@ -82,6 +82,7 @@ All notable changes to this project are documented here. Format based on
   critical advisory (#202).
 
 ### Changed
+- PostHog keeps its visitor id in memory, so the site no longer sets an analytics cookie (#198).
 - The index now scores five indicators, all from free, open, global data that
   any city can re-pull: land surface temperature and NDVI (Landsat 8/9),
   population density (WorldPop), hospital distance (OpenStreetMap) and

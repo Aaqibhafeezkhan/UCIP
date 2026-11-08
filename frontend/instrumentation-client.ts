@@ -14,6 +14,8 @@ if (!projectToken || !host) {
     api_host: host,
     defaults: "2026-01-30",
     capture_exceptions: true,
+    // No cookie or browser storage, so no consent banner is needed for it.
+    persistence: "memory",
     debug: process.env.NODE_ENV === "development",
   });
   posthog.register({ site: "ucip" });
