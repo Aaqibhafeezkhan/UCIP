@@ -29,6 +29,9 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.22924067
     description: v1.0.2
+  - type: doi
+    value: 10.5281/zenodo.24083442
+    description: v1.1.0
 keywords:
   - heat vulnerability
   - urban heat island
