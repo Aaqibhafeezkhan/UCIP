@@ -70,7 +70,7 @@ export default function LayerSwitcher({
               key={id}
               value={id}
               title={LAYER_META[id].caption}
-              className="whitespace-nowrap px-1.5 text-xs"
+              className="whitespace-nowrap px-1.5 text-xs max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1"
             >
               {LAYER_META[id].label}
             </TabsTrigger>

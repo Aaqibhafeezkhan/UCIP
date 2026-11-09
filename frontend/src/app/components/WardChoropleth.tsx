@@ -243,7 +243,7 @@ function FitToWardExtent({
       // Tight padding plus the map's fractional zoomSnap: with the default
       // whole-number snap, fitBounds rounds down and can throw away most of a
       // zoom level, leaving the city noticeably smaller than the space allows.
-      map.fitBounds(bounds, initialFitOptions(window.matchMedia("(max-width: 47.99rem)").matches));
+      map.fitBounds(bounds, initialFitOptions(window.matchMedia("(max-width: 47.99rem)").matches && map.getSize().y >= 300));
       fitted.current = true;
     }
   }, [enabled, wardsGeo, map]);
@@ -405,7 +405,7 @@ export default function WardChoropleth({
     <div className="absolute inset-0">
       <Card className="absolute right-2 top-2 z-[1000] w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-0.5">
-          <div className="min-w-0 overflow-x-auto [scrollbar-width:none]">
+          <div className="min-w-0 overflow-x-auto overflow-y-hidden [scrollbar-width:none]">
             <LayerSwitcher activeLayer={activeLayer} onLayerChange={onLayerChange} />
           </div>
           {onLocate && (
@@ -450,7 +450,7 @@ export default function WardChoropleth({
       <Legend layer={activeLayer} />
 
       {(error || locateError) && (
-        <div className="absolute inset-x-0 top-12 z-[1000] mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">
+        <div className="absolute inset-x-0 top-14 md:top-12 z-[1000] mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">
           {error && (
             <div className="rounded bg-destructive/10 px-3 py-1 text-sm text-destructive">
               Failed to load layer: {error}
