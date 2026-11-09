@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { boundsOf } from "@/lib/geometry";
 import { ACTIVE_CITY } from "@/lib/city";
 import { hviColor as colorForHvi } from "@/lib/hvi";
-import type { MapLayer, MapView } from "@/lib/mapState";
+import { initialFitOptions, type MapLayer, type MapView } from "@/lib/mapState";
 import type { CellNbsProps, CellNdviProps, WardProps } from "@/lib/wardTypes";
 
 import LayerSwitcher, { LAYER_META } from "./LayerSwitcher";
@@ -243,7 +243,7 @@ function FitToWardExtent({
       // Tight padding plus the map's fractional zoomSnap: with the default
       // whole-number snap, fitBounds rounds down and can throw away most of a
       // zoom level, leaving the city noticeably smaller than the space allows.
-      map.fitBounds(bounds, { padding: [10, 10] });
+      map.fitBounds(bounds, initialFitOptions(window.matchMedia("(max-width: 47.99rem)").matches));
       fitted.current = true;
     }
   }, [enabled, wardsGeo, map]);
@@ -403,15 +403,18 @@ export default function WardChoropleth({
 
   return (
     <div className="absolute inset-0">
-      <Card className="absolute right-2 top-2 z-[1000] w-fit gap-0 bg-background/95 p-1 backdrop-blur-sm">
-        <div className="flex items-center gap-0.5">
-          <LayerSwitcher activeLayer={activeLayer} onLayerChange={onLayerChange} />
+      <Card className="absolute right-2 top-2 z-[1000] w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
+        <div className="flex min-w-0 items-center gap-0.5">
+          <div className="min-w-0 overflow-x-auto [scrollbar-width:none]">
+            <LayerSwitcher activeLayer={activeLayer} onLayerChange={onLayerChange} />
+          </div>
           {onLocate && (
             <>
-              <span className="mx-0.5 h-4 w-px bg-border" aria-hidden />
+              <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden />
               <Button
                 variant="ghost"
                 size="icon-sm"
+                className="shrink-0 max-md:size-9"
                 onClick={onLocate}
                 disabled={locating}
                 aria-label={locating ? "Finding your ward…" : "Find my ward"}
@@ -429,6 +432,7 @@ export default function WardChoropleth({
             <Button
               variant="ghost"
               size="icon-sm"
+              className="shrink-0 max-md:size-9"
               onClick={onToggleFullscreen}
               aria-label={isFullscreen ? "Exit fullscreen" : "View map fullscreen"}
               title={isFullscreen ? "Exit fullscreen (Esc)" : "View fullscreen"}
