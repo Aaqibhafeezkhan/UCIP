@@ -186,7 +186,7 @@ The index has no measure of the elderly, a group at particular risk in heat, and
 
 Every figure in this report came from a file the repository's own pipeline produced, listed in the status note at the top. The pipeline runs end to end with `python pipeline/run_pipeline.py --include-annual` (see `pipeline/README.md`) and regenerates all of them from the same sources and procedure. The evaluations are each a script in `pipeline/`: `uncertainty.py`, `compare_weightings.py`, `08_sensitivity.py` and `13_validate_lst.py`. The 500 m comparison in section 6c is reproduced with `--cell-size 500`, which writes to its own directory and never overwrites the published 1 km outputs.
 
-The dataset is archived on Zenodo with the concept DOI 10.5281/zenodo.22923919, which resolves to the latest release. Releases up to 1.0.2 predate the plantability correction and the five-indicator index, so cite a later one.
+The dataset is archived on Zenodo with the concept DOI 10.5281/zenodo.22923919, which resolves to the latest release. Releases up to 1.0.2 predate the plantability correction and the five-indicator index, so cite 1.1.0 or later.
 
 ## 12. References
 
