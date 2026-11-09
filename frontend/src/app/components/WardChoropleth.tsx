@@ -16,6 +16,7 @@ import { initialFitOptions, type MapLayer, type MapView } from "@/lib/mapState";
 import type { CellNbsProps, CellNdviProps, WardProps } from "@/lib/wardTypes";
 
 import LayerSwitcher, { LAYER_META } from "./LayerSwitcher";
+import MapLegend from "./MapLegend";
 import ScrollX from "./ScrollX";
 
 type LayerId = MapLayer;
@@ -88,87 +89,6 @@ function styleNdviChange(selectedWardId: string | null) {
       ...selectionStyle(feature?.properties?.ward_id ?? "", selectedWardId),
     };
   };
-}
-
-const HVI_LEGEND_BINS = [
-  { color: "#ffffb2", label: "Under 20" },
-  { color: "#fed976", label: "20-35" },
-  { color: "#feb24c", label: "35-50" },
-  { color: "#fd8d3c", label: "50-65" },
-  { color: "#f03b20", label: "65-80" },
-  { color: "#bd0026", label: "80+" },
-];
-
-function Legend({ layer }: { layer: LayerId }) {
-  return (
-    <Card className="absolute bottom-6 left-2 z-map-chrome max-w-[240px] gap-0 bg-background/95 p-3 text-xs backdrop-blur-sm">
-      {layer === "hvi" && (
-        <>
-          <p className="mb-1.5 font-semibold text-foreground">Heat Vulnerability Index (0-100)</p>
-          <div className="flex overflow-hidden rounded-sm" aria-hidden="true">
-            {HVI_LEGEND_BINS.map((b) => (
-              <div key={b.color} className="h-3 flex-1" style={{ background: b.color }} />
-            ))}
-          </div>
-          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground max-md:text-xs">
-            <span>Less vulnerable</span>
-            <span>Most vulnerable</span>
-          </div>
-        </>
-      )}
-      {layer === "hvi_grid" && (
-        <>
-          <p className="mb-1.5 font-semibold text-foreground">HVI, 1 km grid (0-100)</p>
-          <div className="flex overflow-hidden rounded-sm" aria-hidden="true">
-            {HVI_LEGEND_BINS.map((b) => (
-              <div key={b.color} className="h-3 flex-1" style={{ background: b.color }} />
-            ))}
-          </div>
-          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground max-md:text-xs">
-            <span>Less vulnerable</span>
-            <span>Most vulnerable</span>
-          </div>
-          <p className="mt-1.5 text-[10px] text-muted-foreground max-md:text-xs">
-            541 cells, the same score a ward is averaged from.
-          </p>
-        </>
-      )}
-      {layer === "plantability" && (
-        <>
-          <p className="mb-1.5 font-semibold text-foreground">Can trees go here?</p>
-          <div className="space-y-1 text-foreground">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-sm" style={{ background: "#4ade80" }} aria-hidden="true" />
-              <span>Yes, suitable for planting</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-sm" style={{ background: "#f87171" }} aria-hidden="true" />
-              <span>No, cool roofs instead</span>
-            </div>
-          </div>
-        </>
-      )}
-      {layer === "ndvi_change" && (
-        <>
-          <p className="mb-1.5 font-semibold text-foreground">Green cover since 2016-17</p>
-          <div className="space-y-1 text-foreground">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-sm" style={{ background: "#4ade80" }} aria-hidden="true" />
-              <span>Gained vegetation</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-sm border border-border" style={{ background: "#d4d4d8" }} aria-hidden="true" />
-              <span>Stable</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-sm" style={{ background: "#f87171" }} aria-hidden="true" />
-              <span>Lost vegetation</span>
-            </div>
-          </div>
-        </>
-      )}
-    </Card>
-  );
 }
 
 /** Pans/zooms to the selected ward when selection changes and ward-level geometry is available. */
@@ -449,7 +369,7 @@ export default function WardChoropleth({
         </div>
       </Card>
 
-      <Legend layer={activeLayer} />
+      <MapLegend layer={activeLayer} />
 
       {(error || locateError) && (
         <div className="absolute inset-x-0 top-[4.25rem] md:top-12 z-map-chrome mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">

@@ -92,7 +92,7 @@ function FirstVisitHint() {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-brand-teal/20 bg-brand-teal/10 px-4 py-2 text-sm text-foreground md:px-6">
       <p>
-        <span className="md:hidden">Tap a ward to see its breakdown. Switch layers above the map.</span>
+        <span className="md:hidden">Tap a ward to see its breakdown. Switch layers at the top of the map.</span>
         <span className="hidden md:inline">
           Colors rank Mumbai&apos;s 24 wards by heat vulnerability. Click any ward, on the map or in
           the list, to see its breakdown and recommendation. Switch layers top-right, or read the{" "}

@@ -160,7 +160,10 @@ export default function WardPanel({
           </div>
         </div>
       )}
-      <ScrollArea className="min-h-0 flex-1">
+      {/* Radix wraps the content in a `display: table` box that grows to its widest
+          line, so a long areas line would push the rank value off the row. Block
+          makes the rows fit the panel and the areas truncate. */}
+      <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]>div]:block!">
         <div className="divide-y divide-border">
           {ordered.map((f) => {
             const p = f.properties;
@@ -195,6 +198,13 @@ export default function WardPanel({
                         // estimates and neighbours overlap heavily (issue #169).
                         <span className="block truncate text-[11px] text-muted-foreground max-md:text-xs">
                           likely {rankRangeLabel(intervals.get(p.ward_id)!)}
+                        </span>
+                      )}
+                      {/* The title tooltip carries these on a pointer; below md, and on any
+                          touch screen, there is no hover, so they are printed. */}
+                      {areasForWard(p.ward_id).length > 0 && (
+                        <span className="block truncate text-xs text-muted-foreground md:hidden [@media(hover:none)]:block">
+                          {areasForWard(p.ward_id).join(", ")}
                         </span>
                       )}
                     </span>

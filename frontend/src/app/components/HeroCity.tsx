@@ -13,6 +13,7 @@ import {
   type HeroRegionData,
 } from "./heroCityData";
 import type { HoverPayload } from "./HeroCityScene";
+import HeroCityTooltip from "./HeroCityTooltip";
 
 /**
  * Landing-hero subject: Mumbai's 24 BMC wards extruded in 3D on a curved piece
@@ -256,8 +257,6 @@ export default function HeroCity() {
     };
   }, []);
 
-  const hoveredAreas = hover ? areasForWard(hover.ward.ward_id) : [];
-
   // Ward ids such as "F/N" contain a slash, so the value is encoded.
   const openWard = useCallback(
     (wardId: string) => router.push(`/dashboard?ward=${encodeURIComponent(wardId)}`),
@@ -306,19 +305,12 @@ export default function HeroCity() {
       )}
 
       {hover && (
-        <div
-          role="status"
-          className="pointer-events-none absolute z-10 max-w-[17rem] -translate-x-1/2 -translate-y-full rounded-lg border border-border bg-background/95 px-2.5 py-1.5 shadow-sm backdrop-blur-sm"
-          style={{ left: hover.x, top: hover.y - 12 }}
-        >
-          <p className="text-xs font-semibold text-foreground">Ward {hover.ward.ward_id}</p>
-          <p className="text-[11px] text-brand-teal max-md:text-xs">Click to open in dashboard</p>
-          {hoveredAreas.length > 0 && (
-            <p className="mt-0.5 max-w-[15rem] text-[11px] leading-snug max-md:text-xs text-muted-foreground">
-              {hoveredAreas.join(", ")}
-            </p>
-          )}
-        </div>
+        <HeroCityTooltip
+          wardId={hover.ward.ward_id}
+          areas={areasForWard(hover.ward.ward_id)}
+          x={hover.x}
+          y={hover.y}
+        />
       )}
     </div>
   );
