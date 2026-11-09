@@ -20,13 +20,13 @@ export default function Mission() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/mission"
-            className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-brand-teal transition-colors hover:bg-white/90"
+            className="rounded-lg bg-white px-5 py-3 text-sm font-semibold md:py-2.5 text-brand-teal transition-colors hover:bg-white/90"
           >
             Our mission
           </Link>
           <Link
             href="/methodology"
-            className="rounded-lg border border-white/50 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            className="rounded-lg border border-white/50 px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-white/10"
           >
             How the method works
           </Link>

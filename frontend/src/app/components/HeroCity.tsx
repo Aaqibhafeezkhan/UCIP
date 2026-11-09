@@ -312,9 +312,9 @@ export default function HeroCity() {
           style={{ left: hover.x, top: hover.y - 12 }}
         >
           <p className="text-xs font-semibold text-foreground">Ward {hover.ward.ward_id}</p>
-          <p className="text-[11px] text-brand-teal">Click to open in dashboard</p>
+          <p className="text-[11px] text-brand-teal max-md:text-xs">Click to open in dashboard</p>
           {hoveredAreas.length > 0 && (
-            <p className="mt-0.5 max-w-[15rem] text-[11px] leading-snug text-muted-foreground">
+            <p className="mt-0.5 max-w-[15rem] text-[11px] leading-snug max-md:text-xs text-muted-foreground">
               {hoveredAreas.join(", ")}
             </p>
           )}

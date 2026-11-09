@@ -55,13 +55,13 @@ export default function Hero() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:justify-start">
             <Link
               href="/dashboard"
-              className="pointer-events-auto rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-teal-hover"
+              className="pointer-events-auto rounded-lg bg-brand-teal px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-brand-teal-hover"
             >
               Open the dashboard
             </Link>
             <Link
               href="/methodology"
-              className="pointer-events-auto rounded-lg border border-border bg-surface/60 px-5 py-2.5 text-sm font-semibold text-foreground backdrop-blur-sm transition-colors hover:bg-surface-hover"
+              className="pointer-events-auto rounded-lg border border-border bg-surface/60 px-5 py-3 text-sm font-semibold md:py-2.5 text-foreground backdrop-blur-sm transition-colors hover:bg-surface-hover"
             >
               Methodology
             </Link>
@@ -81,7 +81,7 @@ export default function Hero() {
       {/* Fades the model into the section edge so it reads as a fragment of
           something larger, and gives the credit line a surface to sit on. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-background to-transparent" />
-      <p className="pointer-events-none absolute inset-x-0 bottom-3 z-10 mx-auto max-w-6xl px-6 text-center text-[11px] leading-relaxed text-muted-foreground sm:px-8 md:text-left">
+      <p className="pointer-events-none absolute inset-x-0 bottom-3 z-10 mx-auto max-w-6xl px-6 text-center text-[11px] leading-relaxed max-md:text-xs text-muted-foreground sm:px-8 md:text-left">
         All 24 wards, raised and coloured by heat vulnerability.
         <br className="hidden sm:inline" /> Real BMC boundaries, coastline from Natural Earth.
       </p>

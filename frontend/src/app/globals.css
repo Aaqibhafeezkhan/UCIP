@@ -173,14 +173,20 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Section eyebrow label, e.g. above the landing page's citation wall */
+/* Section eyebrow label, e.g. above the landing page's citation wall.
+   12 px below md, 11 px from md up (a phone's floor for text). */
 .kicker {
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+@media (min-width: 48rem) {
+  .kicker {
+    font-size: 0.6875rem;
+  }
 }
 
 /* Base for the compact DOI/citation pill used by Citation's chip mode */
@@ -193,13 +199,29 @@ html {
   background: var(--surface);
   padding: 0.1875rem 0.625rem;
   font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .citation-chip:hover {
   border-color: var(--brand-teal);
   color: var(--foreground);
+}
+@media (max-width: 47.99rem) {
+  /* The pill stays small; its tap area grows to 44 px with an invisible layer. */
+  .citation-chip {
+    position: relative;
+  }
+  .citation-chip::before {
+    content: "";
+    position: absolute;
+    inset: -0.75rem 0;
+  }
+}
+@media (min-width: 48rem) {
+  .citation-chip {
+    font-size: 0.6875rem;
+  }
 }
 
 .ward-static-map {
@@ -229,12 +251,14 @@ html {
   body { background: white !important; color: black !important; }
   header, .leaflet-container, .dashboard-map { display: none !important; }
   main, main > aside { display: block !important; width: 100% !important; border: 0 !important; }
-  [data-slot="dialog-portal"], [data-slot="dialog-content"], .ward-scroll { display: block !important; position: static !important; transform: none !important; max-height: none !important; overflow: visible !important; width: 100% !important; max-width: none !important; box-shadow: none !important; border: 0 !important; }
+  [data-slot="dialog-portal"], [data-slot="dialog-content"], .ward-scroll { display: block !important; position: static !important; transform: none !important; translate: none !important; max-height: none !important; overflow: visible !important; width: 100% !important; max-width: none !important; box-shadow: none !important; border: 0 !important; }
   .ward-static-map { display: flex !important; align-items: center; gap: 1rem; margin: 1rem; color: black; }
   .ward-static-map svg { width: 6rem; height: 6rem; }
   .ward-static-map figcaption { font-size: 0.75rem; color: #333; }
   .ward-scroll { scrollbar-width: none; }
   .citation-chip { color: black; border-color: #777; }
+  /* The h-dvh dashboard shell would print as a blank first page ahead of the portalled dialog. */
+  [data-slot="dashboard-shell"] { height: auto !important; overflow: visible !important; }
 }
 
 /* Legibility scrim over HeroGradient's animated backdrop, opacity-only (no blur).
@@ -360,20 +384,75 @@ html {
   outline-offset: 1px;
 }
 
-/* Mobile: keep Leaflet's zoom control clear of the map layer switcher (issue #55).
-   
-   The layer card is anchored top-right and sized to its content. On desktop it
-   is narrow enough to sit well clear of the zoom buttons at top-left, but at
-   375px the three tab labels make it nearly full-width, so it extends back
-   across the zoom control. The result was that the "Heat vulnerability" tab had
-   its label hidden behind the +/- buttons and could not be tapped at all:
-   document.elementFromPoint over that tab returned the zoom control, not the tab.
+/* Leaflet's zoom buttons are 30 px and cannot reach the 44 px tap floor, and a
+   phone has pinch-to-zoom, so they are hidden below md rather than enlarged.
+   From md up they stay, top-left, clear of the layer card at top-right. This
+   also settles issue #55, where the zoom control sat over the layer tabs on a
+   narrow screen: the control is gone there. */
+@media (max-width: 47.99rem) {
+  .leaflet-control-zoom {
+    display: none;
+  }
+}
 
-   Moving the zoom control rather than displacing the tabs, because on a touch
-   device pinch-to-zoom is the primary gesture and these buttons are the
-   secondary affordance, whereas the layer switcher has no alternative. */
-@media (max-width: 640px) {
-  .leaflet-top.leaflet-left {
-    top: 3rem;
+/* /simulate sliders below md: a 28 px thumb on a 44 px-tall control, so a thumb
+   can be grabbed with a finger. From md up the native slider and its
+   accent-color are untouched. --fill (set inline, 0-100) paints the track
+   left of the thumb in the brand teal, which is what accent-color did natively. */
+@media (max-width: 47.99rem) {
+  .sim-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 2.75rem;
+    background: transparent;
+    cursor: pointer;
+  }
+  .sim-range::-webkit-slider-runnable-track {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: linear-gradient(to right, var(--brand-teal) var(--fill, 0%), var(--muted) var(--fill, 0%));
+    border: 1px solid var(--border);
+  }
+  .sim-range::-moz-range-track {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .sim-range::-moz-range-progress {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--brand-teal);
+  }
+  .sim-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-top: calc((0.5rem - 1.75rem) / 2);
+    border-radius: 9999px;
+    background: var(--brand-teal);
+    border: 3px solid var(--background);
+    box-shadow: 0 0 0 1px var(--brand-teal);
+  }
+  .sim-range::-moz-range-thumb {
+    box-sizing: border-box;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 9999px;
+    background: var(--brand-teal);
+    border: 3px solid var(--background);
+    box-shadow: 0 0 0 1px var(--brand-teal);
+  }
+  /* The keyboard ring sits on the thumb, where the eye is; the input's own
+     outline is dropped so a 44 px-tall box is not outlined edge to edge. */
+  .sim-range:focus-visible {
+    outline: none;
+  }
+  .sim-range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px var(--brand-teal), 0 0 0 4px var(--ring);
+  }
+  .sim-range:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 1px var(--brand-teal), 0 0 0 4px var(--ring);
   }
 }

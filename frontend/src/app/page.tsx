@@ -127,7 +127,7 @@ export default function Home() {
               </ol>
               <Link
                 href="/dashboard"
-                className="mt-6 inline-block text-sm font-medium text-brand-teal hover:underline"
+                className="mt-6 inline-block text-sm font-medium text-brand-teal hover:underline max-md:py-3"
               >
                 See all 24 wards on the map
               </Link>

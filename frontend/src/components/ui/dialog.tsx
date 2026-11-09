@@ -146,7 +146,8 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-3 right-3 rounded-md p-1 text-muted-foreground opacity-80 transition-opacity hover:bg-accent hover:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring"
+            // Below md the before: layer lifts the 24 px box to a 44 px hit area.
+            className="absolute top-3 right-3 rounded-md p-1 text-muted-foreground max-md:top-4 max-md:right-4 max-md:before:absolute max-md:before:-inset-2.5 opacity-80 transition-opacity hover:bg-accent hover:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>

@@ -32,9 +32,11 @@ export default function CoefficientSparkline(props: CoefficientSparklineProps) {
   if (props.mode === "unidirectional") {
     const pct = Math.min(Math.max(value, 0) / max, 1) * 100;
     return (
-      <div className="flex items-center gap-3 text-xs">
-        <span className="w-36 shrink-0 text-muted-foreground">{label}</span>
-        <div className="relative h-2 flex-1 rounded-full bg-muted">
+      // Below sm the label and value share a row and the bar takes its own full-width
+      // row beneath them, instead of squeezing to ~32 px between two fixed columns.
+      <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 text-xs sm:flex">
+        <span className="text-muted-foreground sm:w-36 sm:shrink-0">{label}</span>
+        <div className="relative order-last col-span-2 h-2 flex-1 rounded-full bg-muted sm:order-none">
           {props.thresholdPct !== undefined && (
             <div
               className="absolute inset-y-0 w-px bg-muted-foreground/60"
@@ -47,7 +49,7 @@ export default function CoefficientSparkline(props: CoefficientSparklineProps) {
             style={{ width: `${pct}%` }}
           />
         </div>
-        <span className="w-16 shrink-0 text-right font-mono text-muted-foreground">
+        <span className="text-right font-mono text-muted-foreground sm:w-16 sm:shrink-0">
           {displayValue}
         </span>
       </div>

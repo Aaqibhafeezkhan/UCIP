@@ -18,7 +18,7 @@ export default function ContactPage() {
         <p className="mt-4">
           <a
             href="mailto:dhawansanay@gmail.com"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-teal-hover"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-teal px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-brand-teal-hover"
           >
             <Mail className="h-4 w-4" aria-hidden />
             dhawansanay@gmail.com

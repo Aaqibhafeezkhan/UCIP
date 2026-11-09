@@ -40,7 +40,7 @@ export default function Citation(props: CitationProps) {
   // mode === "full"
   return (
     <li className="py-3">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <p className="text-sm font-medium text-foreground">
             {entry.authors}
@@ -58,7 +58,7 @@ export default function Citation(props: CitationProps) {
           href={doiUrl(entry.doi)}
           target="_blank"
           rel="noopener noreferrer"
-          className="citation-chip shrink-0"
+          className="citation-chip self-start sm:shrink-0"
         >
           <span>DOI</span>
           <ExternalLink className="h-3 w-3" aria-hidden />

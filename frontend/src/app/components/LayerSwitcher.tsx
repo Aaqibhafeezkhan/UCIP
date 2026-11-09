@@ -60,10 +60,10 @@ export default function LayerSwitcher({
         {/* Height is overridden through the same group-data variant the
             primitive uses, so it wins rather than sitting alongside it. w-max
             lets the list run past the card so the wrapper can scroll it; below
-            md the tabs are taller for touch. */}
+            md the tabs are 44 px tall for touch. */}
         <TabsList
           aria-label="Map layer"
-          className="w-max group-data-horizontal/tabs:h-9 md:group-data-horizontal/tabs:h-7"
+          className="w-max group-data-horizontal/tabs:h-11 md:group-data-horizontal/tabs:h-7"
         >
           {(Object.keys(LAYER_META) as LayerId[]).map((id) => (
             <TabsTrigger

@@ -110,7 +110,7 @@ function Legend({ layer }: { layer: LayerId }) {
               <div key={b.color} className="h-3 flex-1" style={{ background: b.color }} />
             ))}
           </div>
-          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground max-md:text-xs">
             <span>Less vulnerable</span>
             <span>Most vulnerable</span>
           </div>
@@ -124,11 +124,11 @@ function Legend({ layer }: { layer: LayerId }) {
               <div key={b.color} className="h-3 flex-1" style={{ background: b.color }} />
             ))}
           </div>
-          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground max-md:text-xs">
             <span>Less vulnerable</span>
             <span>Most vulnerable</span>
           </div>
-          <p className="mt-1.5 text-[10px] text-muted-foreground">
+          <p className="mt-1.5 text-[10px] text-muted-foreground max-md:text-xs">
             541 cells, the same score a ward is averaged from.
           </p>
         </>
@@ -416,7 +416,7 @@ export default function WardChoropleth({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="shrink-0 max-md:size-9"
+                className="shrink-0 max-md:size-11"
                 onClick={onLocate}
                 disabled={locating}
                 aria-label={locating ? "Finding your ward…" : "Find my ward"}
@@ -434,7 +434,7 @@ export default function WardChoropleth({
             <Button
               variant="ghost"
               size="icon-sm"
-              className="shrink-0 max-md:size-9"
+              className="shrink-0 max-md:size-11"
               onClick={onToggleFullscreen}
               aria-label={isFullscreen ? "Exit fullscreen" : "View map fullscreen"}
               title={isFullscreen ? "Exit fullscreen (Esc)" : "View fullscreen"}
@@ -452,7 +452,7 @@ export default function WardChoropleth({
       <Legend layer={activeLayer} />
 
       {(error || locateError) && (
-        <div className="absolute inset-x-0 top-14 md:top-12 z-map-chrome mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">
+        <div className="absolute inset-x-0 top-[4.25rem] md:top-12 z-map-chrome mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">
           {error && (
             <div className="rounded bg-destructive/10 px-3 py-1 text-sm text-destructive">
               Failed to load layer: {error}

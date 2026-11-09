@@ -26,10 +26,10 @@ export default function SiteFooter() {
 
           <div>
             <p className="kicker">Quick links</p>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-2 max-md:space-y-0">
               {FOOTER_ROUTES.map((l) => (
                 <li key={l.path}>
-                  <Link href={l.path} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  <Link href={l.path} className="text-sm text-muted-foreground transition-colors hover:text-foreground max-md:flex max-md:min-h-11 max-md:items-center">
                     {l.label}
                   </Link>
                 </li>
@@ -39,10 +39,10 @@ export default function SiteFooter() {
 
           <div>
             <p className="kicker">Legal</p>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-2 max-md:space-y-0">
               {LEGAL_LINKS.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground max-md:flex max-md:min-h-11 max-md:items-center">
                     {l.label}
                   </Link>
                 </li>
@@ -52,16 +52,16 @@ export default function SiteFooter() {
 
           <div>
             <p className="kicker">Connect</p>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-2 max-md:space-y-0">
               <li>
-                <Link href="/contact" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                <Link href="/contact" className="text-sm text-muted-foreground transition-colors hover:text-foreground max-md:flex max-md:min-h-11 max-md:items-center">
                   Contact
                 </Link>
               </li>
               <li>
                 <a
                   href="mailto:dhawansanay@gmail.com"
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground max-md:min-h-11"
                 >
                   <Mail className="h-3.5 w-3.5" aria-hidden />
                   Email
@@ -72,7 +72,7 @@ export default function SiteFooter() {
                   href="https://github.com/AnayDhawan/ucip"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground max-md:min-h-11"
                 >
                   <GithubMark className="h-3.5 w-3.5" />
                   GitHub

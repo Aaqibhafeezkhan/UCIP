@@ -64,14 +64,14 @@ export default function ContributePage() {
               href="https://github.com/AnayDhawan/ucip"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-semibold md:py-2.5 text-background transition-opacity hover:opacity-90"
             >
               <GithubMark className="h-4 w-4" />
               github.com/AnayDhawan/ucip
             </a>
             <a
               href="mailto:dhawansanay@gmail.com"
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-hover"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-3 text-sm font-semibold md:py-2.5 text-foreground transition-colors hover:bg-surface-hover"
             >
               <Mail className="h-4 w-4" aria-hidden />
               Email the maintainer

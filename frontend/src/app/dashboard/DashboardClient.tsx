@@ -104,7 +104,7 @@ function FirstVisitHint() {
       </p>
       <button
         onClick={dismissFirstVisitHint}
-        className="min-h-9 shrink-0 rounded px-2 py-0.5 text-xs font-medium hover:bg-brand-teal/10 md:min-h-0"
+        className="min-h-11 shrink-0 rounded px-2 py-0.5 text-xs font-medium hover:bg-brand-teal/10 md:min-h-0"
         aria-label="Dismiss hint"
       >
         Got it
@@ -259,7 +259,9 @@ function DashboardContent() {
   }, [isFullscreen, selectedWardId, dialogHandlesWard]);
 
   return (
-    <div className="flex h-dvh flex-col bg-background">
+    // data-slot: print CSS releases this shell's fixed height so it does not
+    // push the portalled ward brief onto a second page.
+    <div data-slot="dashboard-shell" className="flex h-dvh flex-col bg-background">
       {!isFullscreen && <SiteHeader compact />}
       {!isFullscreen && <FirstVisitHint />}
       <main className="relative flex flex-1 overflow-hidden">
