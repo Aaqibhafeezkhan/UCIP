@@ -23,6 +23,7 @@ export default function ScrollX({
   label,
   focusable = true,
   fade = "from-background",
+  startInset,
   className = "",
   scrollClassName = "",
   children,
@@ -32,6 +33,9 @@ export default function ScrollX({
   focusable?: boolean;
   /** Tailwind `from-*` colour matching the surface behind the content. */
   fade?: string;
+  /** CSS length that moves the start fade in from the left edge, so it clears
+   *  a sticky first column instead of washing out its labels. */
+  startInset?: string;
   className?: string;
   scrollClassName?: string;
   children: React.ReactNode;
@@ -58,7 +62,7 @@ export default function ScrollX({
     return () => observer.disconnect();
   }, [measure]);
 
-  const fadeBase = `pointer-events-none absolute inset-y-0 w-6 from-30 to-transparent ${fade}`;
+  const fadeBase = `pointer-events-none absolute inset-y-0 z-20 w-6 from-30% to-transparent ${fade}`;
 
   return (
     <div className={`relative flex min-h-0 min-w-0 flex-col ${className}`}>
@@ -71,7 +75,12 @@ export default function ScrollX({
         {children}
       </div>
       {edges.start && (
-        <span aria-hidden data-scroll-fade="start" className={`${fadeBase} left-0 bg-gradient-to-r`} />
+        <span
+          aria-hidden
+          data-scroll-fade="start"
+          style={startInset ? { left: startInset } : undefined}
+          className={`${fadeBase} ${startInset ? "" : "left-0 "}bg-gradient-to-r`}
+        />
       )}
       {edges.end && (
         <span aria-hidden data-scroll-fade="end" className={`${fadeBase} right-0 bg-gradient-to-l`} />

@@ -146,7 +146,6 @@ export default function MethodologyPage() {
             title="What we measure"
             description={`${Object.keys(INDICATOR_LABELS).length} indicators, each z-scored, all from free open global data.`}
           >
-            <ScrollX label="Indicators, direction and source" fade="from-surface">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
@@ -165,7 +164,6 @@ export default function MethodologyPage() {
                 ))}
               </tbody>
             </table>
-            </ScrollX>
             <p className="mt-2 text-xs text-muted-foreground">
               Direction set per the heat-vulnerability literature (see step 5).
             </p>

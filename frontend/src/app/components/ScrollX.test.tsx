@@ -57,6 +57,16 @@ describe("ScrollX", () => {
     expect(fades(container)).toEqual(["start"]);
   });
 
+  it("offsets the start fade by startInset and leaves the end fade at the edge", () => {
+    const { container } = render(<ScrollX label="Table" startInset="8rem"><p>wide</p></ScrollX>);
+    const region = screen.getByRole("region", { name: "Table" });
+    setMetrics(region, { scrollWidth: 600, clientWidth: 300, scrollLeft: 150 });
+    act(() => notify());
+
+    expect(container.querySelector<HTMLElement>('[data-scroll-fade="start"]')!.style.left).toBe("8rem");
+    expect(container.querySelector<HTMLElement>('[data-scroll-fade="end"]')!.style.left).toBe("");
+  });
+
   it("is a keyboard stop by default and not when told otherwise", () => {
     const { rerender } = render(<ScrollX label="Table"><p>wide</p></ScrollX>);
     expect(screen.getByRole("region", { name: "Table" })).toHaveAttribute("tabindex", "0");
