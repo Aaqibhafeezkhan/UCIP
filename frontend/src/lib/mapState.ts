@@ -28,3 +28,10 @@ export function writeMapView(params: URLSearchParams, view: MapView): void {
   params.set("lng", String(view.lng));
   params.set("zoom", String(view.zoom));
 }
+
+/** Below md the toolbar and legend sit over the map's top and bottom edges, so the city is fitted into the gap between them. */
+export function initialFitOptions(isPhone: boolean) {
+  return isPhone
+    ? { paddingTopLeft: [10, 60] as [number, number], paddingBottomRight: [10, 104] as [number, number] }
+    : { padding: [10, 10] as [number, number] };
+}

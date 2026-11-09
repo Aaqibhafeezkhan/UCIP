@@ -77,18 +77,21 @@ function FirstVisitHint() {
   if (!visible) return null;
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-brand-teal/20 bg-brand-teal/10 px-6 py-2 text-sm text-foreground">
+    <div className="flex items-center justify-between gap-4 border-b border-brand-teal/20 bg-brand-teal/10 px-4 py-2 text-sm text-foreground md:px-6">
       <p>
-        Colors rank Mumbai&apos;s 24 wards by heat vulnerability. Click any ward, on the map or in
-        the list, to see its breakdown and recommendation. Switch layers top-right, or read the{" "}
-        <Link href="/methodology" className="font-medium underline">
-          methodology
-        </Link>
-        .
+        <span className="md:hidden">Tap a ward to see its breakdown. Switch layers above the map.</span>
+        <span className="hidden md:inline">
+          Colors rank Mumbai&apos;s 24 wards by heat vulnerability. Click any ward, on the map or in
+          the list, to see its breakdown and recommendation. Switch layers top-right, or read the{" "}
+          <Link href="/methodology" className="font-medium underline">
+            methodology
+          </Link>
+          .
+        </span>
       </p>
       <button
         onClick={dismissFirstVisitHint}
-        className="shrink-0 rounded px-2 py-0.5 text-xs font-medium hover:bg-brand-teal/10"
+        className="min-h-9 shrink-0 rounded px-2 py-0.5 text-xs font-medium hover:bg-brand-teal/10 md:min-h-0"
         aria-label="Dismiss hint"
       >
         Got it
@@ -243,11 +246,12 @@ function DashboardContent() {
   }, [isFullscreen, selectedWardId, dialogHandlesWard]);
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex h-dvh flex-col bg-background">
       {!isFullscreen && <SiteHeader compact />}
       {!isFullscreen && <FirstVisitHint />}
       <main className="relative flex flex-1 overflow-hidden">
-        <div className="dashboard-map relative flex-1">
+        {/* isolate keeps Leaflet's z-400 to z-1000 layers inside the map, so they cannot paint over the z-60 mobile menu. */}
+        <div className="dashboard-map relative isolate flex-1">
           <WardChoropleth
             selectedWardId={selectedWardId}
             onSelectWard={selectWard}
@@ -304,7 +308,7 @@ function DashboardContent() {
 
 export default function DashboardClient() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center text-muted-foreground">Loading…</div>}>
+    <Suspense fallback={<div className="flex h-dvh items-center justify-center text-muted-foreground">Loading…</div>}>
       <DashboardContent />
     </Suspense>
   );

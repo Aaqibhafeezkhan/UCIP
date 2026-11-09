@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { MapLayer } from "@/lib/mapState";
 
@@ -43,38 +44,55 @@ export default function LayerSwitcher({
   activeLayer: LayerId;
   onLayerChange?: (layer: LayerId) => void;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // A layer restored from the URL can sit off-screen in the scrolling tab
+  // strip. jsdom has no scrollIntoView, hence the optional call.
+  useEffect(() => {
+    rootRef.current
+      ?.querySelector('[role="tab"][aria-selected="true"]')
+      ?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  }, [activeLayer]);
+
   return (
-    <Tabs value={activeLayer} onValueChange={(v: string) => onLayerChange?.(v as LayerId)}>
-      {/* Height is overridden through the same group-data variant the
-          primitive uses, so it wins rather than sitting alongside it. */}
-      <TabsList aria-label="Map layer" className="group-data-horizontal/tabs:h-7">
+    <div ref={rootRef}>
+      <Tabs value={activeLayer} onValueChange={(v: string) => onLayerChange?.(v as LayerId)}>
+        {/* Height is overridden through the same group-data variant the
+            primitive uses, so it wins rather than sitting alongside it. w-max
+            lets the list run past the card so the wrapper can scroll it; below
+            md the tabs are taller for touch. */}
+        <TabsList
+          aria-label="Map layer"
+          className="w-max group-data-horizontal/tabs:h-9 md:group-data-horizontal/tabs:h-7"
+        >
+          {(Object.keys(LAYER_META) as LayerId[]).map((id) => (
+            <TabsTrigger
+              key={id}
+              value={id}
+              title={LAYER_META[id].caption}
+              className="whitespace-nowrap px-1.5 text-xs max-md:before:absolute max-md:before:inset-x-0 max-md:before:-inset-y-1"
+            >
+              {LAYER_META[id].label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {/* Each trigger's aria-controls points at one of these. Without
+            them Radix emits a reference to an id that is not in the
+            document, which is a critical WCAG failure (issue #118): axe
+            reports aria-valid-attr-value on every tab.
+
+            They are not a formality. The thing these tabs actually
+            control is a Leaflet canvas, which conveys nothing to a screen
+            reader, so the panel is the only place the current layer gets
+            described in words. Visually hidden because the map is the
+            sighted user's version of the same information. */}
         {(Object.keys(LAYER_META) as LayerId[]).map((id) => (
-          <TabsTrigger
-            key={id}
-            value={id}
-            title={LAYER_META[id].caption}
-            className="whitespace-nowrap px-1.5 text-xs"
-          >
-            {LAYER_META[id].label}
-          </TabsTrigger>
+          <TabsContent key={id} value={id} className="sr-only">
+            {LAYER_META[id].caption}
+          </TabsContent>
         ))}
-      </TabsList>
-
-      {/* Each trigger's aria-controls points at one of these. Without
-          them Radix emits a reference to an id that is not in the
-          document, which is a critical WCAG failure (issue #118): axe
-          reports aria-valid-attr-value on every tab.
-
-          They are not a formality. The thing these tabs actually
-          control is a Leaflet canvas, which conveys nothing to a screen
-          reader, so the panel is the only place the current layer gets
-          described in words. Visually hidden because the map is the
-          sighted user's version of the same information. */}
-      {(Object.keys(LAYER_META) as LayerId[]).map((id) => (
-        <TabsContent key={id} value={id} className="sr-only">
-          {LAYER_META[id].caption}
-        </TabsContent>
-      ))}
-    </Tabs>
+      </Tabs>
+    </div>
   );
 }

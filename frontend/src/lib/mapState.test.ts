@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseMapLayer, parseMapView, writeMapView } from "./mapState";
+import { initialFitOptions, parseMapLayer, parseMapView, writeMapView } from "./mapState";
 
 describe("dashboard map URL state", () => {
   it("accepts a complete valid view", () => {
@@ -22,5 +22,18 @@ describe("dashboard map URL state", () => {
     const params = new URLSearchParams();
     writeMapView(params, { lat: 19.076, lng: 72.877, zoom: 11.25 });
     expect(parseMapView(params)).toEqual({ lat: 19.076, lng: 72.877, zoom: 11.25 });
+  });
+});
+
+describe("initial map fit", () => {
+  it("leaves room for the toolbar and legend on phones", () => {
+    expect(initialFitOptions(true)).toEqual({
+      paddingTopLeft: [10, 60],
+      paddingBottomRight: [10, 104],
+    });
+  });
+
+  it("keeps the even padding from md up", () => {
+    expect(initialFitOptions(false)).toEqual({ padding: [10, 10] });
   });
 });
