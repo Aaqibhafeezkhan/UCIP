@@ -34,3 +34,8 @@ export const ROUTES: readonly Route[] = [
 
 export const NAV_ROUTES = ROUTES.filter((r) => r.nav);
 export const FOOTER_ROUTES = ROUTES.filter((r) => r.footer);
+
+/** Whether `pathname` is on `path` or beneath it. The home page matches only itself. */
+export function isActiveRoute(pathname: string, path: string): boolean {
+  return path === "/" ? pathname === "/" : pathname.startsWith(path);
+}

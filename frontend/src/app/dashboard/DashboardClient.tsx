@@ -250,7 +250,7 @@ function DashboardContent() {
       {!isFullscreen && <SiteHeader compact />}
       {!isFullscreen && <FirstVisitHint />}
       <main className="relative flex flex-1 overflow-hidden">
-        {/* isolate keeps Leaflet's z-400 to z-1000 layers inside the map, so they cannot paint over the z-60 mobile menu. */}
+        {/* isolate keeps Leaflet's z-400 to z-1000 layers inside the map, so they cannot paint over the sticky header. The mobile drawer and dialogs are portalled to body at z-overlay and clear it either way. */}
         <div className="dashboard-map relative isolate flex-1">
           <WardChoropleth
             selectedWardId={selectedWardId}

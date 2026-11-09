@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "./components/ThemeProvider";
+import { MobileNavProvider } from "./components/MobileNav";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next";
 import RegisterServiceWorker from "./components/RegisterServiceWorker";
@@ -76,7 +77,9 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", inter.variable, jetbrainsMono.variable, "font-sans")}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <MobileNavProvider>{children}</MobileNavProvider>
+        </ThemeProvider>
         <Analytics />
         <RegisterServiceWorker />
       </body>
