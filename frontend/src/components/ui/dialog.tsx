@@ -16,11 +16,61 @@ import { cn } from "@/lib/utils"
  * package.json bundles react-dialog, react-portal and react-dismissable-layer.
  *
  * z-index note: the dashboard's map chrome (layer switcher, legend, error
- * banner) sits at z-[1000] and Leaflet's own panes run 400 to 700, so the
- * overlay and content have to clear all of it.
+ * banner) sits at z-map-chrome (1000) and Leaflet's own panes run 400 to 700,
+ * so the overlay and content use z-overlay (2000) to clear all of it.
  */
 
-const DIALOG_Z = "z-[2000]"
+const DIALOG_Z = "z-overlay"
+
+export type DialogPlacement = "center" | "right" | "bottom" | "phone-bottom"
+
+/**
+ * Where the content sits and how it enters. `center` is the original box and
+ * the default. `right` and `bottom` are sheets pinned to an edge that slide in
+ * from it; `phone-bottom` is the bottom sheet below md and the centred box from
+ * md up. Every class is spelled out in full so Tailwind's scanner finds it.
+ *
+ * Sheets move at the sheet duration and easing, and their scrim fades at the
+ * same pace so it does not finish before the panel does.
+ */
+const PLACEMENTS: Record<DialogPlacement, { content: string; overlay: string }> = {
+  center: {
+    content: cn(
+      "top-1/2 left-1/2 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
+      // dvh, not vh: vh ignores mobile browser chrome, and browser zoom
+      // shrinks the viewport, so a fixed vh cap let the box run past the
+      // top and bottom edges with its header and footer unreachable. The
+      // calc keeps a visible margin at every zoom level.
+      "max-h-[min(85dvh,100dvh-2rem)] rounded-xl border border-border",
+      "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+    ),
+    overlay: "",
+  },
+  right: {
+    content: cn(
+      "inset-y-0 right-0 h-dvh rounded-l-xl border-l border-border",
+      "duration-sheet ease-sheet data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
+    ),
+    overlay: "duration-sheet ease-sheet",
+  },
+  bottom: {
+    content: cn(
+      "inset-x-0 bottom-0 max-h-[min(85dvh,100dvh-2rem)] rounded-t-xl border-t border-border",
+      "duration-sheet ease-sheet data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom"
+    ),
+    overlay: "duration-sheet ease-sheet",
+  },
+  "phone-bottom": {
+    content: cn(
+      "max-h-[min(85dvh,100dvh-2rem)] border-border",
+      "max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-xl max-md:border-t",
+      "md:top-1/2 md:left-1/2 md:w-[calc(100%-2rem)] md:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-xl md:border",
+      "max-md:duration-sheet max-md:ease-sheet max-md:data-[state=open]:slide-in-from-bottom max-md:data-[state=closed]:slide-out-to-bottom",
+      "md:data-[state=closed]:fade-out-0 md:data-[state=open]:fade-in-0 md:data-[state=closed]:zoom-out-95 md:data-[state=open]:zoom-in-95"
+    ),
+    overlay: "max-md:duration-sheet max-md:ease-sheet",
+  },
+}
 
 function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
@@ -47,7 +97,7 @@ function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         DIALOG_Z,
-        "fixed inset-0 bg-ink/50 backdrop-blur-[2px]",
+        "fixed inset-0 bg-ink/50",
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className
       )}
@@ -61,6 +111,7 @@ function DialogContent({
   children,
   showCloseButton = true,
   showOverlay = true,
+  placement = "center",
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   /**
@@ -74,21 +125,19 @@ function DialogContent({
   /** Drop the scrim to let the content float over a still-visible, still
    *  interactive page. Pair with `modal={false}` on the Dialog root. */
   showOverlay?: boolean
+  /** Where the content sits and how it enters. See PLACEMENTS. */
+  placement?: DialogPlacement
 }) {
   return (
     <DialogPortal>
-      {showOverlay && <DialogOverlay />}
+      {showOverlay && <DialogOverlay className={PLACEMENTS[placement].overlay} />}
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
           DIALOG_Z,
-          "fixed top-1/2 left-1/2 flex w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col",
-          // dvh, not vh: vh ignores mobile browser chrome, and browser zoom
-          // shrinks the viewport, so a fixed vh cap let the box run past the
-          // top and bottom edges with its header and footer unreachable. The
-          // calc keeps a visible margin at every zoom level.
-          "max-h-[min(85dvh,100dvh-2rem)] overflow-hidden rounded-xl border border-border bg-background shadow-lg",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "fixed flex flex-col overflow-hidden bg-background shadow-lg",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          PLACEMENTS[placement].content,
           className
         )}
         {...props}

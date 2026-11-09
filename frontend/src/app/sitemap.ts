@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { ROUTES } from "@/lib/routes";
 import { wardPageUrl } from "@/lib/wardShare";
 import { wardFeatures } from "@/lib/wardSnapshot";
 
@@ -26,19 +27,7 @@ function lastRefresh(): Date | undefined {
 export default function sitemap(): MetadataRoute.Sitemap {
   const refreshed = lastRefresh();
 
-  const routes = [
-    { path: "/", priority: 1, dataPage: false },
-    { path: "/dashboard", priority: 0.9, dataPage: true },
-    { path: "/cities", priority: 0.6 },
-    { path: "/methodology", priority: 0.8, dataPage: true },
-    { path: "/mission", priority: 0.6 },
-    { path: "/simulate", priority: 0.6 },
-    { path: "/contribute", priority: 0.5 },
-    { path: "/contact", priority: 0.4 },
-    { path: "/legal", priority: 0.2 },
-  ];
-
-  const pages = routes.map(({ path, priority, dataPage }) => ({
+  const pages = ROUTES.map(({ path, priority, dataPage }) => ({
     url: `${siteUrl}${path}`,
     ...(dataPage && refreshed ? { lastModified: refreshed } : {}),
     priority,

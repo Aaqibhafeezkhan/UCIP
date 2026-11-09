@@ -100,7 +100,7 @@ const HVI_LEGEND_BINS = [
 
 function Legend({ layer }: { layer: LayerId }) {
   return (
-    <Card className="absolute bottom-6 left-2 z-[1000] max-w-[240px] gap-0 bg-background/95 p-3 text-xs backdrop-blur-sm">
+    <Card className="absolute bottom-6 left-2 z-map-chrome max-w-[240px] gap-0 bg-background/95 p-3 text-xs backdrop-blur-sm">
       {layer === "hvi" && (
         <>
           <p className="mb-1.5 font-semibold text-foreground">Heat Vulnerability Index (0-100)</p>
@@ -403,7 +403,7 @@ export default function WardChoropleth({
 
   return (
     <div className="absolute inset-0">
-      <Card className="absolute right-2 top-2 z-[1000] w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
+      <Card className="absolute right-2 top-2 z-map-chrome w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-0.5">
           <div className="min-w-0 overflow-x-auto overflow-y-hidden [scrollbar-width:none]">
             <LayerSwitcher activeLayer={activeLayer} onLayerChange={onLayerChange} />
@@ -450,7 +450,7 @@ export default function WardChoropleth({
       <Legend layer={activeLayer} />
 
       {(error || locateError) && (
-        <div className="absolute inset-x-0 top-14 md:top-12 z-[1000] mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">
+        <div className="absolute inset-x-0 top-14 md:top-12 z-map-chrome mx-auto flex w-fit max-w-[90%] flex-col items-center gap-1">
           {error && (
             <div className="rounded bg-destructive/10 px-3 py-1 text-sm text-destructive">
               Failed to load layer: {error}

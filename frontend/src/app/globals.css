@@ -152,6 +152,18 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Layers and sheet motion as named tokens (z-header, z-map-chrome, z-overlay,
+   duration-sheet, ease-sheet) so no component carries a bare stacking number.
+   Leaflet's own panes run 400 to 700, which is why map chrome starts at 1000
+   and dialogs sit above it. Plain values, so not part of the inline block. */
+@theme {
+  --z-index-header: 50;
+  --z-index-map-chrome: 1000;
+  --z-index-overlay: 2000;
+  --transition-duration-sheet: 280ms;
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 body {
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -195,7 +207,7 @@ html {
 }
 
 .embed-card {
-  min-height: 100vh;
+  min-height: 100svh;
   box-sizing: border-box;
   padding: 1.25rem;
   background: var(--background);

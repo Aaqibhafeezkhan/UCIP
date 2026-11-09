@@ -11,7 +11,7 @@ const VENUES = ["Science", "PNAS", "IJERPH", "Environ. Health Perspect.", "Envir
  */
 export default function CitationStrip() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-14">
+    <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
       <div className="rounded-2xl border border-border bg-surface p-8">
         <p className="kicker">Cited research</p>
         <h2 className="mt-2 text-xl font-semibold text-foreground">

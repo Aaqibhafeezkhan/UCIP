@@ -35,14 +35,15 @@ export default function WardListSheet({
       <DialogTrigger asChild>
         <button
           type="button"
-          className="absolute right-2 bottom-6 z-[1000] flex items-center gap-1.5 rounded-md border border-border bg-background/95 px-3 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring md:hidden"
+          className="absolute right-2 bottom-6 z-map-chrome flex items-center gap-1.5 rounded-md border border-border bg-background/95 px-3 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring md:hidden"
         >
           <List className="h-4 w-4" aria-hidden />
           Wards
         </button>
       </DialogTrigger>
       <DialogContent
-        className="top-auto bottom-0 left-0 h-[80dvh] max-h-[80dvh] w-full max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-xl"
+        placement="bottom"
+        className="h-[80dvh] max-h-[80dvh] w-full"
         aria-describedby="ward-sheet-description"
       >
         <DialogTitle className="sr-only">Ward list</DialogTitle>

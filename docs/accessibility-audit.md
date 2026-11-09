@@ -62,9 +62,10 @@ dialog's accessible name resolves to "Ward C" through `aria-labelledby`, and
 its description resolves through `aria-describedby`. Escape closes it and the
 URL drops the `ward` parameter.
 
-**The mobile nav drawer when closed.** Marked `aria-hidden="true"`, `inert`,
-zero-size and `pointer-events: none`, so its 12 focusable children are not
-reachable at desktop width. It also carries an accessible name, "Site menu".
+**The mobile nav drawer when closed.** Not in the DOM at all: `MobileNav.tsx` mounts
+it through a Radix dialog only while open, so no focusable child exists at any width.
+Open, it is a modal dialog named "Menu" that traps focus, closes on Escape and
+returns focus to the hamburger.
 
 **Screen-reader output for the map.** The Leaflet canvas itself is not
 meaningful to a screen reader and is not presented as though it were. The ward

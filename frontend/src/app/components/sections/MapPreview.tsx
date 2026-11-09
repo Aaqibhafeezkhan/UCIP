@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 /** Shows the actual product on the landing page: the choropleth, as a link to /dashboard. */
 export default function MapPreview() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-14">
+    <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
       <Link
         href="/dashboard"
         className="group block overflow-hidden rounded-2xl border border-border bg-surface transition-colors hover:border-brand-teal"

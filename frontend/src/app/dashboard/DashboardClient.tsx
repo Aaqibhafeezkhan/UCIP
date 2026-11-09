@@ -24,9 +24,22 @@ import {
 } from "@/lib/findWard";
 import { parseMapLayer, parseMapView, writeMapView, type MapLayer, type MapView } from "@/lib/mapState";
 
+/**
+ * Stands in for the map while it loads, both while the map chunk downloads and
+ * while the page waits on its search params. A neutral block rather than text,
+ * so nothing reflows when the real map replaces it.
+ */
+function MapPlaceholder() {
+  return (
+    <div role="status" className="h-full w-full bg-muted motion-safe:animate-pulse">
+      <span className="sr-only">Loading map…</span>
+    </div>
+  );
+}
+
 const WardChoropleth = dynamic(() => import("../components/WardChoropleth"), {
   ssr: false,
-  loading: () => <div className="p-8 text-zinc-500">Loading map…</div>,
+  loading: () => <MapPlaceholder />,
 });
 
 /** Matches the `md` breakpoint the sidebar is gated on (`hidden md:block`). */
@@ -250,7 +263,7 @@ function DashboardContent() {
       {!isFullscreen && <SiteHeader compact />}
       {!isFullscreen && <FirstVisitHint />}
       <main className="relative flex flex-1 overflow-hidden">
-        {/* isolate keeps Leaflet's z-400 to z-1000 layers inside the map, so they cannot paint over the z-60 mobile menu. */}
+        {/* isolate keeps Leaflet's z-400 to z-1000 layers inside the map, so they cannot paint over the sticky header. The mobile drawer and dialogs are portalled to body at z-overlay and clear it either way. */}
         <div className="dashboard-map relative isolate flex-1">
           <WardChoropleth
             selectedWardId={selectedWardId}
@@ -306,9 +319,23 @@ function DashboardContent() {
   );
 }
 
+/** Same shell as DashboardContent, so the real header does not jump on hydration. */
+function DashboardSkeleton() {
+  return (
+    <div className="flex h-dvh flex-col bg-background">
+      <SiteHeader compact />
+      <main className="relative flex flex-1 overflow-hidden">
+        <div className="relative flex-1">
+          <MapPlaceholder />
+        </div>
+      </main>
+    </div>
+  );
+}
+
 export default function DashboardClient() {
   return (
-    <Suspense fallback={<div className="flex h-dvh items-center justify-center text-muted-foreground">Loading…</div>}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <DashboardContent />
     </Suspense>
   );

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Mail } from "lucide-react";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
+import PageShell, { PageContainer } from "../components/PageShell";
 
 export const metadata: Metadata = {
   title: "Contact | UCIP",
@@ -10,9 +9,8 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <PageShell>
+      <PageContainer>
         <h1 className="text-2xl font-semibold text-foreground">Contact</h1>
         <p className="mt-3 leading-relaxed text-muted-foreground">
           UCIP is built and maintained by one person. The fastest way to reach me is email:
@@ -33,8 +31,7 @@ export default function ContactPage() {
           <li>Want to adapt UCIP for another city? Say which one. The pipeline runs from a per-city config, and every scored input is free, open, global data.</li>
           <li>Press or general questions: anything goes.</li>
         </ul>
-      </main>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

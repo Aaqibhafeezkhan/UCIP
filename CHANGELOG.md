@@ -6,8 +6,14 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Changed
+- The phone menu is a side drawer over a dimmed page. It no longer snaps past its resting place when it opens, keeps keyboard focus inside while open, and returns focus to the menu button when it closes.
+- The ward list and the ward profile slide up as bottom sheets on phones.
+- Pages share one shell and one layer and motion scale, and the header, footer and sitemap read from a single route list, so a new page picks them up from one entry.
+- The dashboard shows its real header and a map placeholder while it loads.
+
 ### Fixed
-- On phones, the site menu opens above the dashboard map and can be used, the dashboard fits the visible screen, the first layer tab is reachable, the whole city fits between the map's toolbar and legend, and map and ward controls are large enough to tap.
+- On phones, the site menu opens above the dashboard map and can be used, the dashboard fits the visible screen, the first layer tab is reachable, the whole city fits between the map's toolbar and legend, and map and ward controls are large enough to tap. The embed code and print buttons are hidden on phones, and the ward-list prompt and the home page's land-surface note were reworded and restyled to read better there.
 
 ## [1.1.0] - 2026-11-09
 

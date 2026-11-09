@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteHeader from "../../components/SiteHeader";
-import SiteFooter from "../../components/SiteFooter";
+import PageShell, { PageContainer } from "../../components/PageShell";
 import CoefficientSparkline from "../../components/CoefficientSparkline";
 import WardRecommendations from "../../components/WardRecommendations";
 import WardWeather from "../../components/WardWeather";
@@ -66,9 +65,8 @@ export default async function WardPage({ params }: { params: Promise<{ wardId: s
   })).sort((a, b) => b.value - a.value);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-14">
+    <PageShell>
+      <PageContainer>
         <p className="kicker">{ACTIVE_CITY.name} ward</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Ward {ward_id}
@@ -151,8 +149,7 @@ export default async function WardPage({ params }: { params: Promise<{ wardId: s
             Read the method
           </Link>
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }
