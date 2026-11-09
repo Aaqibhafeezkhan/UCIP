@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import sitemap from "./sitemap";
+import { ROUTES } from "@/lib/routes";
 
 describe("sitemap", () => {
   const entries = sitemap();
@@ -27,5 +28,17 @@ describe("sitemap", () => {
     const urls = entries.map(({ url }) => url);
     expect(urls.some((u) => u.endsWith("/methodology"))).toBe(true);
     expect(urls.some((u) => u.endsWith("/dashboard"))).toBe(true);
+  });
+
+  it("is built from the route registry, one entry per route with its priority", () => {
+    const pageEntries = entries.filter(({ url }) => !url.includes("/ward/"));
+    expect(pageEntries.map(({ url }) => new URL(url).pathname)).toEqual(
+      ROUTES.map(({ path }) => path)
+    );
+    ROUTES.forEach(({ priority, dataPage }, i) => {
+      expect(pageEntries[i].priority).toBe(priority);
+      // Only data pages carry the refresh date.
+      expect(pageEntries[i].lastModified instanceof Date).toBe(Boolean(dataPage));
+    });
   });
 });

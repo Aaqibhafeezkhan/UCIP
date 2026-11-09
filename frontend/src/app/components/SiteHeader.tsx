@@ -6,16 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
-
-const NAV = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/cities", label: "Cities" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/simulate", label: "Simulator" },
-  { href: "/mission", label: "Mission" },
-  { href: "/contribute", label: "Contribute" },
-  { href: "/contact", label: "Contact" },
-];
+import { NAV_ROUTES } from "@/lib/routes";
 
 export default function SiteHeader({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
@@ -51,13 +42,13 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
-          {NAV.map((item) => {
+          {NAV_ROUTES.map((item) => {
             const active =
-              item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              item.path === "/" ? pathname === "/" : pathname.startsWith(item.path);
             return (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item.path}
+                href={item.path}
                 aria-current={active ? "page" : undefined}
                 className={`rounded px-3 py-1.5 text-sm transition-colors ${
                   active
@@ -129,13 +120,13 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-6" aria-label="Main mobile">
-          {NAV.map((item) => {
+          {NAV_ROUTES.map((item) => {
             const active =
-              item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              item.path === "/" ? pathname === "/" : pathname.startsWith(item.path);
             return (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item.path}
+                href={item.path}
                 aria-current={active ? "page" : undefined}
                 onClick={() => setOpen(false)}
                 className={`rounded-lg px-3 py-3 text-lg transition-colors ${

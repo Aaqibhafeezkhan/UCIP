@@ -2,14 +2,7 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import Logo from "./Logo";
 import { GithubMark } from "./icons";
-
-const QUICK_LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/simulate", label: "Simulator" },
-  { href: "/mission", label: "Mission" },
-  { href: "/contribute", label: "Contribute" },
-];
+import { FOOTER_ROUTES } from "@/lib/routes";
 
 const LEGAL_LINKS = [
   { href: "/legal#license", label: "License" },
@@ -34,9 +27,9 @@ export default function SiteFooter() {
           <div>
             <p className="kicker">Quick links</p>
             <ul className="mt-3 space-y-2">
-              {QUICK_LINKS.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+              {FOOTER_ROUTES.map((l) => (
+                <li key={l.path}>
+                  <Link href={l.path} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {l.label}
                   </Link>
                 </li>
