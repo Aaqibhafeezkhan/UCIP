@@ -6,6 +6,8 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-09
+
 ### Added
 - `/wards`, `/wards/{wardId}` and `/lookup` return `rank_ci_low`, `rank_ci_high`,
   `hvi_ci_low` and `hvi_ci_high`, the 95% bootstrap interval from
