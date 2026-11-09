@@ -16,11 +16,11 @@ import { cn } from "@/lib/utils"
  * package.json bundles react-dialog, react-portal and react-dismissable-layer.
  *
  * z-index note: the dashboard's map chrome (layer switcher, legend, error
- * banner) sits at z-[1000] and Leaflet's own panes run 400 to 700, so the
- * overlay and content have to clear all of it.
+ * banner) sits at z-map-chrome (1000) and Leaflet's own panes run 400 to 700,
+ * so the overlay and content use z-overlay (2000) to clear all of it.
  */
 
-const DIALOG_Z = "z-[2000]"
+const DIALOG_Z = "z-overlay"
 
 function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />

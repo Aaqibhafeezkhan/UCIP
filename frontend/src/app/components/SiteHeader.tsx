@@ -40,7 +40,7 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
 
   return (
     <>
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-header border-b border-border bg-background/95 backdrop-blur-sm">
       <div
         className={`mx-auto flex items-center justify-between gap-4 px-6 ${
           compact ? "py-2" : "max-w-5xl py-3"
@@ -110,7 +110,7 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
           aria-label="Site menu"
           aria-hidden={!open}
           inert={!open}
-          className={`absolute inset-y-0 right-0 flex h-full w-full flex-col bg-background transition-transform duration-300 ease-out ${
+          className={`absolute inset-y-0 right-0 flex h-full w-full flex-col bg-background transition-transform duration-sheet ease-sheet ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
         >
