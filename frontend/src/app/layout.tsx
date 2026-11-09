@@ -76,6 +76,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("h-full", "antialiased", inter.variable, jetbrainsMono.variable, "font-sans")}
     >
+      <head>
+        {/* Reveal hides its content until a script shows it; without scripts it must not stay hidden. */}
+        <noscript>
+          <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
+        </noscript>
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <MobileNavProvider>{children}</MobileNavProvider>

@@ -76,4 +76,54 @@ describe("a collapsible step", () => {
     });
     expect(details.open).toBe(false);
   });
+
+  it("opens when a link to its anchor is clicked and the hash is already that anchor", () => {
+    stubMatchMedia();
+    window.location.hash = "#sources";
+    const { details } = renderStep();
+    act(() => {
+      details.open = false;
+    });
+    const chip = document.createElement("a");
+    chip.setAttribute("href", "#sources");
+    document.body.appendChild(chip);
+    act(() => chip.click());
+    chip.remove();
+    expect(details.open).toBe(true);
+  });
+
+  it("ignores links to anchors outside the step", () => {
+    stubMatchMedia();
+    const { details } = renderStep();
+    const other = document.createElement("a");
+    other.setAttribute("href", "#limitations");
+    document.body.appendChild(other);
+    act(() => other.click());
+    other.remove();
+    expect(details.open).toBe(false);
+  });
+
+  it("scrolls back to the anchor after folding, when the page opened on another one", () => {
+    stubMatchMedia();
+    const scrolled: string[] = [];
+    const target = document.createElement("div");
+    target.id = "limitations";
+    target.scrollIntoView = () => {
+      scrolled.push("limitations");
+    };
+    document.body.appendChild(target);
+    window.location.hash = "#limitations";
+    const { details } = renderStep();
+    target.remove();
+    expect(details.open).toBe(false);
+    expect(scrolled).toEqual(["limitations"]);
+  });
+
+  it("does not scroll when the page has no anchor", () => {
+    stubMatchMedia();
+    const spy = vi.fn();
+    Element.prototype.scrollIntoView = spy;
+    renderStep();
+    expect(spy).not.toHaveBeenCalled();
+  });
 });

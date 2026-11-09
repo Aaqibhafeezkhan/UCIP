@@ -16,7 +16,8 @@ const HVI_LEGEND_BINS = [
 /**
  * The map's key, one per layer. Below md it also prints the layer's caption: on a
  * phone the tab's `title` tooltip never shows, so this is the only place the
- * layer is explained.
+ * layer is explained. Not for the default layer, whose title and scale already
+ * say it, and where the taller legend would cover the south of the city.
  */
 export default function MapLegend({ layer }: { layer: LayerId }) {
   return (
@@ -86,9 +87,11 @@ export default function MapLegend({ layer }: { layer: LayerId }) {
           </div>
         </>
       )}
-      <p className="mt-1.5 text-xs leading-snug text-muted-foreground md:hidden">
-        {LAYER_META[layer].caption}
-      </p>
+      {layer !== "hvi" && (
+        <p className="mt-1 text-xs leading-snug text-muted-foreground md:hidden">
+          {LAYER_META[layer].caption}
+        </p>
+      )}
     </Card>
   );
 }
