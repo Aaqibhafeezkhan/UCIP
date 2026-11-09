@@ -69,6 +69,16 @@ const INDICATOR_LABELS: Record<string, { label: string; direction: string; sourc
 
 const WEIGHT_BAR_MAX = 0.35;
 
+/** The contents chips. Ids are the steps' anchors; `limitations` is linked from elsewhere on the site. */
+const STEPS = [
+  { id: "measure", label: "Measure" },
+  { id: "score", label: "Score" },
+  { id: "robustness", label: "Robustness" },
+  { id: "build", label: "Build" },
+  { id: "sources", label: "Sources" },
+  { id: "limitations", label: "Limitations" },
+];
+
 function readJson<T>(filename: string): T {
   const p = path.join(process.cwd(), "..", "data", filename);
   return JSON.parse(fs.readFileSync(p, "utf-8"));
@@ -105,6 +115,22 @@ export default function MethodologyPage() {
     <PageShell>
       <PageContainer>
         <h1 className="text-2xl font-semibold text-foreground">Methodology</h1>
+        {/* Phones only: the page is long and its steps sit far apart. */}
+        <nav aria-label="On this page" className="mt-3 md:hidden">
+          <ul className="flex flex-wrap gap-2">
+            {STEPS.map((s, i) => (
+              <li key={s.id}>
+                <a
+                  href={`#${s.id}`}
+                  className="flex min-h-11 items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 text-sm text-brand-teal transition-colors hover:bg-surface-hover"
+                >
+                  <span className="font-mono text-xs text-muted-foreground">{i + 1}</span>
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           In plain terms: satellites measure how hot each square kilometre of Mumbai&apos;s surface
           gets in the dry season, how green it is and how much of it is paved. Open data adds how
@@ -143,6 +169,7 @@ export default function MethodologyPage() {
         <div className="mt-8 space-y-6">
           <StepCard
             step={1}
+            id="measure"
             title="What we measure"
             description={`${Object.keys(INDICATOR_LABELS).length} indicators, each z-scored, all from free open global data.`}
           >
@@ -179,6 +206,7 @@ export default function MethodologyPage() {
 
           <StepCard
             step={2}
+            id="score"
             title="How the score is built"
             description="Weighted sum, rescaled 0-100, no black box."
           >
@@ -223,6 +251,7 @@ export default function MethodologyPage() {
 
           <StepCard
             step={3}
+            id="robustness"
             title="Does it hold up"
             description="Does the ranking survive a wobble in its own weights?"
           >
@@ -340,6 +369,7 @@ export default function MethodologyPage() {
 
           <StepCard
             step={4}
+            id="build"
             title="What to build"
             description="Rule-based nature-based-solutions engine, ecologically gated."
           >
@@ -362,6 +392,8 @@ export default function MethodologyPage() {
 
           <StepCard
             step={5}
+            id="sources"
+            collapsible
             title="Every source"
             description="The papers behind the method, the filter and the cooling coefficients."
           >

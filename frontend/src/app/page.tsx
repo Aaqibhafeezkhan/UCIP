@@ -72,7 +72,7 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-          <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+          <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
             <h2 className="text-xl font-semibold text-foreground">Four ways to look at the city</h2>
             <div className="mt-6 space-y-6">
               {LAYERS.map((l) => (
@@ -96,7 +96,7 @@ export default function Home() {
 
         <Reveal>
           <section className="border-t border-border bg-surface">
-            <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+            <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
               <h2 className="text-xl font-semibold text-foreground">
                 The five most heat-vulnerable wards
               </h2>
@@ -142,7 +142,7 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-          <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+          <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 md:py-14">
             <h2 className="text-xl font-semibold text-foreground">Built in the open</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Every scored input is free, open and global: Landsat satellite imagery, ESA

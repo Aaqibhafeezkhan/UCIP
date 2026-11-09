@@ -259,6 +259,10 @@ html {
   .citation-chip { color: black; border-color: #777; }
   /* The h-dvh dashboard shell would print as a blank first page ahead of the portalled dialog. */
   [data-slot="dashboard-shell"] { height: auto !important; overflow: visible !important; }
+  /* Scroll reveals never fire in print, and folded methodology steps must print in full.
+     StepDetails opens them on beforeprint; this covers engines that support the pseudo-element. */
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  details::details-content { content-visibility: visible !important; }
 }
 
 /* Legibility scrim over HeroGradient's animated backdrop, opacity-only (no blur).

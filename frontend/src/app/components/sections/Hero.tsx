@@ -35,24 +35,24 @@ export default function Hero() {
           the text and controls themselves take the pointer (w-fit shrinks each
           block to its text). Otherwise the empty parts of these boxes would
           swallow clicks and hovers meant for the wards behind them. */}
-      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-6 pt-12 sm:px-8 md:pt-16">
+      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-6 pt-8 sm:px-8 sm:pt-12 md:pt-16">
         {/* Centred on phones, where the model sits centred behind the copy and
             there is no side column to align against; left-aligned from md up,
             where the model moves right and the copy holds the left. */}
         <div className="max-w-3xl animate-fade-up text-center md:text-left">
           <p className="hero-text-shadow kicker pointer-events-auto mx-auto w-fit md:mx-0 !text-foreground">Urban Climate Intelligence Platform</p>
-          <h1 className="hero-text-shadow pointer-events-auto mx-auto mt-4 w-fit text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:mx-0 md:text-5xl">
+          <h1 className="hero-text-shadow pointer-events-auto mx-auto mt-3 w-fit sm:mt-4 text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:mx-0 md:text-5xl">
             Mumbai&apos;s ward-level
             <br />
             heat vulnerability.
           </h1>
-          <div className="mx-auto mt-6 h-1.5 w-44 rounded-full bg-gradient-to-r from-brand-teal to-brand-emerald md:mx-0" />
-          <p className="hero-text-shadow pointer-events-auto mx-auto mt-6 w-fit max-w-xl text-lg leading-relaxed text-foreground md:mx-0">
+          <div className="mx-auto mt-4 h-1.5 w-44 sm:mt-6 rounded-full bg-gradient-to-r from-brand-teal to-brand-emerald md:mx-0" />
+          <p className="hero-text-shadow pointer-events-auto mx-auto mt-4 w-fit max-w-xl text-base leading-relaxed sm:mt-6 sm:text-lg text-foreground md:mx-0">
             Satellite and population data, scored ward by ward.
-            <br />
+            <br className="max-sm:hidden" />{" "}
             Weather for every ward. Every number sourced.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:mt-8 md:justify-start">
             <Link
               href="/dashboard"
               className="pointer-events-auto rounded-lg bg-brand-teal px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-brand-teal-hover"
@@ -66,7 +66,7 @@ export default function Hero() {
               Methodology
             </Link>
           </div>
-          <div className="mt-6 flex justify-center md:block">
+          <div className="mt-4 flex justify-center sm:mt-6 md:block">
             <div className="pointer-events-auto w-fit">
               <LiveTempStrip />
             </div>
@@ -75,8 +75,10 @@ export default function Hero() {
       </div>
 
       {/* Reserves the lower half of the section for the model, which is painted
-          by the full-bleed canvas behind rather than by this element. */}
-      <div className="pointer-events-none min-h-[220px] flex-1" />
+          by the full-bleed canvas behind rather than by this element. Shorter on
+          phones, where the copy already fills most of a 640 px screen and a tall
+          spacer pushed the model below the fold. */}
+      <div className="pointer-events-none min-h-16 flex-1 sm:min-h-[220px]" />
 
       {/* Fades the model into the section edge so it reads as a fragment of
           something larger, and gives the credit line a surface to sit on. */}
