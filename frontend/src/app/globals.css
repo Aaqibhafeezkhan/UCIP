@@ -207,7 +207,7 @@ html {
 }
 
 .embed-card {
-  min-height: 100vh;
+  min-height: 100svh;
   box-sizing: border-box;
   padding: 1.25rem;
   background: var(--background);

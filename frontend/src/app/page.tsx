@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import Link from "next/link";
-import SiteHeader from "./components/SiteHeader";
-import SiteFooter from "./components/SiteFooter";
+import PageShell from "./components/PageShell";
 import Reveal from "./components/Reveal";
 import Hero from "./components/sections/Hero";
 import MapPreview from "./components/sections/MapPreview";
@@ -64,9 +63,7 @@ export default function Home() {
   const dryWindow = compositeWindow();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-
+    <PageShell>
       <main className="flex-1">
         <Hero />
 
@@ -75,7 +72,7 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-          <section className="mx-auto max-w-5xl px-6 py-14">
+          <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
             <h2 className="text-xl font-semibold text-foreground">Four ways to look at the city</h2>
             <div className="mt-6 space-y-6">
               {LAYERS.map((l) => (
@@ -99,7 +96,7 @@ export default function Home() {
 
         <Reveal>
           <section className="border-t border-border bg-surface">
-            <div className="mx-auto max-w-5xl px-6 py-14">
+            <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
               <h2 className="text-xl font-semibold text-foreground">
                 The five most heat-vulnerable wards
               </h2>
@@ -145,7 +142,7 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-          <section className="mx-auto max-w-5xl px-6 py-14">
+          <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
             <h2 className="text-xl font-semibold text-foreground">Built in the open</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Every scored input is free, open and global: Landsat satellite imagery, ESA
@@ -161,8 +158,6 @@ export default function Home() {
           </section>
         </Reveal>
       </main>
-
-      <SiteFooter />
-    </div>
+    </PageShell>
   );
 }

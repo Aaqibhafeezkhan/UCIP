@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
+import PageShell, { PageContainer } from "../components/PageShell";
 import Reveal from "../components/Reveal";
 import Card from "../components/Card";
 
@@ -31,9 +30,8 @@ const DIFFERENTIATORS = [
 
 export default function MissionPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-14">
+    <PageShell>
+      <PageContainer>
         <p className="kicker">Mission</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Turn heat data into action, ward by ward.
@@ -105,8 +103,7 @@ export default function MissionPage() {
             </Link>
           </div>
         </Reveal>
-      </main>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

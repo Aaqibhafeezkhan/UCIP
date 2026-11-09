@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
+import PageShell, { PageContainer } from "../components/PageShell";
 import { CitationList } from "../components/Citation";
 import SimulatePanel from "./SimulatePanel";
 import BudgetAllocation from "./BudgetAllocation";
@@ -15,9 +14,8 @@ const COEFFICIENT_CITATIONS = CITATIONS.filter((c) => c.category === "cooling-co
 
 export default function SimulatePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+    <PageShell>
+      <PageContainer>
         <h1 className="text-2xl font-semibold text-foreground">What if we cooled a ward?</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Move the sliders to see an illustrative first-order estimate of daytime cooling from
@@ -40,8 +38,7 @@ export default function SimulatePage() {
           <h2 className="text-lg font-semibold text-foreground">Sources for this estimate</h2>
           <CitationList entries={COEFFICIENT_CITATIONS} />
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

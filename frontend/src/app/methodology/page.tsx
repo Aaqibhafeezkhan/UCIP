@@ -2,8 +2,7 @@ import fs from "fs";
 import path from "path";
 import type { Metadata } from "next";
 import Image from "next/image";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
+import PageShell, { PageContainer } from "../components/PageShell";
 import { StepCard } from "../components/Card";
 import { CitationList } from "../components/Citation";
 import CoefficientSparkline from "../components/CoefficientSparkline";
@@ -102,9 +101,8 @@ export default function MethodologyPage() {
     .map(([k]) => k);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+    <PageShell>
+      <PageContainer>
         <h1 className="text-2xl font-semibold text-foreground">Methodology</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           In plain terms: satellites measure how hot each square kilometre of Mumbai&apos;s surface
@@ -402,8 +400,7 @@ export default function MethodologyPage() {
             </ul>
           </StepCard>
         </div>
-      </div>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

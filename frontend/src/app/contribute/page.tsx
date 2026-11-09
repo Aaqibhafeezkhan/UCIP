@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Star, Mail, MapPin, Microscope } from "lucide-react";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
+import PageShell, { PageContainer } from "../components/PageShell";
 import Reveal from "../components/Reveal";
 import Card from "../components/Card";
 import { GithubMark } from "../components/icons";
@@ -37,9 +36,8 @@ const WAYS = [
 
 export default function ContributePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-14">
+    <PageShell>
+      <PageContainer>
         <p className="kicker">Contribute</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Built by one student, open to everyone.
@@ -88,8 +86,7 @@ export default function ContributePage() {
           </Link>{" "}
           has the details on what to include.
         </p>
-      </main>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

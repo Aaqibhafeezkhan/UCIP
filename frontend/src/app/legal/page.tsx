@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
+import PageShell, { PageContainer } from "../components/PageShell";
 import { SourceAttribution } from "../components/Citation";
 import { SOURCES } from "@/lib/citations";
 
@@ -11,9 +10,8 @@ export const metadata: Metadata = {
 
 export default function LegalPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <PageShell>
+      <PageContainer>
         <h1 className="text-2xl font-semibold text-foreground">Legal and data attribution</h1>
 
         <h2 id="license" className="mt-8 text-lg font-semibold text-foreground">
@@ -108,8 +106,7 @@ export default function LegalPage() {
             and files you opened, kept in cache storage by the site&apos;s service worker.
           </li>
         </ul>
-      </main>
-      <SiteFooter />
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }
