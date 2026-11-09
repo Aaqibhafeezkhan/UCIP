@@ -16,6 +16,7 @@ import { initialFitOptions, type MapLayer, type MapView } from "@/lib/mapState";
 import type { CellNbsProps, CellNdviProps, WardProps } from "@/lib/wardTypes";
 
 import LayerSwitcher, { LAYER_META } from "./LayerSwitcher";
+import ScrollX from "./ScrollX";
 
 type LayerId = MapLayer;
 
@@ -405,9 +406,10 @@ export default function WardChoropleth({
     <div className="absolute inset-0">
       <Card className="absolute right-2 top-2 z-map-chrome w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-0.5">
-          <div className="min-w-0 overflow-x-auto overflow-y-hidden [scrollbar-width:none]">
+          {/* The tabs are already keyboard reachable, so the strip is not a second tab stop. */}
+          <ScrollX focusable={false} scrollClassName="overflow-y-hidden [scrollbar-width:none]">
             <LayerSwitcher activeLayer={activeLayer} onLayerChange={onLayerChange} />
-          </div>
+          </ScrollX>
           {onLocate && (
             <>
               <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden />

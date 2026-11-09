@@ -6,6 +6,7 @@ import PageShell, { PageContainer } from "../components/PageShell";
 import { StepCard } from "../components/Card";
 import { CitationList } from "../components/Citation";
 import CoefficientSparkline from "../components/CoefficientSparkline";
+import ScrollX from "../components/ScrollX";
 import {
   formatCompositeWindow,
   formatRunDate,
@@ -145,6 +146,7 @@ export default function MethodologyPage() {
             title="What we measure"
             description={`${Object.keys(INDICATOR_LABELS).length} indicators, each z-scored, all from free open global data.`}
           >
+            <ScrollX label="Indicators, direction and source" fade="from-surface">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
@@ -163,6 +165,7 @@ export default function MethodologyPage() {
                 ))}
               </tbody>
             </table>
+            </ScrollX>
             <p className="mt-2 text-xs text-muted-foreground">
               Direction set per the heat-vulnerability literature (see step 5).
             </p>
@@ -259,7 +262,7 @@ export default function MethodologyPage() {
                   {validation.window.end}.
                 </p>
 
-                <div className="mt-3 overflow-x-auto">
+                <ScrollX label="Weather station validation" fade="from-surface" className="mt-3">
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b border-border text-xs uppercase text-muted-foreground">
@@ -290,7 +293,7 @@ export default function MethodologyPage() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </ScrollX>
 
                 <p className="mt-3 text-sm text-muted-foreground">
                   <strong className="text-foreground">Read this carefully.</strong> Land surface

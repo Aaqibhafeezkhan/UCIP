@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { FACTOR_LABELS, INDICATOR_KEYS } from "@/lib/wardTypes";
 import { useWardData } from "@/lib/useWardData";
 import { intervalsOverlap, rankRangeLabel } from "@/lib/rankUncertainty";
+import ScrollX from "./ScrollX";
 
 export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; onClose: () => void }) {
   const { wards, recs, intervals, error } = useWardData();
@@ -45,27 +46,28 @@ export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; o
           </p>
         )}
         {compared.length >= 2 && (
-          <div className="overflow-auto border-t border-border">
+          <ScrollX label="Ward comparison table" className="border-t border-border">
+            {/* The first column stays put with a solid fill so values scroll under it. */}
             <table className="w-full min-w-[36rem] text-left text-xs">
-              <thead className="sticky top-0 bg-background">
+              <thead className="sticky top-0 z-10 bg-background">
                 <tr className="border-b border-border">
-                  <th className="p-3 font-medium text-muted-foreground">Measure</th>
+                  <th className="sticky left-0 bg-background p-3 font-medium text-muted-foreground">Measure</th>
                   {compared.map(({ properties }) => <th key={properties.ward_id} className="p-3 font-semibold">Ward {properties.ward_id}</th>)}
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border"><th className="p-3 font-medium">HVI</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{properties.HVI?.toFixed(1) ?? "n/a"}</td>)}</tr>
-                <tr className="border-b border-border"><th className="p-3 font-medium">City rank</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{properties.rank ?? "n/a"}</td>)}</tr>
+                <tr className="border-b border-border"><th className="sticky left-0 bg-background p-3 font-medium">HVI</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{properties.HVI?.toFixed(1) ?? "n/a"}</td>)}</tr>
+                <tr className="border-b border-border"><th className="sticky left-0 bg-background p-3 font-medium">City rank</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{properties.rank ?? "n/a"}</td>)}</tr>
                 {intervals.size > 0 && (
-                  <tr className="border-b border-border"><th className="p-3 font-medium">Likely rank (95%)</th>{compared.map(({ properties }) => { const iv = intervals.get(properties.ward_id); return <td key={properties.ward_id} className="p-3">{iv ? rankRangeLabel(iv) : "n/a"}</td>; })}</tr>
+                  <tr className="border-b border-border"><th className="sticky left-0 bg-background p-3 font-medium">Likely rank (95%)</th>{compared.map(({ properties }) => { const iv = intervals.get(properties.ward_id); return <td key={properties.ward_id} className="p-3">{iv ? rankRangeLabel(iv) : "n/a"}</td>; })}</tr>
                 )}
                 {INDICATOR_KEYS.map((key) => (
-                  <tr key={key} className="border-b border-border"><th className="p-3 font-medium">{FACTOR_LABELS[key]}</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{typeof properties[`contrib_${key}`] === "number" ? (properties[`contrib_${key}`] as number).toFixed(2) : "n/a"}</td>)}</tr>
+                  <tr key={key} className="border-b border-border"><th className="sticky left-0 bg-background p-3 font-medium">{FACTOR_LABELS[key]}</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{typeof properties[`contrib_${key}`] === "number" ? (properties[`contrib_${key}`] as number).toFixed(2) : "n/a"}</td>)}</tr>
                 ))}
-                <tr><th className="p-3 align-top font-medium">Recommendations</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{(recs ?? []).filter((rec) => rec.ward_id === properties.ward_id).sort((a, b) => a.priority - b.priority).map((rec) => <p key={rec.intervention} className="mb-1">{rec.intervention}</p>) || "n/a"}</td>)}</tr>
+                <tr><th className="sticky left-0 bg-background p-3 align-top font-medium">Recommendations</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{(recs ?? []).filter((rec) => rec.ward_id === properties.ward_id).sort((a, b) => a.priority - b.priority).map((rec) => <p key={rec.intervention} className="mb-1">{rec.intervention}</p>) || "n/a"}</td>)}</tr>
               </tbody>
             </table>
-          </div>
+          </ScrollX>
         )}
       </DialogContent>
     </Dialog>
