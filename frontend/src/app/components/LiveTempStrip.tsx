@@ -72,7 +72,7 @@ export default function LiveTempStrip() {
           <span className="text-foreground">Live air temperature unavailable</span>
         )}
       </span>
-      <span className="hero-text-shadow max-w-md text-xs leading-relaxed text-foreground">
+      <span className="hero-text-shadow max-w-md text-xs leading-relaxed text-foreground max-md:rounded-md max-md:bg-background/75 max-md:px-2 max-md:py-1 max-md:backdrop-blur-sm">
         The map measures land-surface temperature, a related but different number.{" "}
         <Link href="/methodology#limitations" className="font-semibold text-foreground underline">
           See why that matters

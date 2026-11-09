@@ -6,6 +6,9 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Fixed
+- On phones, the site menu opens above the dashboard map and can be used, the dashboard fits the visible screen, the first layer tab is reachable, the whole city fits between the map's toolbar and legend, and map and ward controls are large enough to tap.
+
 ## [1.1.0] - 2026-11-09
 
 ### Added

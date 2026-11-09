@@ -10,7 +10,7 @@ import { wardSlug } from "@/lib/wardSlug";
 import { wardPageUrl, wardShareText, whatsappHref } from "@/lib/wardShare";
 
 const ACTION =
-  "shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground print:hidden";
+  "shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground max-md:p-2.5 print:hidden";
 
 // navigator.share exists on phones and some desktops; false while rendering on the server.
 const noopSubscribe = () => () => {};
@@ -94,7 +94,7 @@ export default function WardDetailHeader({
           onClick={copyEmbed}
           aria-label={`Copy embed code for ward ${ward.ward_id}`}
           title="Copy embed code"
-          className={ACTION}
+          className={`${ACTION} max-md:hidden`}
         >
           {copied ? <Check className="h-4 w-4" /> : <Code2 className="h-4 w-4" />}
         </button>
@@ -102,14 +102,14 @@ export default function WardDetailHeader({
           onClick={() => window.print()}
           aria-label={`Print ward ${ward.ward_id} brief`}
           title="Print ward brief"
-          className={ACTION}
+          className={`${ACTION} max-md:hidden`}
         >
           <Printer className="h-4 w-4" />
         </button>
         <button
           onClick={onClose}
           aria-label="Close ward details"
-          className="-mr-1 shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring print:hidden"
+          className="-mr-1 shrink-0 rounded-md p-1 max-md:p-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring print:hidden"
         >
           <X className="h-4 w-4" />
         </button>

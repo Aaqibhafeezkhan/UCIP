@@ -121,7 +121,7 @@ export default function WardPanel({
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">24 wards, ranked by heat vulnerability</h2>
         <p className="mt-1 text-xs leading-snug text-muted-foreground">
-          Click a ward, here or on the map, to open its full profile.
+          Pick a ward, here or on the map, to open its full profile.
         </p>
         <div className="relative mt-2">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
