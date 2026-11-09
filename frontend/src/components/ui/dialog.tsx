@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils"
 
 const DIALOG_Z = "z-overlay"
 
-type DialogPlacement = "center" | "right" | "bottom" | "phone-bottom"
+export type DialogPlacement = "center" | "right" | "bottom" | "phone-bottom"
 
 /**
  * Where the content sits and how it enters. `center` is the original box and

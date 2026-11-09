@@ -63,7 +63,9 @@ describe("mobile nav drawer", () => {
     render(<Page />);
     const { hamburger, drawer } = await openMenu();
 
-    const links = within(drawer).getAllByRole("link");
+    const links = within(within(drawer).getByRole("navigation", { name: "Main mobile" })).getAllByRole(
+      "link"
+    );
     expect(links.map((link) => link.textContent)).toEqual(NAV_ROUTES.map((r) => r.label));
     expect(within(drawer).getByRole("link", { name: "Dashboard" })).toHaveAttribute(
       "aria-current",
@@ -71,6 +73,24 @@ describe("mobile nav drawer", () => {
     );
     expect(links.filter((link) => link.hasAttribute("aria-current"))).toHaveLength(1);
     expect(hamburger).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("links the logo home at the top and closes when it is tapped", async () => {
+    // On the home page the tap changes no route, so only its own onClick can close.
+    route.pathname = "/";
+    render(<Page />);
+    const { drawer } = await openMenu();
+
+    const logo = within(drawer).getByRole("link", { name: "UCIP home" });
+    expect(logo).toHaveAttribute("href", "/");
+    expect(drawer.querySelector("a")).toBe(logo);
+    // Not part of the page list, so it never claims aria-current.
+    expect(logo).not.toHaveAttribute("aria-current");
+    document.addEventListener("click", (event) => event.preventDefault(), { once: true });
+
+    fireEvent.click(logo);
+
+    await expectClosed();
   });
 
   it("labels the theme control in text", async () => {

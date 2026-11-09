@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
+import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import {
   Dialog,
@@ -94,8 +95,18 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
             if (opener.current?.isConnected) opener.current.focus({ preventScroll: true });
           }}
         >
-          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-border py-2 pl-4 pr-2">
-            <DialogTitle className="text-base">Menu</DialogTitle>
+          <div className="flex shrink-0 items-center justify-between gap-4 border-b border-border px-2 py-2">
+            {/* The logo takes the title's place on screen. The title stays for the
+                dialog's accessible name. */}
+            <DialogTitle className="sr-only">Menu</DialogTitle>
+            <Link
+              href="/"
+              aria-label="UCIP home"
+              onClick={() => setOpen(false)}
+              className="flex h-11 items-center rounded-lg px-2 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring"
+            >
+              <Logo />
+            </Link>
             <DialogClose asChild>
               <button
                 type="button"

@@ -16,9 +16,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import axe from "axe-core";
 import LayerSwitcher from "./LayerSwitcher";
+import { MobileNavProvider } from "./MobileNav";
+import SiteHeader from "./SiteHeader";
 import WardDialog from "./WardDialog";
 import WardListSheet from "./WardListSheet";
 import { areasForWard } from "@/lib/wardAreas";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard",
+}));
 
 async function violations(container: Element = document.body) {
   const results = await axe.run(container, {
@@ -91,6 +97,25 @@ describe("accessibility (axe, WCAG 2.1 A and AA, no colour contrast)", () => {
   it("ward dialog has no violations once a ward is open", async () => {
     render(<WardDialog selectedWardId="C" onSelectWard={() => {}} enabled />);
     await screen.findByText("Priority 1 of 2", { exact: false });
+    expect(await violations()).toEqual([]);
+  });
+
+  it("mobile nav drawer has no violations when open", async () => {
+    // jsdom has no matchMedia; the provider listens for the viewport reaching md.
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      media: query,
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    render(
+      <MobileNavProvider>
+        <SiteHeader />
+      </MobileNavProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    await screen.findByRole("dialog", { name: "Menu" });
     expect(await violations()).toEqual([]);
   });
 

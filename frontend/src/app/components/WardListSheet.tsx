@@ -42,7 +42,8 @@ export default function WardListSheet({
         </button>
       </DialogTrigger>
       <DialogContent
-        className="top-auto bottom-0 left-0 h-[80dvh] max-h-[80dvh] w-full max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-xl"
+        placement="bottom"
+        className="h-[80dvh] max-h-[80dvh] w-full"
         aria-describedby="ward-sheet-description"
       >
         <DialogTitle className="sr-only">Ward list</DialogTitle>

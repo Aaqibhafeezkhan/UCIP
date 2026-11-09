@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import WardDetail from "./WardDetail";
 import WardDetailHeader from "./WardDetailHeader";
@@ -28,11 +29,20 @@ export default function WardDialog({
 }) {
   const { wards, recs, profiles, intervals, error } = useWardData();
 
-  const selected = wards?.find((f) => f.properties.ward_id === selectedWardId) ?? null;
+  // The URL clears `selectedWardId` the moment the sheet starts closing, but the
+  // sheet is still on screen for its exit animation. Render from the last ward
+  // that was selected so it does not flash "Loading ward…" on the way out. State
+  // adjusted during render, as in MobileNav, because lint forbids writing a ref
+  // there.
+  const [lastWardId, setLastWardId] = useState(selectedWardId);
+  if (selectedWardId && selectedWardId !== lastWardId) setLastWardId(selectedWardId);
+  const wardId = selectedWardId ?? lastWardId;
+
+  const selected = wards?.find((f) => f.properties.ward_id === wardId) ?? null;
   const props = selected?.properties;
-  const wardRecs = selectedWardId
+  const wardRecs = wardId
     ? (recs ?? [])
-        .filter((r) => r.ward_id === selectedWardId)
+        .filter((r) => r.ward_id === wardId)
         .sort((a, b) => a.priority - b.priority)
     : [];
   const totalWards = profiles?.n_wards ?? wards?.length ?? 24;
@@ -48,7 +58,10 @@ export default function WardDialog({
         aria-describedby="ward-dialog-description"
         aria-labelledby="ward-dialog-title"
         showCloseButton={false}
-        className="max-w-md"
+        placement="phone-bottom"
+        // Full-width sheet on phones, so the width cap starts at md. The height
+        // cap rises to 90dvh on phones only; desktop keeps the placement's.
+        className="max-md:max-h-[90dvh] md:max-w-md"
       >
         <DialogDescription id="ward-dialog-description" className="sr-only">
           Detailed heat vulnerability index, greening data, and recommended
@@ -64,7 +77,7 @@ export default function WardDialog({
           />
         ) : (
           <DialogTitle id="ward-dialog-title" className="px-4 py-3">
-            Ward {selectedWardId}
+            Ward {wardId}
           </DialogTitle>
         )}
 
