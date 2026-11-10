@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MobileNavProvider } from "./MobileNav";
 import SiteHeader from "./SiteHeader";
 import { NAV_ROUTES } from "@/lib/routes";
@@ -49,13 +49,28 @@ async function expectClosed() {
 
 let media: ReturnType<typeof stubMatchMedia>;
 
+// The drawer loads on first use, and the first import in a cold test run
+// (transforming the dialog and icon code) can outlast findBy's one second.
+// Warm it once so the tests measure behavior, not the transform.
+beforeAll(async () => {
+  await import("./MobileNavDrawer");
+}, 30000);
+
 beforeEach(() => {
   route.pathname = "/dashboard";
   media = stubMatchMedia();
 });
 
-afterEach(() => {
+afterEach(async () => {
+  // Unmount while the stubbed globals are still in place: a page that scheduled
+  // an idle callback cancels it on unmount.
+  cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  // A close can still have a history.back() in flight. Let it land, then put
+  // the URL and state back, so one test's entries never leak into the next.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  window.history.replaceState(null, "", "/");
 });
 
 describe("mobile nav drawer", () => {
@@ -188,7 +203,6 @@ describe("mobile nav drawer", () => {
     expect(back).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(window.history.state?.ucipMobileNav).toBeUndefined());
     expect(window.location.search).toBe("?ward=C");
-    back.mockRestore();
   });
 
   it("leaves no extra Back step when a link closes it", async () => {
@@ -203,7 +217,109 @@ describe("mobile nav drawer", () => {
 
     await expectClosed();
     expect(back).not.toHaveBeenCalled();
-    back.mockRestore();
+  });
+
+  it("keeps the page alive and retries when the drawer's code fails to load", async () => {
+    // A fresh copy of the modules whose drawer import fails once, as a chunk
+    // does offline, then loads.
+    vi.resetModules();
+    let attempts = 0;
+    vi.doMock("./MobileNavDrawer", async (importActual) => {
+      attempts += 1;
+      if (attempts === 1) throw new Error("Loading chunk failed");
+      return importActual();
+    });
+    const { MobileNavProvider: Provider } = await import("./MobileNav");
+    const { default: Header } = await import("./SiteHeader");
+    window.history.replaceState(null, "", "/dashboard?ward=C");
+    const back = vi.spyOn(window.history, "back");
+    render(
+      <Provider>
+        <Header />
+      </Provider>
+    );
+    const hamburger = screen.getByRole("button", { name: "Open menu" });
+
+    fireEvent.click(hamburger);
+
+    // No crash: the page and its menu button are still there, the menu stays
+    // shut, and the entry the tap pushed is taken back off exactly once.
+    await waitFor(() => expect(back).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(hamburger).toHaveAttribute("aria-expanded", "false"));
+    expect(screen.getByRole("button", { name: "Open menu" })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await waitFor(() => expect(window.history.state?.ucipMobileNav).toBeUndefined());
+    expect(window.location.search).toBe("?ward=C");
+
+    // The failure was not remembered: the next tap loads the drawer.
+    fireEvent.click(hamburger);
+    expect(await screen.findByRole("dialog", { name: "Menu" })).toBeInTheDocument();
+    expect(attempts).toBe(2);
+    expect(back).toHaveBeenCalledTimes(1);
+    vi.doUnmock("./MobileNavDrawer");
+  });
+
+  describe("idle preload", () => {
+    /** Fresh modules whose drawer import is counted, so a preload is visible
+        without a tap. */
+    async function freshPage() {
+      vi.resetModules();
+      const loads = { count: 0 };
+      vi.doMock("./MobileNavDrawer", async (importActual) => {
+        loads.count += 1;
+        return importActual();
+      });
+      const { MobileNavProvider: Provider } = await import("./MobileNav");
+      const { default: Header } = await import("./SiteHeader");
+      render(
+        <Provider>
+          <Header />
+        </Provider>
+      );
+      return loads;
+    }
+
+    afterEach(() => {
+      vi.doUnmock("./MobileNavDrawer");
+    });
+
+    it("fetches the drawer when the browser is idle on a phone, without a tap", async () => {
+      const idle: Array<() => void> = [];
+      vi.stubGlobal("requestIdleCallback", (callback: () => void) => idle.push(callback));
+      vi.stubGlobal("cancelIdleCallback", () => {});
+
+      const loads = await freshPage();
+
+      expect(idle).toHaveLength(1);
+      expect(loads.count).toBe(0);
+      act(() => idle[0]());
+      await waitFor(() => expect(loads.count).toBe(1));
+    });
+
+    it("waits two seconds instead where there is no requestIdleCallback", async () => {
+      const timers = vi.spyOn(window, "setTimeout");
+
+      await freshPage();
+
+      expect(timers).toHaveBeenCalledWith(expect.any(Function), 2000);
+    });
+
+    it("does not preload from md up, where there is no hamburger", async () => {
+      const idle = vi.fn();
+      vi.stubGlobal("requestIdleCallback", idle);
+      vi.stubGlobal("cancelIdleCallback", () => {});
+      vi.stubGlobal("matchMedia", (query: string) => ({
+        media: query,
+        matches: true,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      }));
+
+      const loads = await freshPage();
+
+      expect(idle).not.toHaveBeenCalled();
+      expect(loads.count).toBe(0);
+    });
   });
 
   it("leaves the header's hamburger harmless without a provider", () => {

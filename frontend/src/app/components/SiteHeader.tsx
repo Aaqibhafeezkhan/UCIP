@@ -1,16 +1,37 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
-import { MOBILE_NAV_ID, useMobileNav } from "./MobileNav";
+import { useMobileNav } from "./MobileNav";
+import { MOBILE_NAV_ID } from "./mobileNavId";
 import { NAV_ROUTES, isActiveRoute } from "@/lib/routes";
+
+/** The `md` breakpoint, where this header swaps the hamburger for the inline nav. */
+const DESKTOP_QUERY = "(min-width: 48rem)";
+/** Where there is no requestIdleCallback (Safari), wait this long after mount. */
+const IDLE_FALLBACK_MS = 2000;
 
 export default function SiteHeader({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
   const { open, openMenu, preloadMenu } = useMobileNav();
+
+  // On a phone, fetch the drawer's code once the page has settled, so even a
+  // first tap on a slow connection finds it already there. Never on md and up,
+  // which has no hamburger, and never on the embed cards, which have no header,
+  // so they keep the saving from loading the drawer on demand.
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function" || window.matchMedia(DESKTOP_QUERY).matches) return;
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(preloadMenu);
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(preloadMenu, IDLE_FALLBACK_MS);
+    return () => window.clearTimeout(id);
+  }, [preloadMenu]);
 
   return (
     <header className="sticky top-0 z-header border-b border-border bg-background/95 pt-safe">

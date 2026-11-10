@@ -12,9 +12,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NAV_ROUTES, isActiveRoute } from "@/lib/routes";
-import { MOBILE_NAV_ID } from "./MobileNav";
+import { MOBILE_NAV_ID } from "./mobileNavId";
 
-type MobileNavDrawerProps = {
+export type MobileNavDrawerProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pathname: string;
@@ -25,8 +25,8 @@ type MobileNavDrawerProps = {
 };
 
 /**
- * The phone menu itself. Kept in its own module and loaded by MobileNav with
- * next/dynamic, so the Radix dialog code and the theme control only reach a
+ * The phone menu itself. Kept in its own module and loaded by MobileNav on
+ * demand, so the Radix dialog code and the theme control only reach a
  * route once someone reaches for the menu. The embed cards never do.
  *
  * Links replace the history entry the open drawer pushed (see MobileNav), so

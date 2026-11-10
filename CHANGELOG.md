@@ -21,7 +21,7 @@ All notable changes to this project are documented here. Format based on
 
 ### Fixed
 - Android's Back button (and the browser's) closes the phone menu and keeps you on the page, with the dashboard's ward, layer and map settings as they were. Closing the menu with its X, the dimmed page, Escape or one of its links leaves no extra Back step.
-- The phone menu's code loads only when someone reaches for the menu button, so the embeddable ward cards no longer carry it.
+- The phone menu's code loads on a phone once the page is idle, or when someone reaches for the menu button, so the embeddable ward cards no longer carry it. If that code cannot load (offline, a poor connection), the page keeps working, the menu stays shut and the next tap tries again.
 - On phones, the site menu opens above the dashboard map and can be used, the dashboard fits the visible screen, the first layer tab is reachable, the whole city fits between the map's toolbar and legend, and map and ward controls are large enough to tap. The embed code and print buttons are hidden on phones, and the ward-list prompt and the home page's land-surface note were reworded and restyled to read better there.
 - On phones, the ward list shows each ward's area names, the map legend explains the Plantability and Green cover layers, the dashboard hint says layers are at the top of the map, and both home hero buttons fit on one row at 360 and 390 px wide. On touch screens the home ward tooltip says "Tap to open".
 - Content that reveals on scroll always becomes visible: without scripts, in print, when the browser cannot report visibility, and without staying shifted down.

@@ -1,12 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { MouseEvent } from "react";
-import dynamic from "next/dynamic";
+import type { ComponentType, MouseEvent } from "react";
 import { usePathname } from "next/navigation";
-
-/** The drawer's id, so the header's hamburger can point `aria-controls` at it. */
-export const MOBILE_NAV_ID = "mobile-nav";
+import type { MobileNavDrawerProps } from "./MobileNavDrawer";
 
 /** The `md` breakpoint, where the header swaps the hamburger for the inline nav. */
 const DESKTOP_QUERY = "(min-width: 48rem)";
@@ -16,13 +13,22 @@ const MENU_HISTORY_KEY = "ucipMobileNav";
 
 // The drawer (and with it the Radix dialog code and the theme control) is
 // fetched on first use instead of shipping with every route, so the embed
-// cards, which never open it, don't pay for it.
-const MobileNavDrawer = dynamic(() => import("./MobileNavDrawer"), { ssr: false });
+// cards, which never open it, don't pay for it. This is an explicit import, not
+// next/dynamic: dynamic is React.lazy, so a failed fetch (offline, a flaky
+// network, a chunk that was never cached) would throw while the provider
+// renders, above every error boundary except global-error, and the lazy
+// component would keep the rejection. Here a failure is caught, and a later tap
+// imports again.
+function loadDrawer() {
+  return import("./MobileNavDrawer");
+}
 
-/** Starts fetching the drawer before it is needed: the hamburger calls this on
-    pointerdown and focus, so the code is there by the time the tap lands. */
+/** Starts fetching the drawer before it is needed: the header calls this when
+    the browser is idle and the hamburger on pointerdown and focus, so the code
+    is there by the time the tap lands. A failure is ignored here, the tap that
+    needs the drawer tries again. */
 function preloadMenu() {
-  void import("./MobileNavDrawer");
+  loadDrawer().catch(() => {});
 }
 
 type MobileNavContextValue = {
@@ -64,11 +70,15 @@ function isPlainLeftClick(event: MouseEvent) {
 export function MobileNavProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // The drawer's component, once its code has loaded.
+  const [Drawer, setDrawer] = useState<ComponentType<MobileNavDrawerProps> | null>(null);
   const [lastPathname, setLastPathname] = useState(pathname);
   const opener = useRef<HTMLElement | null>(null);
   // True while the history entry the drawer pushed is the current one.
   const menuEntry = useRef(false);
+  // Which open is waiting on the drawer's code, so a late failure from an
+  // earlier tap cannot close a menu the user has since opened again.
+  const loadAttempt = useRef(0);
 
   // Adjusting state while rendering, not in an effect: a navigation closes the
   // drawer in the same pass instead of one frame after the new page paints.
@@ -147,19 +157,27 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
           window.history.pushState({ [MENU_HISTORY_KEY]: true }, "", window.location.href);
           menuEntry.current = true;
         }
-        setMounted(true);
         setOpen(true);
+        const attempt = ++loadAttempt.current;
+        loadDrawer()
+          .then((module) => setDrawer(() => module.default))
+          // The code did not arrive: close again, which also takes the entry
+          // just pushed back off, so the page stays usable and the next tap
+          // tries the import afresh.
+          .catch(() => {
+            if (loadAttempt.current === attempt) dismiss();
+          });
       },
       preloadMenu,
     }),
-    [open]
+    [open, dismiss]
   );
 
   return (
     <MobileNavContext.Provider value={value}>
       {children}
-      {mounted && (
-        <MobileNavDrawer
+      {Drawer && (
+        <Drawer
           open={open}
           onOpenChange={onOpenChange}
           pathname={pathname}
