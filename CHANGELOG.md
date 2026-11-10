@@ -11,9 +11,20 @@ All notable changes to this project are documented here. Format based on
 - The ward list and the ward profile slide up as bottom sheets on phones.
 - Pages share one shell and one layer and motion scale, and the header, footer and sitemap read from a single route list, so a new page picks them up from one entry.
 - The dashboard shows its real header and a map placeholder while it loads.
+- Wide tables fit phones: the city registry and the budget allocation stack into rows and cards, and the methodology tables and the ward comparison scroll sideways with an edge fade that shows when there is more to see. On phones the comparison keeps its Measure column in place; on a desktop it looks as before.
+- On phones, text is at least 12 px and buttons, links and inputs are at least 44 px tall, and the sliders on the simulator are larger.
+- The map's zoom buttons are hidden on phones, where pinching zooms the map.
+- Phone pages are denser: tighter section spacing, a shorter home hero, a footer with one row of links and a one-line disclaimer, and on the methodology page a row of contents links at the top with the last step folded away. The home page's Mission band keeps its original desktop padding.
+- The installed app opens on the dashboard, and the site keeps clear of notches, rounded corners and home bars. The on-screen keyboard no longer covers ward search.
+- Every page has its own canonical link and share card, so a shared link previews with that page's title and description. Ward pages keep their own share image.
+- Offline: after one online visit to the home page, the installed app opens the dashboard with no network, including a link with a query string such as a selected ward. The 24 ward shapes, the ward list and the ward profiles load from saved copies. Map tiles, live weather and the data-refresh line need a connection, and a page that was never opened online, such as the methodology page, does not open offline.
 
 ### Fixed
 - On phones, the site menu opens above the dashboard map and can be used, the dashboard fits the visible screen, the first layer tab is reachable, the whole city fits between the map's toolbar and legend, and map and ward controls are large enough to tap. The embed code and print buttons are hidden on phones, and the ward-list prompt and the home page's land-surface note were reworded and restyled to read better there.
+- On phones, the ward list shows each ward's area names, the map legend explains the Plantability and Green cover layers, the dashboard hint says layers are at the top of the map, and both home hero buttons fit on one row at 360 and 390 px wide. On touch screens the home ward tooltip says "Tap to open".
+- Content that reveals on scroll always becomes visible: without scripts, in print, when the browser cannot report visibility, and without staying shifted down.
+- Printing a ward brief no longer starts with a blank page, and every methodology step prints open.
+- A methodology link to a step folded on a phone opens that step, and a malformed link such as `#100%` no longer sends the page to the error screen.
 
 ## [1.1.0] - 2026-11-09
 
