@@ -11,6 +11,7 @@ import { rankRangeLabel } from "@/lib/rankUncertainty";
 import WardDetail from "./WardDetail";
 import WardDetailHeader from "./WardDetailHeader";
 import WardStaticMap from "./WardStaticMap";
+import WardTrend from "./WardTrend";
 
 /**
  * The dashboard sidebar: a ranked, searchable ward list that hands the whole
@@ -111,6 +112,11 @@ export default function WardPanel({
             totalWards={profiles?.n_wards ?? wards.length}
             onSelectWard={onSelectWard}
           />
+          {/* Same trend block as WardDialog, so the sidebar and the dialog carry
+              the same brief, and a printed one is the same from either (#269). */}
+          <div className="px-4 pb-4">
+            <WardTrend wardId={props.ward_id} />
+          </div>
         </div>
       </div>
     );

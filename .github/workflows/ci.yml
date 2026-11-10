@@ -32,6 +32,36 @@ jobs:
       - run: npm run build
       - run: npm test --if-present
 
+  # Printed ward briefs (issue #269). The sidebar path once printed 102 words
+  # against 360 from the dialog path, and nothing would have noticed. This builds
+  # the site, has Chrome generate A4 PDFs in portrait and landscape from both
+  # paths, extracts their text and requires the same words from each.
+  print-brief:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_dummy_ci_build"
+          NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com"
+      - name: Check the printed brief
+        # The runner's installed Google Chrome, so nothing is downloaded.
+        run: |
+          npm start -- -p 3000 &
+          npx --yes wait-on@8 http://localhost:3000/dashboard --timeout 60000
+          npm run check:print
+
   # The published TypeScript client (issue #103). Its response types are
   # generated from the same spec module the API serves, so the check that
   # matters is that regenerating them changes nothing: if it does, the API
