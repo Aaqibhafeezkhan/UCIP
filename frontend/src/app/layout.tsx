@@ -36,7 +36,11 @@ export const metadata: Metadata = {
     "ward-level data",
     "climate intelligence",
   ],
+  applicationName: "UCIP",
   manifest: "/site.webmanifest",
+  // iOS home-screen install: standalone, titled UCIP, status bar left at the
+  // default so it follows the page colour instead of floating over the header.
+  appleWebApp: { capable: true, title: "UCIP", statusBarStyle: "default" },
   robots: {
     index: true,
     follow: true,
@@ -58,6 +62,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // The keyboard resizes the layout viewport instead of covering it, so ward
+  // search stays visible. viewport-fit=cover runs the page under the notch and
+  // home indicator; the safe-area utilities in globals.css keep chrome clear.
+  interactiveWidget: "resizes-content",
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FAFAFA" },
     { media: "(prefers-color-scheme: dark)", color: "#0b0f0e" },

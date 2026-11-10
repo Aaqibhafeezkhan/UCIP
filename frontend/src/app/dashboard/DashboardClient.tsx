@@ -90,7 +90,7 @@ function FirstVisitHint() {
   if (!visible) return null;
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-brand-teal/20 bg-brand-teal/10 px-4 py-2 text-sm text-foreground md:px-6">
+    <div className="flex items-center justify-between gap-4 border-b border-brand-teal/20 bg-brand-teal/10 px-safe-4 py-2 text-sm text-foreground md:px-safe-6">
       <p>
         <span className="md:hidden">Tap a ward to see its breakdown. Switch layers at the top of the map.</span>
         <span className="hidden md:inline">
@@ -261,7 +261,13 @@ function DashboardContent() {
   return (
     // data-slot: print CSS releases this shell's fixed height so it does not
     // push the portalled ward brief onto a second page.
-    <div data-slot="dashboard-shell" className="flex h-dvh flex-col bg-background">
+    // pb-safe holds the whole shell above the home indicator, so the map
+    // chrome and the data-vintage bar need no inset of their own. Fullscreen
+    // drops the header that normally covers the status bar, so it pads the top.
+    <div
+      data-slot="dashboard-shell"
+      className={`flex h-dvh flex-col bg-background pb-safe ${isFullscreen ? "pt-safe" : ""}`}
+    >
       {!isFullscreen && <SiteHeader compact />}
       {!isFullscreen && <FirstVisitHint />}
       <main className="relative flex flex-1 overflow-hidden">
@@ -324,7 +330,7 @@ function DashboardContent() {
 /** Same shell as DashboardContent, so the real header does not jump on hydration. */
 function DashboardSkeleton() {
   return (
-    <div className="flex h-dvh flex-col bg-background">
+    <div className="flex h-dvh flex-col bg-background pb-safe">
       <SiteHeader compact />
       <main className="relative flex flex-1 overflow-hidden">
         <div className="relative flex-1">

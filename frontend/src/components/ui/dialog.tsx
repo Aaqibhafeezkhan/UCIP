@@ -32,6 +32,11 @@ export type DialogPlacement = "center" | "right" | "bottom" | "phone-bottom"
  *
  * Sheets move at the sheet duration and easing, and their scrim fades at the
  * same pace so it does not finish before the panel does.
+ *
+ * Sheets also pad themselves by the safe-area inset on each edge they touch
+ * (pt-safe and friends, see globals.css), so their content clears the notch and
+ * the home indicator while the panel still paints under them. All 0 on a
+ * desktop and most phones. `center` floats clear of every edge and needs none.
  */
 const PLACEMENTS: Record<DialogPlacement, { content: string; overlay: string }> = {
   center: {
@@ -48,14 +53,14 @@ const PLACEMENTS: Record<DialogPlacement, { content: string; overlay: string }> 
   },
   right: {
     content: cn(
-      "inset-y-0 right-0 h-dvh rounded-l-xl border-l border-border",
+      "inset-y-0 right-0 h-dvh rounded-l-xl border-l border-border pt-safe pb-safe pr-safe",
       "duration-sheet ease-sheet data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
     ),
     overlay: "duration-sheet ease-sheet",
   },
   bottom: {
     content: cn(
-      "inset-x-0 bottom-0 max-h-[min(85dvh,100dvh-2rem)] rounded-t-xl border-t border-border",
+      "inset-x-0 bottom-0 max-h-[min(85dvh,100dvh-2rem)] rounded-t-xl border-t border-border pb-safe pl-safe pr-safe",
       "duration-sheet ease-sheet data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom"
     ),
     overlay: "duration-sheet ease-sheet",
@@ -63,7 +68,7 @@ const PLACEMENTS: Record<DialogPlacement, { content: string; overlay: string }> 
   "phone-bottom": {
     content: cn(
       "max-h-[min(85dvh,100dvh-2rem)] border-border",
-      "max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-xl max-md:border-t",
+      "max-md:inset-x-0 max-md:bottom-0 max-md:rounded-t-xl max-md:border-t max-md:pb-safe max-md:pl-safe max-md:pr-safe",
       "md:top-1/2 md:left-1/2 md:w-[calc(100%-2rem)] md:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-xl md:border",
       "max-md:duration-sheet max-md:ease-sheet max-md:data-[state=open]:slide-in-from-bottom max-md:data-[state=closed]:slide-out-to-bottom",
       "md:data-[state=closed]:fade-out-0 md:data-[state=open]:fade-in-0 md:data-[state=closed]:zoom-out-95 md:data-[state=open]:zoom-in-95"

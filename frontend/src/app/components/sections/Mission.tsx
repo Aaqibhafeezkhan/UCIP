@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Mission() {
   return (
     <section className="border-y border-brand-teal/40 bg-brand-teal text-white">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-16">
+      <div className="mx-auto max-w-5xl px-safe-4 py-8 sm:px-safe-6 md:py-16">
         <p className="font-mono text-xs uppercase tracking-[0.14em] text-white/75">
           Not another heat map
         </p>

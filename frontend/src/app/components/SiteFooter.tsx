@@ -20,8 +20,8 @@ const LINK =
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-background">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+    <footer className="border-t border-border bg-background pb-safe">
+      <div className="mx-auto max-w-5xl px-safe-4 py-8 sm:px-safe-6 sm:py-12">
         {/* One structure for both layouts. From sm up it is the four-column grid;
             below sm the column wrappers dissolve (`contents`) so every link
             becomes an item of one wrapped row under the brand block. */}

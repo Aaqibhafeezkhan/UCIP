@@ -21,7 +21,7 @@ const HVI_LEGEND_BINS = [
  */
 export default function MapLegend({ layer }: { layer: LayerId }) {
   return (
-    <Card className="absolute bottom-6 left-2 z-map-chrome max-w-[240px] gap-0 bg-background/95 p-3 text-xs backdrop-blur-sm">
+    <Card className="absolute bottom-6 left-safe-2 z-map-chrome max-w-[240px] gap-0 bg-background/95 p-3 text-xs backdrop-blur-sm">
       {layer === "hvi" && (
         <>
           <p className="mb-1.5 font-semibold text-foreground">Heat Vulnerability Index (0-100)</p>

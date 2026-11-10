@@ -164,6 +164,52 @@
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+/* Safe-area insets. layout.tsx sets viewport-fit=cover, so the page runs under
+   a phone's notch, status bar, rounded corners and home indicator, and anything
+   fixed, sticky or pinned to an edge has to keep clear of them itself. Each
+   inset is 0 on a desktop and on most phones, so none of these utilities moves
+   a pixel there.
+
+   Two shapes, chosen by what the element is:
+   - pt-safe, pb-safe, pl-safe, pr-safe ADD the inset as padding, for a surface
+     that should paint under the inset (the header, a sheet, the footer) while
+     its content stays clear.
+   - px-safe-N, left-safe-N, right-safe-N take the LARGER of the spacing step N
+     (the gutter or offset the element already had) and the inset, for content
+     and floating controls: with a 0 inset they equal the old px-N or left-N.
+
+   Insets belong to one layer each: the dashboard shell pads the bottom, so its
+   map chrome does not add the inset a second time. */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+@utility pt-safe {
+  padding-top: var(--safe-top);
+}
+@utility pb-safe {
+  padding-bottom: var(--safe-bottom);
+}
+@utility pl-safe {
+  padding-left: var(--safe-left);
+}
+@utility pr-safe {
+  padding-right: var(--safe-right);
+}
+@utility px-safe-* {
+  padding-left: max(--spacing(--value(integer)), var(--safe-left));
+  padding-right: max(--spacing(--value(integer)), var(--safe-right));
+}
+@utility left-safe-* {
+  left: max(--spacing(--value(integer)), var(--safe-left));
+}
+@utility right-safe-* {
+  right: max(--spacing(--value(integer)), var(--safe-right));
+}
+
 body {
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -459,4 +505,15 @@ html {
   .sim-range:focus-visible::-moz-range-thumb {
     box-shadow: 0 0 0 1px var(--brand-teal), 0 0 0 4px var(--ring);
   }
+}
+
+/* Leaflet's corner controls and attribution sit at the map's edge; in landscape
+   on a notched phone that edge is under the cutout. Padding on the corner
+   containers moves every control in them by the inset and nothing at 0, without
+   touching the margins Leaflet sets on each control. */
+.leaflet-left {
+  padding-left: var(--safe-left);
+}
+.leaflet-right {
+  padding-right: var(--safe-right);
 }

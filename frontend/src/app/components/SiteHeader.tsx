@@ -13,9 +13,9 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
   const { open, openMenu } = useMobileNav();
 
   return (
-    <header className="sticky top-0 z-header border-b border-border bg-background/95">
+    <header className="sticky top-0 z-header border-b border-border bg-background/95 pt-safe">
       <div
-        className={`mx-auto flex items-center justify-between gap-4 px-4 sm:px-6 ${
+        className={`mx-auto flex items-center justify-between gap-4 px-safe-4 sm:px-safe-6 ${
           compact ? "py-2" : "max-w-5xl py-3"
         }`}
       >

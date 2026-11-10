@@ -29,7 +29,7 @@ export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; o
     <Dialog open={wardIds.length >= 2} onOpenChange={(open) => !open && onClose()} modal={false}>
       <DialogContent
         showOverlay={false}
-        className="bottom-4 top-auto max-h-[min(72dvh,38rem)] max-w-[min(96vw,72rem)] translate-y-0"
+        className="bottom-[max(1rem,var(--safe-bottom))] top-auto max-h-[min(72dvh,38rem)] max-w-[min(96vw,72rem)] translate-y-0"
         aria-describedby="ward-compare-description"
       >
         <DialogTitle className="px-4 pt-4 text-base">Ward comparison</DialogTitle>

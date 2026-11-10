@@ -324,7 +324,7 @@ export default function WardChoropleth({
 
   return (
     <div className="absolute inset-0">
-      <Card className="absolute right-2 top-2 z-map-chrome w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
+      <Card className="absolute right-safe-2 top-2 z-map-chrome w-fit max-w-[calc(100%-1rem)] gap-0 bg-background/95 p-1 backdrop-blur-sm">
         <div className="flex min-w-0 items-center gap-0.5">
           {/* The tabs are already keyboard reachable, so the strip is not a second tab stop. */}
           <ScrollX focusable={false} scrollClassName="overflow-y-hidden [scrollbar-width:none]">

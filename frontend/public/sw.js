@@ -2,7 +2,7 @@
 // GET requests try the network first and fall back to the last good copy kept in
 // the cache. /api/ and other origins are never intercepted, so weather and ward
 // lookups always go to the network.
-const CACHE = "ucip-v2";
+const CACHE = "ucip-v3";
 
 self.addEventListener("install", () => {
   self.skipWaiting();

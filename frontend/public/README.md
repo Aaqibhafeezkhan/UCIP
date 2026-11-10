@@ -22,6 +22,7 @@ Off-white `#FAFAFA`. Teal/emerald/charcoal only, no other hues. Full provenance 
 |------|-----|
 | `favicon.ico` | Multi-resolution favicon (16/32/48) |
 | `icon-192.png`, `icon-512.png` | PWA / manifest icons |
+| `icon-maskable-192.png`, `icon-maskable-512.png` | Maskable manifest icons: the leaf on `#0b0f0e`, inside the central 80% safe zone so Android's circle or squircle crop clips nothing |
 | `apple-touch-icon.png` | 180x180 iOS home-screen icon |
 | `site.webmanifest` | PWA manifest |
 

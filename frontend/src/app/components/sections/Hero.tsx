@@ -35,7 +35,7 @@ export default function Hero() {
           the text and controls themselves take the pointer (w-fit shrinks each
           block to its text). Otherwise the empty parts of these boxes would
           swallow clicks and hovers meant for the wards behind them. */}
-      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-4 pt-8 sm:px-8 sm:pt-12 md:pt-16">
+      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-safe-4 pt-8 sm:px-safe-8 sm:pt-12 md:pt-16">
         {/* Centred on phones, where the model sits centred behind the copy and
             there is no side column to align against; left-aligned from md up,
             where the model moves right and the copy holds the left. */}
@@ -83,7 +83,7 @@ export default function Hero() {
       {/* Fades the model into the section edge so it reads as a fragment of
           something larger, and gives the credit line a surface to sit on. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-background to-transparent" />
-      <p className="pointer-events-none absolute inset-x-0 bottom-3 z-10 mx-auto max-w-6xl px-4 text-center text-[11px] leading-relaxed max-md:text-xs text-muted-foreground sm:px-8 md:text-left">
+      <p className="pointer-events-none absolute inset-x-0 bottom-3 z-10 mx-auto max-w-6xl px-safe-4 text-center text-[11px] leading-relaxed max-md:text-xs text-muted-foreground sm:px-safe-8 md:text-left">
         All 24 wards, raised and coloured by heat vulnerability.
         <br className="hidden sm:inline" /> Real BMC boundaries, coastline from Natural Earth.
       </p>
