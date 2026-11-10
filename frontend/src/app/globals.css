@@ -307,7 +307,7 @@ html {
   [data-slot="dashboard-shell"] { height: auto !important; overflow: visible !important; }
   /* Scroll reveals never fire in print, and folded methodology steps must print in full.
      StepDetails opens them on beforeprint; this covers engines that support the pseudo-element. */
-  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; translate: none !important; }
   details::details-content { content-visibility: visible !important; }
 }
 

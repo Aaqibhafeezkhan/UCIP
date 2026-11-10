@@ -126,4 +126,35 @@ describe("a collapsible step", () => {
     renderStep();
     expect(spy).not.toHaveBeenCalled();
   });
+
+  it("does not throw when the page loads on a malformed hash such as #100%", () => {
+    stubMatchMedia();
+    window.location.hash = "#100%";
+    expect(() => renderStep()).not.toThrow();
+  });
+
+  it("does not throw when a link with a malformed anchor is clicked", () => {
+    stubMatchMedia();
+    const { details } = renderStep();
+    const bad = document.createElement("a");
+    bad.setAttribute("href", "#100%");
+    document.body.appendChild(bad);
+    expect(() => act(() => bad.click())).not.toThrow();
+    bad.remove();
+    expect(details.open).toBe(false);
+  });
+
+  it("still finds an anchor whose id holds a percent sign", () => {
+    stubMatchMedia();
+    const odd = document.createElement("div");
+    odd.id = "100%";
+    window.location.hash = "#100%";
+    const view = render(
+      <StepCard step={5} id="sources" collapsible title="Every source">
+        <p id="100%">The papers</p>
+      </StepCard>
+    );
+    odd.remove();
+    expect(view.container.querySelector("details")?.open).toBe(true);
+  });
 });

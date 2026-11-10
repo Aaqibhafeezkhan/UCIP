@@ -73,7 +73,7 @@ export default function RootLayout({
       <head>
         {/* Reveal hides its content until a script shows it; without scripts it must not stay hidden. */}
         <noscript>
-          <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
+          <style>{"[data-reveal]{opacity:1!important;transform:none!important;translate:none!important}"}</style>
         </noscript>
       </head>
       <body className="min-h-full flex flex-col">

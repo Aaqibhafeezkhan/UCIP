@@ -12,9 +12,19 @@ function insideStep(el: HTMLElement, id: string): boolean {
   return !!target && !!el.parentElement?.contains(target);
 }
 
+/** An id from a hash or an in-page href. A malformed escape such as "#100%"
+ *  makes decodeURIComponent throw, so it falls back to the raw text. */
+function decodeId(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 /** The current URL hash as an element id, or null when there is none. */
 function hashId(): string | null {
-  return window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : null;
+  return window.location.hash ? decodeId(window.location.hash.slice(1)) : null;
 }
 
 /**
@@ -69,7 +79,7 @@ export default function StepDetails({
     const onClick = (event: MouseEvent) => {
       const link = (event.target as Element | null)?.closest?.('a[href^="#"]');
       const href = link?.getAttribute("href");
-      if (href && href.length > 1) open(decodeURIComponent(href.slice(1)));
+      if (href && href.length > 1) open(decodeId(href.slice(1)));
     };
     // Every step prints open, whatever state the reader left it in.
     let wasOpen = el.open;

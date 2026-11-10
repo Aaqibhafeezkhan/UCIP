@@ -6,6 +6,16 @@ import { useWardData } from "@/lib/useWardData";
 import { intervalsOverlap, rankRangeLabel } from "@/lib/rankUncertainty";
 import ScrollX from "./ScrollX";
 
+/**
+ * Phones only: the Measure column stays put with a solid fill so values scroll
+ * under it. From md up the table has room, so its first column sizes to its
+ * labels as on any table. The width comes from one variable, set on the scroll
+ * region below, which the start fade's inset reads too (0 where it is unset).
+ */
+const FIRST_COL = "var(--compare-first-col, 0px)";
+const STICKY_CELL =
+  "max-md:sticky max-md:left-0 max-md:w-(--compare-first-col) max-md:min-w-(--compare-first-col) max-md:max-w-(--compare-first-col) max-md:bg-background";
+
 export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; onClose: () => void }) {
   const { wards, recs, intervals, error } = useWardData();
   const compared = wardIds
@@ -46,27 +56,28 @@ export default function WardCompare({ wardIds, onClose }: { wardIds: string[]; o
           </p>
         )}
         {compared.length >= 2 && (
-          <ScrollX label="Ward comparison table" startInset="8rem" className="border-t border-border">
-            {/* The first column stays put with a solid fill so values scroll under it.
-                Its width is fixed at 8rem and the start fade is inset by the same
-                amount, so the fade sits beside the column rather than over its labels. */}
+          <ScrollX
+            label="Ward comparison table"
+            startInset={FIRST_COL}
+            className="border-t border-border max-md:[--compare-first-col:8rem]"
+          >
             <table className="w-full min-w-[36rem] text-left text-xs">
               <thead className="sticky top-0 z-10 bg-background">
                 <tr className="border-b border-border">
-                  <th className="sticky left-0 w-32 min-w-32 max-w-32 bg-background p-3 font-medium text-muted-foreground">Measure</th>
+                  <th className={`${STICKY_CELL} p-3 font-medium text-muted-foreground`}>Measure</th>
                   {compared.map(({ properties }) => <th key={properties.ward_id} className="p-3 font-semibold">Ward {properties.ward_id}</th>)}
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border"><th className="sticky left-0 w-32 min-w-32 max-w-32 bg-background p-3 font-medium">HVI</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{properties.HVI?.toFixed(1) ?? "n/a"}</td>)}</tr>
-                <tr className="border-b border-border"><th className="sticky left-0 w-32 min-w-32 max-w-32 bg-background p-3 font-medium">City rank</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{properties.rank ?? "n/a"}</td>)}</tr>
+                <tr className="border-b border-border"><th className={`${STICKY_CELL} p-3 font-medium`}>HVI</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{properties.HVI?.toFixed(1) ?? "n/a"}</td>)}</tr>
+                <tr className="border-b border-border"><th className={`${STICKY_CELL} p-3 font-medium`}>City rank</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{properties.rank ?? "n/a"}</td>)}</tr>
                 {intervals.size > 0 && (
-                  <tr className="border-b border-border"><th className="sticky left-0 w-32 min-w-32 max-w-32 bg-background p-3 font-medium">Likely rank (95%)</th>{compared.map(({ properties }) => { const iv = intervals.get(properties.ward_id); return <td key={properties.ward_id} className="p-3">{iv ? rankRangeLabel(iv) : "n/a"}</td>; })}</tr>
+                  <tr className="border-b border-border"><th className={`${STICKY_CELL} p-3 font-medium`}>Likely rank (95%)</th>{compared.map(({ properties }) => { const iv = intervals.get(properties.ward_id); return <td key={properties.ward_id} className="p-3">{iv ? rankRangeLabel(iv) : "n/a"}</td>; })}</tr>
                 )}
                 {INDICATOR_KEYS.map((key) => (
-                  <tr key={key} className="border-b border-border"><th className="sticky left-0 w-32 min-w-32 max-w-32 bg-background p-3 font-medium">{FACTOR_LABELS[key]}</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{typeof properties[`contrib_${key}`] === "number" ? (properties[`contrib_${key}`] as number).toFixed(2) : "n/a"}</td>)}</tr>
+                  <tr key={key} className="border-b border-border"><th className={`${STICKY_CELL} p-3 font-medium`}>{FACTOR_LABELS[key]}</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3 font-mono">{typeof properties[`contrib_${key}`] === "number" ? (properties[`contrib_${key}`] as number).toFixed(2) : "n/a"}</td>)}</tr>
                 ))}
-                <tr><th className="sticky left-0 w-32 min-w-32 max-w-32 bg-background p-3 align-top font-medium">Recommendations</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{(recs ?? []).filter((rec) => rec.ward_id === properties.ward_id).sort((a, b) => a.priority - b.priority).map((rec) => <p key={rec.intervention} className="mb-1">{rec.intervention}</p>) || "n/a"}</td>)}</tr>
+                <tr><th className={`${STICKY_CELL} p-3 align-top font-medium`}>Recommendations</th>{compared.map(({ properties }) => <td key={properties.ward_id} className="p-3">{(recs ?? []).filter((rec) => rec.ward_id === properties.ward_id).sort((a, b) => a.priority - b.priority).map((rec) => <p key={rec.intervention} className="mb-1">{rec.intervention}</p>) || "n/a"}</td>)}</tr>
               </tbody>
             </table>
           </ScrollX>
