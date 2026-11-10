@@ -144,6 +144,12 @@ Please do not poll. If you want the whole dataset, use
 
 `v1` is in the path, and this is what it promises.
 
+The spec's `info.version` (1.0.0) is the version of this contract, not of the
+site or the dataset, which are released together as 1.1.0 and onwards (see
+[`CITATION.cff`](../CITATION.cff)). Its major number is the `v1` in the path,
+and it does not move when the project cuts a release. Changes within `v1` are
+listed in the [API changelog](#api-changelog) below.
+
 **These can change without a new version.** Build against the API expecting
 them:
 

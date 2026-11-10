@@ -279,6 +279,10 @@ export function buildSpec(origin: string) {
     openapi: "3.1.0",
     info: {
       title: "UCIP API",
+      // The version of the v1 API contract, not of the site or dataset release
+      // (CITATION.cff), so it does not move at a release. Its major number is
+      // the v1 in the path. See docs/api.md#versioning. Changing it changes
+      // the generated clients, which then need regenerating.
       version: "1.0.0",
       description:
         "Read-only access to Mumbai ward-level heat vulnerability data and cited nature-based cooling recommendations.\n\n" +

@@ -83,6 +83,27 @@ changes an HVI weight, an NBS rule, or a data source:
   semantic and DO NOT get restyled for aesthetics; see `DESIGN.md`.
 - AI-assisted code is welcome, provided you've reviewed and tested the output.
 
+## Releasing
+
+A release is cut by pushing a `v`-prefixed tag, which runs
+`.github/workflows/release.yml`. Before tagging `vX.Y.Z`, change these in one PR:
+
+- `CHANGELOG.md`: move the `## [Unreleased]` entries under `## [X.Y.Z] - YYYY-MM-DD`.
+  The release notes are read from that entry, and the workflow fails without it.
+- `CITATION.cff`: set `version` and `date-released`. The workflow checks `version`
+  against the tag. Add the version DOI in a follow-up once Zenodo mints it.
+- `frontend/package.json` and `frontend/package-lock.json`: set `version` to match.
+  `npm version X.Y.Z --no-git-tag-version` inside `frontend/` updates both.
+
+These have versions of their own and do not change at a release:
+
+- The API spec's `info.version` in `frontend/src/lib/openapiSpec.ts` (and so
+  `clients/openapi.json`). It versions the `v1` API contract, not the site or the
+  dataset; see [docs/api.md](docs/api.md#versioning). Changing it means regenerating
+  both clients.
+- `clients/typescript`, `clients/python` and `mcp-server`. Each follows its own
+  semver and moves when its own code changes.
+
 ## Commit style
 
 [Conventional Commits](https://www.conventionalcommits.org/):
