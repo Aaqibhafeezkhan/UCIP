@@ -2,7 +2,7 @@
 // GET requests try the network first and fall back to the last good copy kept in
 // the cache. /api/ and other origins are never intercepted, so weather and ward
 // lookups always go to the network.
-const CACHE = "ucip-v3";
+const CACHE = "ucip-v4";
 
 // What the installed app needs to launch with no network on its first run. The
 // cache is keyed by exact URL, so a visit to /dashboard?ward=F%2FN never warms
@@ -20,15 +20,20 @@ const PRECACHE_DATA = [
   "/hvi_uncertainty.json",
   "/ward_timeseries.json",
 ];
+// Separate caps for the two levels, so a page with many scripts of its own can
+// never use up the room for the chunks its scripts load on demand.
 const MAX_PRECACHED_ASSETS = 60;
+const MAX_PRECACHED_LAZY_CHUNKS = 30;
 // A fetch that has not answered by then counts as a miss, so one stalled file
 // cannot hold the install open.
 const PRECACHE_TIMEOUT_MS = 12000;
 // Script, style and font URLs inside a page's markup and its inlined payload,
 // with an optional query suffix (a deployment id) kept as the page requests it.
 const PAGE_ASSET = /\/_next\/static\/[^"'\s\\)<>]+?\.(?:js|css|woff2)(?:\?[^"'\s\\)<>]*)?/g;
-// Chunks a script loads on demand (the map) are named without the /_next/ prefix.
-const SCRIPT_ASSET = /static\/(?:chunks|media)\/[A-Za-z0-9_.~-]+\.(?:js|css|woff2)/g;
+// Chunks a script loads on demand (the map) are named without the /_next/ prefix,
+// under static/chunks/ in a local build and static/immutable/chunks/ in the
+// deployed one.
+const SCRIPT_ASSET = /static\/(?:immutable\/)?(?:chunks|media)\/[A-Za-z0-9_.~-]+\.(?:js|css|woff2)/g;
 
 function timeoutSignal(ms) {
   if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
@@ -80,7 +85,7 @@ async function precache() {
     }
   }
   const second = Array.from(assets).filter((url) => !first.includes(url));
-  await Promise.all(second.slice(0, Math.max(0, MAX_PRECACHED_ASSETS - first.length)).map((url) => store(cache, url)));
+  await Promise.all(second.slice(0, MAX_PRECACHED_LAZY_CHUNKS).map((url) => store(cache, url)));
 
   await Promise.all(PRECACHE_DATA.map((path) => store(cache, path)));
 }

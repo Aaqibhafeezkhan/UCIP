@@ -132,6 +132,47 @@ describe("service worker install", () => {
     expect(worker.fetched).toContain("/_next/static/chunks/map.js");
   });
 
+  it("caches the on-demand chunks the deployed build names under static/immutable", async () => {
+    // Shaped like the production map loader: relative names, immutable/ in the path.
+    const loader =
+      'Promise.all(["static/immutable/chunks/44ioy7k0geuqh.css","static/immutable/chunks/0xdg_owqy-pnu.js","static/immutable/chunks/3nizdvtm1tal0.js"].map(t=>e.l(t)))';
+    const worker = loadWorker({
+      responses: {
+        "/dashboard": '<script src="/_next/static/immutable/chunks/loader.js"></script>',
+        "/_next/static/immutable/chunks/loader.js": loader,
+        "/_next/static/immutable/chunks/44ioy7k0geuqh.css": "",
+        "/_next/static/immutable/chunks/0xdg_owqy-pnu.js": "",
+        "/_next/static/immutable/chunks/3nizdvtm1tal0.js": "",
+      },
+    });
+    let done: Promise<unknown> = Promise.resolve();
+    worker.listeners.install({ waitUntil: (p: Promise<unknown>) => (done = p) });
+    await done;
+    const cached = Array.from(worker.store.keys()).map((k) => new URL(k).pathname);
+    expect(cached).toEqual(
+      expect.arrayContaining([
+        "/_next/static/immutable/chunks/loader.js",
+        "/_next/static/immutable/chunks/44ioy7k0geuqh.css",
+        "/_next/static/immutable/chunks/0xdg_owqy-pnu.js",
+        "/_next/static/immutable/chunks/3nizdvtm1tal0.js",
+      ])
+    );
+  });
+
+  it("still fetches the on-demand chunks when the page has more scripts than the first-level cap", async () => {
+    const scripts = Array.from({ length: 70 }, (_, i) => `/_next/static/chunks/s${i}.js`);
+    const responses: Record<string, string> = {
+      "/dashboard": scripts.map((src) => `<script src="${src}"></script>`).join(""),
+      "/_next/static/chunks/lazy.js": "",
+    };
+    for (const src of scripts) responses[src] = src.endsWith("/s0.js") ? 'e.l("static/chunks/lazy.js")' : "";
+    const worker = loadWorker({ responses });
+    let done: Promise<unknown> = Promise.resolve();
+    worker.listeners.install({ waitUntil: (p: Promise<unknown>) => (done = p) });
+    await done;
+    expect(worker.fetched).toContain("/_next/static/chunks/lazy.js");
+  });
+
   describe("when a fetch never answers", () => {
     afterEach(() => {
       vi.useRealTimers();
