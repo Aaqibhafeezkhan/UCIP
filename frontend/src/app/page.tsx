@@ -8,6 +8,11 @@ import MapPreview from "./components/sections/MapPreview";
 import Mission from "./components/sections/Mission";
 import CitationStrip from "./components/sections/CitationStrip";
 import { formatCompositeWindow, type RunLog } from "@/lib/runLog";
+import { SITE_DESCRIPTION, SITE_TITLE, pageMetadata } from "@/lib/metadata";
+
+// The home page's own canonical and share card; the title and description are
+// the site's defaults from the layout.
+export const metadata = pageMetadata({ title: SITE_TITLE, description: SITE_DESCRIPTION, path: "/" });
 
 type WardFeature = {
   properties: {
@@ -72,7 +77,7 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-          <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+          <section className="mx-auto max-w-5xl px-safe-4 py-10 sm:px-safe-6 md:py-14">
             <h2 className="text-xl font-semibold text-foreground">Four ways to look at the city</h2>
             <div className="mt-6 space-y-6">
               {LAYERS.map((l) => (
@@ -96,7 +101,7 @@ export default function Home() {
 
         <Reveal>
           <section className="border-t border-border bg-surface">
-            <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+            <div className="mx-auto max-w-5xl px-safe-4 py-10 sm:px-safe-6 md:py-14">
               <h2 className="text-xl font-semibold text-foreground">
                 The five most heat-vulnerable wards
               </h2>
@@ -127,7 +132,7 @@ export default function Home() {
               </ol>
               <Link
                 href="/dashboard"
-                className="mt-6 inline-block text-sm font-medium text-brand-teal hover:underline"
+                className="mt-6 inline-block text-sm font-medium text-brand-teal hover:underline max-md:py-3"
               >
                 See all 24 wards on the map
               </Link>
@@ -142,7 +147,7 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-          <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+          <section className="mx-auto max-w-5xl px-safe-4 py-10 sm:px-safe-6 md:py-14">
             <h2 className="text-xl font-semibold text-foreground">Built in the open</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               Every scored input is free, open and global: Landsat satellite imagery, ESA

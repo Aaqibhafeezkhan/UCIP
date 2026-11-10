@@ -11,8 +11,8 @@ const VENUES = ["Science", "PNAS", "IJERPH", "Environ. Health Perspect.", "Envir
  */
 export default function CitationStrip() {
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
-      <div className="rounded-2xl border border-border bg-surface p-8">
+    <section className="mx-auto max-w-5xl px-safe-4 pb-0 pt-10 sm:px-safe-6 md:py-14">
+      <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8">
         <p className="kicker">Cited research</p>
         <h2 className="mt-2 text-xl font-semibold text-foreground">
           The method and the cooling estimates rest on published research
@@ -34,7 +34,7 @@ export default function CitationStrip() {
         </div>
         <Link
           href="/methodology"
-          className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-brand-teal hover:underline"
+          className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-brand-teal hover:underline max-md:min-h-11"
         >
           See the full method and citation list
           <ArrowRight className="h-4 w-4" />

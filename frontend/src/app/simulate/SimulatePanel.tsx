@@ -11,6 +11,11 @@ import {
   simulate,
 } from "@/lib/coefficients";
 
+/** The slider's filled share, for .sim-range's track gradient (phones only; see globals.css). */
+function fillStyle(value: number, min: number, max: number): React.CSSProperties {
+  return { "--fill": `${((value - min) / (max - min)) * 100}%` } as React.CSSProperties;
+}
+
 export default function SimulatePanel() {
   const [canopyPct, setCanopyPct] = useState(40);
   const [albedoIncrease, setAlbedoIncrease] = useState(0.1);
@@ -35,7 +40,8 @@ export default function SimulatePanel() {
               step={1}
               value={canopyPct}
               onChange={(e) => setCanopyPct(Number(e.target.value))}
-              className="mt-3 w-full accent-brand-teal"
+              className="sim-range mt-3 w-full accent-brand-teal"
+              style={fillStyle(canopyPct, 0, MAX_REALISTIC_CANOPY_PCT)}
             />
             <p className="mt-1 font-mono text-sm text-muted-foreground">{canopyPct}% cover</p>
             <p className="mt-2 text-xs text-muted-foreground">
@@ -57,7 +63,8 @@ export default function SimulatePanel() {
               step={0.01}
               value={albedoIncrease}
               onChange={(e) => setAlbedoIncrease(Number(e.target.value))}
-              className="mt-3 w-full accent-brand-teal"
+              className="sim-range mt-3 w-full accent-brand-teal"
+              style={fillStyle(albedoIncrease, 0, 0.3)}
             />
             <p className="mt-1 font-mono text-sm text-muted-foreground">
               +{albedoIncrease.toFixed(2)} albedo
@@ -81,7 +88,8 @@ export default function SimulatePanel() {
               step={1}
               value={parkAreaPct}
               onChange={(e) => setParkAreaPct(Number(e.target.value))}
-              className="mt-3 w-full accent-brand-teal"
+              className="sim-range mt-3 w-full accent-brand-teal"
+              style={fillStyle(parkAreaPct, 0, MAX_REALISTIC_PARK_PCT)}
             />
             <p className="mt-1 font-mono text-sm text-muted-foreground">{parkAreaPct}% of ward area</p>
             <p className="mt-2 text-xs text-muted-foreground">

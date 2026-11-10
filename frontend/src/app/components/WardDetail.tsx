@@ -58,7 +58,7 @@ function NeighbourChip({
   return (
     <button
       onClick={() => onSelectWard(neighbour.ward_id)}
-      className="flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-left transition-colors hover:bg-accent"
+      className="flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-left transition-colors hover:bg-accent max-md:min-h-11"
     >
       <span
         className="h-2.5 w-2.5 shrink-0 rounded-sm"
@@ -187,7 +187,7 @@ export default function WardDetail({
           />
         ))}
       </div>
-      <p className="mt-1.5 text-[11px] text-muted-foreground">
+      <p className="mt-1.5 text-[11px] text-muted-foreground max-md:text-xs">
         Red pushes this ward&apos;s score up, green pushes it down, compared to the city average.
       </p>
 

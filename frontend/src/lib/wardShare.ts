@@ -2,15 +2,21 @@
  * Where a ward's own page lives, for the canonical tag, the sitemap and the
  * share actions. One formula, so the sitemap URL and the canonical URL cannot
  * drift apart.
- *
- * Falls back to the production domain (see layout.tsx's siteUrl for why), so a
- * build with no env vars set still emits real URLs.
  */
 
 import { ACTIVE_CITY } from "./city";
 import { wardSlug } from "./wardSlug";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://uciplatform.vercel.app";
+// The one site-URL constant: the layout's metadataBase, the sitemap, every
+// canonical and og:url read it. Production domain, confirmed live 2026-09-03.
+// Defaulting to it rather than localhost so canonical URLs, OG images and the
+// sitemap are correct on a deploy with no env vars set; NEXT_PUBLIC_SITE_URL
+// still overrides for previews and local work. A trailing slash is dropped so
+// `${SITE_URL}/path` never doubles it.
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://uciplatform.vercel.app").replace(
+  /\/+$/,
+  ""
+);
 
 export function wardPageUrl(wardId: string): string {
   return `${SITE_URL}/ward/${wardSlug(wardId)}`;

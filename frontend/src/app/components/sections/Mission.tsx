@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Mission() {
   return (
     <section className="border-y border-brand-teal/40 bg-brand-teal text-white">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-14">
+      <div className="mx-auto max-w-5xl px-safe-4 py-8 sm:px-safe-6 md:py-16">
         <p className="font-mono text-xs uppercase tracking-[0.14em] text-white/75">
           Not another heat map
         </p>
@@ -20,13 +20,13 @@ export default function Mission() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/mission"
-            className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-brand-teal transition-colors hover:bg-white/90"
+            className="rounded-lg bg-white px-5 py-3 text-sm font-semibold md:py-2.5 text-brand-teal transition-colors hover:bg-white/90"
           >
             Our mission
           </Link>
           <Link
             href="/methodology"
-            className="rounded-lg border border-white/50 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            className="rounded-lg border border-white/50 px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-white/10"
           >
             How the method works
           </Link>

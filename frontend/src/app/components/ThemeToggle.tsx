@@ -27,14 +27,14 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     // Reserve space to avoid layout shift before hydration
-    return <div className="h-8 w-[108px]" aria-hidden />;
+    return <div className="h-[46px] w-[134px] md:h-8 md:w-[108px]" aria-hidden />;
   }
 
   return (
     <div
       role="radiogroup"
       aria-label="Color theme"
-      className="flex items-center rounded-full border border-border p-0.5"
+      className="flex items-center rounded-full border border-border p-0 md:p-0.5"
     >
       {MODES.map(({ value, label, Icon }) => (
         <button
@@ -44,13 +44,17 @@ export default function ThemeToggle() {
           aria-label={label}
           title={label}
           onClick={() => setTheme(value)}
-          className={`rounded-full p-1.5 transition-colors ${
-            theme === value
-              ? "bg-brand-teal text-white"
-              : "text-muted-foreground hover:text-foreground"
+          // The button is the 44 px hit area on phones; the pill that shows
+          // the selection keeps its size, inside it.
+          className={`flex items-center justify-center rounded-full transition-colors max-md:size-11 ${
+            theme === value ? "text-white" : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Icon className="h-3.5 w-3.5" />
+          <span
+            className={`rounded-full p-1.5 transition-colors ${theme === value ? "bg-brand-teal" : ""}`}
+          >
+            <Icon className="h-3.5 w-3.5" />
+          </span>
         </button>
       ))}
     </div>

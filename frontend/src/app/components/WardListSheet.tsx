@@ -35,7 +35,7 @@ export default function WardListSheet({
       <DialogTrigger asChild>
         <button
           type="button"
-          className="absolute right-2 bottom-6 z-map-chrome flex items-center gap-1.5 rounded-md border border-border bg-background/95 px-3 py-2 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring md:hidden"
+          className="absolute right-safe-2 bottom-6 z-map-chrome flex items-center gap-1.5 rounded-md border border-border bg-background/95 px-3 py-2 max-md:min-h-11 text-sm font-medium text-foreground shadow-sm backdrop-blur-sm hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring md:hidden"
         >
           <List className="h-4 w-4" aria-hidden />
           Wards

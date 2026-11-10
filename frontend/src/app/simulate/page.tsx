@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import PageShell, { PageContainer } from "../components/PageShell";
 import { CitationList } from "../components/Citation";
 import SimulatePanel from "./SimulatePanel";
 import BudgetAllocation from "./BudgetAllocation";
 import { CITATIONS } from "@/lib/citations";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "What-if estimator | UCIP",
   description: "Estimate cooling from tree canopy and cool roofs using cited coefficients",
-};
+  path: "/simulate",
+});
 
 const COEFFICIENT_CITATIONS = CITATIONS.filter((c) => c.category === "cooling-coefficients");
 

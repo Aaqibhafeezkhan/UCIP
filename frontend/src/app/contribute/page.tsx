@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import Link from "next/link";
 import { Star, Mail, MapPin, Microscope } from "lucide-react";
 import PageShell, { PageContainer } from "../components/PageShell";
@@ -6,10 +6,11 @@ import Reveal from "../components/Reveal";
 import Card from "../components/Card";
 import { GithubMark } from "../components/icons";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Contribute | UCIP",
   description: "Ways to help improve UCIP: the code, the data, the method, and porting it to new cities.",
-};
+  path: "/contribute",
+});
 
 const WAYS = [
   {
@@ -64,14 +65,14 @@ export default function ContributePage() {
               href="https://github.com/AnayDhawan/ucip"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-semibold md:py-2.5 text-background transition-opacity hover:opacity-90"
             >
               <GithubMark className="h-4 w-4" />
               github.com/AnayDhawan/ucip
             </a>
             <a
               href="mailto:dhawansanay@gmail.com"
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-hover"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-3 text-sm font-semibold md:py-2.5 text-foreground transition-colors hover:bg-surface-hover"
             >
               <Mail className="h-4 w-4" aria-hidden />
               Email the maintainer

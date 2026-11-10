@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import Link from "next/link";
 import PageShell, { PageContainer } from "../components/PageShell";
 import Reveal from "../components/Reveal";
 import Card from "../components/Card";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Mission | UCIP",
   description: "Why UCIP exists: a cited, ward-level heat vulnerability index for Mumbai, built only from free open data.",
-};
+  path: "/mission",
+});
 
 const DIFFERENTIATORS = [
   {
@@ -91,13 +92,13 @@ export default function MissionPage() {
           <div className="mt-12 flex flex-wrap gap-3">
             <Link
               href="/dashboard"
-              className="rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-teal-hover"
+              className="rounded-lg bg-brand-teal px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-brand-teal-hover"
             >
               Open the dashboard
             </Link>
             <Link
               href="/methodology"
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-hover"
+              className="rounded-lg border border-border px-5 py-3 text-sm font-semibold md:py-2.5 text-foreground transition-colors hover:bg-surface-hover"
             >
               Read the method
             </Link>

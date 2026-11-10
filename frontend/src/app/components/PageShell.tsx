@@ -30,7 +30,7 @@ export function PageContainer({
   children: React.ReactNode;
 }) {
   return (
-    <main className={`mx-auto w-full flex-1 px-4 py-8 sm:px-6 md:py-14 ${WIDTHS[width]}`}>
+    <main className={`mx-auto w-full flex-1 px-safe-4 py-8 sm:px-safe-6 md:py-14 ${WIDTHS[width]}`}>
       {children}
     </main>
   );

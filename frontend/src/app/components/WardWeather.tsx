@@ -56,7 +56,7 @@ export default function WardWeather({ wardId }: { wardId: string }) {
             <span className="font-mono font-medium">{forecast.apparentC.toFixed(1)}°C</span>
           </p>
           {readingTime && (
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
+            <p className="mt-0.5 text-[11px] text-muted-foreground max-md:text-xs">
               Reading from {readingTime} {ACTIVE_CITY.name} time
             </p>
           )}
@@ -67,16 +67,16 @@ export default function WardWeather({ wardId }: { wardId: string }) {
               const min = Math.round(day.minC);
               return (
                 <li key={day.date} aria-label={`${name}: high ${max}, low ${min} degrees`}>
-                  <span className="block text-[10px] text-muted-foreground">{name}</span>
+                  <span className="block text-[10px] text-muted-foreground max-md:text-xs">{name}</span>
                   <span className="block font-mono text-xs text-foreground">{max}°</span>
-                  <span className="block font-mono text-[11px] text-muted-foreground">{min}°</span>
+                  <span className="block font-mono text-[11px] text-muted-foreground max-md:text-xs">{min}°</span>
                 </li>
               );
             })}
           </ul>
         </>
       )}
-      <p className="mt-2 text-[11px] text-muted-foreground">{WEATHER_LABEL}</p>
+      <p className="mt-2 text-[11px] text-muted-foreground max-md:text-xs">{WEATHER_LABEL}</p>
     </div>
   );
 }

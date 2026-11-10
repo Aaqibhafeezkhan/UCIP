@@ -2,12 +2,8 @@ import type { MetadataRoute } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROUTES } from "@/lib/routes";
-import { wardPageUrl } from "@/lib/wardShare";
+import { SITE_URL, wardPageUrl } from "@/lib/wardShare";
 import { wardFeatures } from "@/lib/wardSnapshot";
-
-// Falls back to the production domain (see layout.tsx's siteUrl for why), so a
-// deploy with no env vars set still emits real URLs instead of localhost ones.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://uciplatform.vercel.app";
 
 // When the data last changed, from the pipeline run log. Using the build time
 // would stamp every page as modified on each deploy. Undefined when no run has
@@ -28,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const refreshed = lastRefresh();
 
   const pages = ROUTES.map(({ path, priority, dataPage }) => ({
-    url: `${siteUrl}${path}`,
+    url: `${SITE_URL}${path}`,
     ...(dataPage && refreshed ? { lastModified: refreshed } : {}),
     priority,
   }));

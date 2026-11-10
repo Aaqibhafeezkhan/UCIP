@@ -117,8 +117,34 @@ export default async function BudgetAllocation() {
         ))}
       </dl>
 
-      <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[34rem] border-collapse text-sm">
+      {/* One structure visible at a time: a card per ward below md, where five
+          columns do not fit, and the table from md up. */}
+      <ul
+        aria-label={`Wards funded under the ${data.objective} objective, with spend and estimated benefit`}
+        className="mt-6 space-y-3 md:hidden"
+      >
+        {data.allocation.map((row) => (
+          <li key={row.ward_id} className="rounded-lg border border-border bg-card p-3">
+            <p className="text-sm font-medium text-foreground">Ward {row.ward_id}</p>
+            <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              {[
+                { label: "HVI rank", value: `${row.rank} of 24` },
+                { label: "Spend", value: inr.format(row.spend_inr) },
+                { label: "Roofs treated", value: `${(row.share_of_ward_treated * 100).toFixed(0)}%` },
+                { label: "Person-degrees", value: count.format(Math.round(row.benefit_person_degrees)) },
+              ].map((field) => (
+                <div key={field.label}>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">{field.label}</dt>
+                  <dd className="tabular-nums text-foreground">{field.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-6 hidden md:block">
+        <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
             Wards funded under the {data.objective} objective, with spend and estimated benefit
           </caption>

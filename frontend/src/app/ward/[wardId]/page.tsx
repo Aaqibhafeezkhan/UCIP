@@ -118,7 +118,7 @@ export default async function WardPage({ params }: { params: Promise<{ wardId: s
               />
             ))}
           </div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">
+          <p className="mt-1.5 text-[11px] text-muted-foreground max-md:text-xs">
             Red pushes this ward&apos;s score up, green pushes it down, compared to the city
             average.
             {topDriver && ` ${topDriver}`}
@@ -138,13 +138,13 @@ export default async function WardPage({ params }: { params: Promise<{ wardId: s
         <div className="mt-12 flex flex-wrap gap-3">
           <Link
             href={`/dashboard?ward=${encodeURIComponent(ward_id)}`}
-            className="rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-teal-hover"
+            className="rounded-lg bg-brand-teal px-5 py-3 text-sm font-semibold md:py-2.5 text-white transition-colors hover:bg-brand-teal-hover"
           >
             Open on the dashboard
           </Link>
           <Link
             href="/methodology"
-            className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface-hover"
+            className="rounded-lg border border-border px-5 py-3 text-sm font-semibold md:py-2.5 text-foreground transition-colors hover:bg-surface-hover"
           >
             Read the method
           </Link>

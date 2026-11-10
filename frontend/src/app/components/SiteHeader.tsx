@@ -13,13 +13,13 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
   const { open, openMenu } = useMobileNav();
 
   return (
-    <header className="sticky top-0 z-header border-b border-border bg-background/95">
+    <header className="sticky top-0 z-header border-b border-border bg-background/95 pt-safe">
       <div
-        className={`mx-auto flex items-center justify-between gap-4 px-4 sm:px-6 ${
+        className={`mx-auto flex items-center justify-between gap-4 px-safe-4 sm:px-safe-6 ${
           compact ? "py-2" : "max-w-5xl py-3"
         }`}
       >
-        <Link href="/" aria-label="UCIP home">
+        <Link href="/" aria-label="UCIP home" className="relative before:absolute before:-inset-y-2 before:inset-x-0 md:before:hidden">
           <Logo />
         </Link>
 
@@ -48,7 +48,8 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
         </div>
 
         <button
-          className="rounded border border-border p-1.5 text-muted-foreground md:hidden"
+          // The before: layer lifts the 34 px box to a 44 px hit area without changing its look.
+          className="relative rounded border border-border p-1.5 text-muted-foreground before:absolute before:-inset-1.5 md:hidden"
           onClick={(event) => openMenu(event.currentTarget)}
           aria-expanded={open}
           aria-controls={MOBILE_NAV_ID}

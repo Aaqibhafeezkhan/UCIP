@@ -141,7 +141,7 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="flex h-12 shrink-0 items-center justify-between border-t border-border px-4">
+          <div className="flex h-14 shrink-0 items-center justify-between border-t border-border px-4">
             <span className="text-sm font-medium text-muted-foreground">Theme</span>
             <ThemeToggle />
           </div>

@@ -132,7 +132,7 @@ export default function WardPanel({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Find a ward or area…"
-            className="pl-8"
+            className="pl-8 max-md:h-11"
           />
         </div>
       </div>
@@ -146,13 +146,13 @@ export default function WardPanel({
           </p>
           <div className="flex shrink-0 items-center gap-1">
             {trackedWards.length >= 2 && onCompare && (
-              <button onClick={onCompare} className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <button onClick={onCompare} className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium max-md:min-h-11 max-md:px-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                 <Columns3 className="h-3 w-3" aria-hidden /> Compare
               </button>
             )}
             <button
               onClick={copyTrackedLink}
-              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium max-md:min-h-11 max-md:px-2.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               {copied ? <Check className="h-3 w-3" aria-hidden /> : <Link2 className="h-3 w-3" aria-hidden />}
               {copied ? "Copied" : "Copy link"}
@@ -160,7 +160,10 @@ export default function WardPanel({
           </div>
         </div>
       )}
-      <ScrollArea className="min-h-0 flex-1">
+      {/* Radix wraps the content in a `display: table` box that grows to its widest
+          line, so a long areas line would push the rank value off the row. Block
+          makes the rows fit the panel and the areas truncate. */}
+      <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]>div]:block!">
         <div className="divide-y divide-border">
           {ordered.map((f) => {
             const p = f.properties;
@@ -179,7 +182,7 @@ export default function WardPanel({
                   onClick={() => onSelectWard(p.ward_id)}
                   title={areasForWard(p.ward_id).join(", ")}
                   aria-current={isSelected ? "true" : undefined}
-                  className="flex min-w-0 flex-1 items-center justify-between gap-3 py-2.5 pl-4 text-left"
+                  className="flex min-w-0 flex-1 items-center justify-between gap-3 py-2.5 pl-4 text-left max-md:min-h-11"
                 >
                   <div className="flex min-w-0 items-center gap-2.5">
                     <span className="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground">{p.rank}</span>
@@ -193,8 +196,15 @@ export default function WardPanel({
                       {intervals.get(p.ward_id) && (
                         // The interval, not just the integer: ranks are bootstrap
                         // estimates and neighbours overlap heavily (issue #169).
-                        <span className="block truncate text-[11px] text-muted-foreground">
+                        <span className="block truncate text-[11px] text-muted-foreground max-md:text-xs">
                           likely {rankRangeLabel(intervals.get(p.ward_id)!)}
+                        </span>
+                      )}
+                      {/* The title tooltip carries these on a pointer; below md, and on any
+                          touch screen, there is no hover, so they are printed. */}
+                      {areasForWard(p.ward_id).length > 0 && (
+                        <span className="block truncate text-xs text-muted-foreground md:hidden [@media(hover:none)]:block">
+                          {areasForWard(p.ward_id).join(", ")}
                         </span>
                       )}
                     </span>
@@ -209,7 +219,7 @@ export default function WardPanel({
                       isTracked ? `Stop following ward ${p.ward_id}` : `Follow ward ${p.ward_id}`
                     }
                     title={isTracked ? "Stop following" : "Follow this ward"}
-                    className="mr-2 shrink-0 rounded p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                    className="mr-2 flex shrink-0 items-center justify-center rounded p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground max-md:size-11 max-md:p-0"
                   >
                     <Star
                       className={`h-3.5 w-3.5 ${isTracked ? "fill-brand-teal text-brand-teal" : ""}`}

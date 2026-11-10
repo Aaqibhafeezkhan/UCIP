@@ -44,8 +44,8 @@ export default function DataVintageBar() {
   const windowLabel = formatCompositeWindow(meta?.composite_window ?? null);
 
   return (
-    <footer className="border-t border-border bg-background px-4 py-1.5">
-      <p className="text-center text-[11px] text-muted-foreground sm:text-left">
+    <footer className="border-t border-border bg-background px-safe-4 py-1.5">
+      <p className="text-center text-[11px] text-muted-foreground max-md:text-xs sm:text-left">
         {windowLabel ? (
           <>
             Data refreshed {refreshDate} &middot; computed from imagery captured{" "}
