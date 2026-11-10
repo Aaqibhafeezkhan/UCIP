@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import { hviColor } from "@/lib/hvi";
+import { canvasSettings } from "@/lib/heroRender";
 import type { HeroCityData, HeroCityWard, HeroRegionData, HeroPart } from "./heroCityData";
 
 /**
@@ -265,6 +266,16 @@ function InvalidateOnHover({ hoveredId }: { hoveredId: string | null }) {
   return null;
 }
 
+/** Repaints once when the hero scrolls back into view: while it was off screen the
+ *  frame loop was stopped, so the last frame is stale if the theme changed. */
+function RepaintOnShow({ paused }: { paused: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => {
+    if (!paused) invalidate();
+  }, [paused, invalidate]);
+  return null;
+}
+
 function Scene({
   data,
   region,
@@ -331,6 +342,7 @@ export default function HeroCityScene({
   onHover,
   onSelect,
   onReady,
+  paused = false,
 }: {
   data: HeroCityData;
   region: HeroRegionData | null;
@@ -343,7 +355,14 @@ export default function HeroCityScene({
   /** Fired once the renderer exists, so the caller can fade the canvas in on a
    *  painted frame rather than on an empty one. */
   onReady?: () => void;
+  /** True while the hero is scrolled out of view: nothing is painted. */
+  paused?: boolean;
 }) {
+  // Read once, when the canvas is created: WebGL context attributes cannot change
+  // afterwards. This module is only ever loaded on the client (dynamic, ssr false).
+  const [settings] = useState(() =>
+    canvasSettings(window.matchMedia("(hover: none)").matches)
+  );
   const palette = isDark
     ? { land: "#1b333b", ocean: "#0a1c24", fog: backgroundColor ?? "#07141a" }
     : { land: "#c9d8d8", ocean: "#dfeaec", fog: backgroundColor ?? "#eef4f4" };
@@ -351,16 +370,19 @@ export default function HeroCityScene({
   return (
     <Canvas
       // Cap DPR: this is a decorative landing-page canvas and the site's LCP
-      // element sits right above it. Retina-native rendering is not worth the fill cost.
-      dpr={[1, 1.75]}
+      // element sits right above it. Retina-native rendering is not worth the fill
+      // cost, and a touch device gets 1x and no multisampling (issue #273).
+      dpr={settings.dpr}
       // Nothing animates on its own, so only paint when something actually
-      // changes: a resize, a theme swap, or a hover.
-      frameloop="demand"
+      // changes: a resize, a theme swap, or a hover. "never" while the hero is
+      // scrolled out of view.
+      frameloop={paused ? "never" : "demand"}
       camera={{ position: [0, 1.7, 1.1], fov: 34, near: 0.05, far: 80 }}
-      gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+      gl={{ antialias: settings.antialias, alpha: true, powerPreference: "low-power" }}
       onCreated={() => onReady?.()}
       style={{ width: "100%", height: "100%" }}
     >
+      <RepaintOnShow paused={paused} />
       <ambientLight intensity={1.1} />
       <directionalLight position={[2.5, 4, 2]} intensity={1.55} />
       <directionalLight position={[-3, 1.5, -1]} intensity={0.3} color="#0EA5B3" />
