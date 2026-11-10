@@ -10,7 +10,7 @@ import { NAV_ROUTES, isActiveRoute } from "@/lib/routes";
 
 export default function SiteHeader({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
-  const { open, openMenu } = useMobileNav();
+  const { open, openMenu, preloadMenu } = useMobileNav();
 
   return (
     <header className="sticky top-0 z-header border-b border-border bg-background/95 pt-safe">
@@ -51,6 +51,10 @@ export default function SiteHeader({ compact = false }: { compact?: boolean }) {
           // The before: layer lifts the 34 px box to a 44 px hit area without changing its look.
           className="relative rounded border border-border p-1.5 text-muted-foreground before:absolute before:-inset-1.5 md:hidden"
           onClick={(event) => openMenu(event.currentTarget)}
+          // Fetch the drawer's code as the finger lands or focus arrives, so
+          // it is ready by the click and opening has no visible delay.
+          onPointerDown={preloadMenu}
+          onFocus={preloadMenu}
           aria-expanded={open}
           aria-controls={MOBILE_NAV_ID}
           aria-label="Open menu"

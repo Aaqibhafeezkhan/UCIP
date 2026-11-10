@@ -161,6 +161,51 @@ describe("mobile nav drawer", () => {
     await expectClosed();
   });
 
+  it("closes on Back and stays on the page", async () => {
+    window.history.replaceState(null, "", "/dashboard?ward=C&layer=hvi");
+    render(<Page />);
+    await openMenu();
+    expect(window.history.state?.ucipMobileNav).toBe(true);
+
+    act(() => window.history.back());
+
+    await expectClosed();
+    expect(window.location.pathname).toBe("/dashboard");
+    // The dashboard's ward and layer params survive the menu opening and closing.
+    expect(window.location.search).toBe("?ward=C&layer=hvi");
+    expect(window.history.state?.ucipMobileNav).toBeUndefined();
+  });
+
+  it("takes its history entry back off when it closes from its own button", async () => {
+    window.history.replaceState(null, "", "/dashboard?ward=C");
+    const back = vi.spyOn(window.history, "back");
+    render(<Page />);
+    const { drawer } = await openMenu();
+
+    fireEvent.click(within(drawer).getByRole("button", { name: "Close menu" }));
+
+    await expectClosed();
+    expect(back).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(window.history.state?.ucipMobileNav).toBeUndefined());
+    expect(window.location.search).toBe("?ward=C");
+    back.mockRestore();
+  });
+
+  it("leaves no extra Back step when a link closes it", async () => {
+    window.history.replaceState(null, "", "/dashboard");
+    const back = vi.spyOn(window.history, "back");
+    render(<Page />);
+    const { drawer } = await openMenu();
+    document.addEventListener("click", (event) => event.preventDefault(), { once: true });
+
+    // Another page: the link replaces the drawer's entry, so nothing is popped.
+    fireEvent.click(within(drawer).getByRole("link", { name: "Methodology" }));
+
+    await expectClosed();
+    expect(back).not.toHaveBeenCalled();
+    back.mockRestore();
+  });
+
   it("leaves the header's hamburger harmless without a provider", () => {
     render(<SiteHeader />);
 
