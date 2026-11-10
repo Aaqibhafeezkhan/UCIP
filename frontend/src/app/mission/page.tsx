@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import Link from "next/link";
 import PageShell, { PageContainer } from "../components/PageShell";
 import Reveal from "../components/Reveal";
 import Card from "../components/Card";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Mission | UCIP",
   description: "Why UCIP exists: a cited, ward-level heat vulnerability index for Mumbai, built only from free open data.",
-};
+  path: "/mission",
+});
 
 const DIFFERENTIATORS = [
   {

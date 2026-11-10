@@ -6,6 +6,8 @@ import { MobileNavProvider } from "./components/MobileNav";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next";
 import RegisterServiceWorker from "./components/RegisterServiceWorker";
+import { SITE_DESCRIPTION, SITE_TITLE, shareCard } from "@/lib/metadata";
+import { SITE_URL } from "@/lib/wardShare";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -17,16 +19,10 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-// Production domain, confirmed live 2026-09-03. Defaulting to it rather than
-// localhost so canonical URLs, OG images and the sitemap are correct on a
-// deploy with no env vars set; NEXT_PUBLIC_SITE_URL still overrides for
-// previews and local work.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://uciplatform.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "UCIP: Urban Climate Intelligence Platform",
-  description: "Ward-level heat vulnerability for Mumbai, built from free open data.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   keywords: [
     "urban heat vulnerability",
     "Mumbai",
@@ -45,20 +41,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  openGraph: {
-    title: "UCIP: Urban Climate Intelligence Platform",
-    description: "Ward-level heat vulnerability for Mumbai, built from free open data.",
-    url: siteUrl,
-    siteName: "UCIP",
-    images: ["/og-image.png"],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "UCIP: Urban Climate Intelligence Platform",
-    description: "Ward-level heat vulnerability for Mumbai, built from free open data.",
-    images: ["/og-image.png"],
-  },
+  // The default for routes that set no cards of their own (the embeds). Pages
+  // use pageMetadata, because a page's openGraph replaces this one entirely.
+  ...shareCard({ title: SITE_TITLE, description: SITE_DESCRIPTION, url: SITE_URL }),
 };
 
 export const viewport: Viewport = {

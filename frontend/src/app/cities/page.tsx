@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { CITY_REGISTRY } from "@/lib/city";
 import { formatRunDate, type RunLog } from "@/lib/runLog";
+import { SITE_DESCRIPTION, pageMetadata } from "@/lib/metadata";
 
 /** The published city's refresh date, from the run log the pipeline commits. */
 function publishedRefreshDate(): string | null {
@@ -13,7 +14,12 @@ function publishedRefreshDate(): string | null {
   return formatRunDate(log.finished_at ?? log.started_at);
 }
 
-export const metadata = { title: "City registry | UCIP" };
+// No description of its own, so it has always shown the site's.
+export const metadata = pageMetadata({
+  title: "City registry | UCIP",
+  description: SITE_DESCRIPTION,
+  path: "/cities",
+});
 
 export default function CityRegistryPage() {
   const refreshed = publishedRefreshDate();

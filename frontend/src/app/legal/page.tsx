@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import PageShell, { PageContainer } from "../components/PageShell";
 import { SourceAttribution } from "../components/Citation";
 import { SOURCES } from "@/lib/citations";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Legal and data attribution | UCIP",
   description: "License, data sources, and disclaimers for UCIP",
-};
+  path: "/legal",
+});
 
 export default function LegalPage() {
   return (

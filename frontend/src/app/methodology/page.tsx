@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import Image from "next/image";
 import PageShell, { PageContainer } from "../components/PageShell";
 import { StepCard } from "../components/Card";
@@ -13,10 +13,11 @@ import {
   type RunLog,
 } from "@/lib/runLog";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Methodology | UCIP",
   description: "Methodology, citations, and stated limitations behind UCIP's heat vulnerability index",
-};
+  path: "/methodology",
+});
 
 type PcaLog = {
   explained_variance_pc1: number;

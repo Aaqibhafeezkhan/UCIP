@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import Link from "next/link";
 import { Star, Mail, MapPin, Microscope } from "lucide-react";
 import PageShell, { PageContainer } from "../components/PageShell";
@@ -6,10 +6,11 @@ import Reveal from "../components/Reveal";
 import Card from "../components/Card";
 import { GithubMark } from "../components/icons";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Contribute | UCIP",
   description: "Ways to help improve UCIP: the code, the data, the method, and porting it to new cities.",
-};
+  path: "/contribute",
+});
 
 const WAYS = [
   {

@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import { Mail } from "lucide-react";
 import PageShell, { PageContainer } from "../components/PageShell";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: "Contact | UCIP",
   description: "Get in touch about UCIP",
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

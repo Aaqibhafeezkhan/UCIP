@@ -8,6 +8,11 @@ import MapPreview from "./components/sections/MapPreview";
 import Mission from "./components/sections/Mission";
 import CitationStrip from "./components/sections/CitationStrip";
 import { formatCompositeWindow, type RunLog } from "@/lib/runLog";
+import { SITE_DESCRIPTION, SITE_TITLE, pageMetadata } from "@/lib/metadata";
+
+// The home page's own canonical and share card; the title and description are
+// the site's defaults from the layout.
+export const metadata = pageMetadata({ title: SITE_TITLE, description: SITE_DESCRIPTION, path: "/" });
 
 type WardFeature = {
   properties: {
