@@ -88,12 +88,38 @@ changes an HVI weight, an NBS rule, or a data source:
 A release is cut by pushing a `v`-prefixed tag, which runs
 `.github/workflows/release.yml`. Before tagging `vX.Y.Z`, change these in one PR:
 
-- `CHANGELOG.md`: move the `## [Unreleased]` entries under `## [X.Y.Z] - YYYY-MM-DD`.
-  The release notes are read from that entry, and the workflow fails without it.
+- `CHANGELOG.md`: move the `## [Unreleased]` entries under `## [X.Y.Z] - YYYY-MM-DD`,
+  and leave a fresh, empty `## [Unreleased]` heading above it, since the PR template
+  tells contributors to write under that heading. The release notes are read from
+  the `## [X.Y.Z]` entry, and the workflow fails without it.
 - `CITATION.cff`: set `version` and `date-released`. The workflow checks `version`
-  against the tag. Add the version DOI in a follow-up once Zenodo mints it.
+  against the tag. Leave the top-level `doi:` alone: it is the concept DOI, which
+  always resolves to the latest version, so it never changes.
 - `frontend/package.json` and `frontend/package-lock.json`: set `version` to match.
   `npm version X.Y.Z --no-git-tag-version` inside `frontend/` updates both.
+
+Merge that PR to `main` once CI is green. Then tag from the merge commit and push
+the tag, only after the merge:
+
+```bash
+git checkout main && git pull
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+The tag runs `release.yml`, which builds the frontend (`npm ci` and `npm run build`
+only, no tests, so CI on the release PR is the gate), builds the release notes from
+the matching `CHANGELOG.md` heading, checks that `CITATION.cff` matches the tag,
+rebuilds the dataset and creates the GitHub release with the dataset files
+attached. Zenodo mints the version DOI from that release.
+
+If the workflow fails, fix the cause in a new commit that reaches `main`, then
+delete the tag (`git tag -d vX.Y.Z` and `git push origin :refs/tags/vX.Y.Z`),
+re-create it on the new commit and push it again.
+
+Once Zenodo mints the version DOI, a follow-up PR adds it as a new entry under
+`identifiers:` in `CITATION.cff`, with `type: doi`, the DOI as `value` and
+`description: vX.Y.Z`. Do not overwrite the top-level `doi:`.
 
 These have versions of their own and do not change at a release:
 
@@ -102,7 +128,12 @@ These have versions of their own and do not change at a release:
   dataset; see [docs/api.md](docs/api.md#versioning). Changing it means regenerating
   both clients.
 - `clients/typescript`, `clients/python` and `mcp-server`. Each follows its own
-  semver and moves when its own code changes.
+  semver and moves when its own code changes. The TypeScript client is published by
+  pushing a `ts-client-vX.Y.Z` tag, where `X.Y.Z` matches `version` in
+  `clients/typescript/package.json` and the tagged commit is already on `main`
+  (see `.github/workflows/publish-ts-client.yml`). The Python client's version lives
+  in two places that must change together: `clients/python/pyproject.toml` and
+  `clients/python/src/ucip/__init__.py`.
 
 ## Commit style
 

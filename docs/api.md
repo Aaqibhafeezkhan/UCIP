@@ -144,11 +144,12 @@ Please do not poll. If you want the whole dataset, use
 
 `v1` is in the path, and this is what it promises.
 
-The spec's `info.version` (1.0.0) is the version of this contract, not of the
-site or the dataset, which are released together as 1.1.0 and onwards (see
-[`CITATION.cff`](../CITATION.cff)). Its major number is the `v1` in the path,
-and it does not move when the project cuts a release. Changes within `v1` are
-listed in the [API changelog](#api-changelog) below.
+The spec's `info.version` is the version of this contract, not of the site or
+the dataset, whose release version is in [`CITATION.cff`](../CITATION.cff). Its
+major number is the `v1` in the path, so it moves only when a new major API
+version ships, and not when the project cuts a release. Additive changes inside
+`v1` are recorded in the [API changelog](#api-changelog) below and deliberately
+do not bump it.
 
 **These can change without a new version.** Build against the API expecting
 them:
@@ -190,6 +191,7 @@ visible through [`/meta`](#get-meta).
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | Clarified that `info.version` tracks the `v1` in the path and moves only for a new major API version. Wording only. |
 | 2026-10-29 | `/cells` and `/export` gain `worldcover_share` (0 to 1) and `worldcover_mixed`: how much of the cell the dominant land-cover class covers, and whether that is under half. Additive; null on data produced before the pipeline recorded it. Apply migration `0010_worldcover_share.sql` before deploying, or the database path logs a fault and serves the snapshot. |
 | 2026-10-29 | **`grid_id` values are renumbered once**, on the first data refresh after this change. Stage 01 now numbers cells in fishnet order instead of from an area sort whose ties were broken differently on different machines, so the same cell location could carry different ids in different environments. Ids are still `cell_NNNN`, contiguous from `cell_0000`, and are now reproducible. Anything keyed on a `grid_id` from before the refresh must be re-joined by location, and the database needs a full reload. |
 | 2026-10-29 | `/wards`, `/wards/{wardId}` and `/lookup` gain optional `rank_ci_low`, `rank_ci_high`, `hvi_ci_low` and `hvi_ci_high`, the 95% bootstrap interval from `hvi_uncertainty.json`. Additive. The fields are omitted for a ward the file has no entry for. They cover sampling uncertainty in the grid cells only. |
