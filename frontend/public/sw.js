@@ -21,14 +21,27 @@ const PRECACHE_DATA = [
   "/ward_timeseries.json",
 ];
 const MAX_PRECACHED_ASSETS = 60;
-// Script, style and font URLs inside a page's markup and its inlined payload.
-const PAGE_ASSET = /\/_next\/static\/[^"'\s\\)<>]+?\.(?:js|css|woff2)/g;
+// A fetch that has not answered by then counts as a miss, so one stalled file
+// cannot hold the install open.
+const PRECACHE_TIMEOUT_MS = 12000;
+// Script, style and font URLs inside a page's markup and its inlined payload,
+// with an optional query suffix (a deployment id) kept as the page requests it.
+const PAGE_ASSET = /\/_next\/static\/[^"'\s\\)<>]+?\.(?:js|css|woff2)(?:\?[^"'\s\\)<>]*)?/g;
 // Chunks a script loads on demand (the map) are named without the /_next/ prefix.
 const SCRIPT_ASSET = /static\/(?:chunks|media)\/[A-Za-z0-9_.~-]+\.(?:js|css|woff2)/g;
 
+function timeoutSignal(ms) {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(ms);
+  }
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
+
 async function store(cache, path, options) {
   try {
-    const response = await fetch(path, options);
+    const response = await fetch(path, { ...options, signal: timeoutSignal(PRECACHE_TIMEOUT_MS) });
     if (!response.ok) return null;
     await cache.put(path, response.clone());
     return response;
@@ -59,7 +72,7 @@ async function precache() {
   const first = Array.from(assets).slice(0, MAX_PRECACHED_ASSETS);
   const loaded = await Promise.all(first.map((url) => store(cache, url)));
   for (const response of loaded) {
-    if (!response || !response.url.endsWith(".js")) continue;
+    if (!response || !new URL(response.url).pathname.endsWith(".js")) continue;
     try {
       for (const match of (await response.text()).match(SCRIPT_ASSET) ?? []) assets.add(`/_next/${match}`);
     } catch {
