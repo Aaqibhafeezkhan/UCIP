@@ -10,6 +10,38 @@ vi.mock("next/navigation", () => ({
   usePathname: () => route.pathname,
 }));
 
+/** What the Link stub navigated to. */
+const navigated = vi.hoisted(() => ({ calls: [] as Array<{ href: string; replace: boolean }> }));
+
+// next/link does nothing without a router, so jsdom would try a real navigation.
+// This stub behaves like Link where it matters here: a click whose handler
+// prevented default navigates nowhere, otherwise it pushes or, with `replace`,
+// replaces the current history entry.
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    replace,
+    onClick,
+    children,
+    ...rest
+  }: React.ComponentProps<"a"> & { href: string; replace?: boolean }) => (
+    <a
+      {...rest}
+      href={href}
+      onClick={(event) => {
+        onClick?.(event);
+        if (event.defaultPrevented) return;
+        event.preventDefault();
+        navigated.calls.push({ href, replace: Boolean(replace) });
+        if (replace) window.history.replaceState(null, "", href);
+        else window.history.pushState(null, "", href);
+      }}
+    >
+      {children}
+    </a>
+  ),
+}));
+
 /** jsdom has no matchMedia. This one records its listeners so a test can cross md. */
 function stubMatchMedia() {
   const listeners = new Set<(event: { matches: boolean }) => void>();
@@ -58,6 +90,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   route.pathname = "/dashboard";
+  navigated.calls = [];
   media = stubMatchMedia();
 });
 
@@ -93,6 +126,7 @@ describe("mobile nav drawer", () => {
   it("links the logo home at the top and closes when it is tapped", async () => {
     // On the home page the tap changes no route, so only its own onClick can close.
     route.pathname = "/";
+    window.history.replaceState(null, "", "/");
     render(<Page />);
     const { drawer } = await openMenu();
 
@@ -101,11 +135,12 @@ describe("mobile nav drawer", () => {
     expect(drawer.querySelector("a")).toBe(logo);
     // Not part of the page list, so it never claims aria-current.
     expect(logo).not.toHaveAttribute("aria-current");
-    document.addEventListener("click", (event) => event.preventDefault(), { once: true });
 
     fireEvent.click(logo);
 
     await expectClosed();
+    // The page you are on: closes without navigating.
+    expect(navigated.calls).toEqual([]);
   });
 
   it("labels the theme control in text", async () => {
@@ -155,15 +190,22 @@ describe("mobile nav drawer", () => {
     await expectClosed();
   });
 
-  it("closes when the current page's own link is tapped", async () => {
+  it("closes without navigating when the current page's own link is tapped", async () => {
+    // The dashboard's URL carries map state while its link is the bare path.
+    // Navigating to the bare path would drop the ward, layer and map position.
+    window.history.replaceState(null, "", "/dashboard?lat=1&lng=2");
+    const back = vi.spyOn(window.history, "back");
     render(<Page />);
     const { drawer } = await openMenu();
-    // Next's Link does nothing without a router, so jsdom would try a real navigation.
-    document.addEventListener("click", (event) => event.preventDefault(), { once: true });
 
     fireEvent.click(within(drawer).getByRole("link", { name: "Dashboard" }));
 
     await expectClosed();
+    expect(navigated.calls).toEqual([]);
+    // The drawer's own entry is popped, nothing else.
+    expect(back).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(window.history.state?.ucipMobileNav).toBeUndefined());
+    expect(window.location.pathname + window.location.search).toBe("/dashboard?lat=1&lng=2");
   });
 
   it("closes when the viewport reaches md", async () => {
@@ -205,18 +247,111 @@ describe("mobile nav drawer", () => {
     expect(window.location.search).toBe("?ward=C");
   });
 
-  it("leaves no extra Back step when a link closes it", async () => {
-    window.history.replaceState(null, "", "/dashboard");
+  it("leaves no extra Back step when a link to another page closes it", async () => {
+    window.history.replaceState(null, "", "/dashboard?ward=C");
     const back = vi.spyOn(window.history, "back");
     render(<Page />);
     const { drawer } = await openMenu();
-    document.addEventListener("click", (event) => event.preventDefault(), { once: true });
+    const entries = window.history.length;
 
-    // Another page: the link replaces the drawer's entry, so nothing is popped.
     fireEvent.click(within(drawer).getByRole("link", { name: "Methodology" }));
 
     await expectClosed();
+    // The link replaced the drawer's entry. A push would have added one more
+    // entry on top of it, and the menu would leave a dead Back step behind.
+    expect(navigated.calls).toEqual([{ href: "/methodology", replace: true }]);
+    expect(window.history.length).toBe(entries);
+    expect(window.history.state).toBeNull();
+    expect(window.location.pathname).toBe("/methodology");
     expect(back).not.toHaveBeenCalled();
+  });
+
+  describe("takes its one history entry off once, however it closes", () => {
+    const closers: Array<[string, (drawer: HTMLElement) => void | Promise<void>]> = [
+      ["Escape", (drawer) => void fireEvent.keyDown(drawer, { key: "Escape" })],
+      [
+        "the dimmed page",
+        async () => {
+          // Radix arms its outside-press listener a tick after it mounts.
+          await act(() => new Promise((resolve) => setTimeout(resolve, 10)));
+          const scrim = document.querySelector('[data-slot="dialog-overlay"]');
+          expect(scrim).not.toBeNull();
+          // Radix dismisses on the click that ends a press outside the panel.
+          fireEvent.pointerDown(scrim!, { button: 0, pointerType: "mouse" });
+          fireEvent.pointerUp(scrim!, { button: 0, pointerType: "mouse" });
+          fireEvent.click(scrim!, { button: 0 });
+        },
+      ],
+      ["the viewport reaching md", () => void media.reachMd()],
+    ];
+
+    it.each(closers)("%s", async (_name, close) => {
+      window.history.replaceState(null, "", "/dashboard?ward=C");
+      const back = vi.spyOn(window.history, "back");
+      render(<Page />);
+      const { drawer } = await openMenu();
+      expect(window.history.state?.ucipMobileNav).toBe(true);
+
+      await close(drawer);
+
+      await expectClosed();
+      expect(back).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(window.history.state?.ucipMobileNav).toBeUndefined());
+      expect(window.location.search).toBe("?ward=C");
+    });
+  });
+
+  it("pushes one entry for two taps on the menu button", async () => {
+    window.history.replaceState(null, "", "/dashboard");
+    const push = vi.spyOn(window.history, "pushState");
+    const back = vi.spyOn(window.history, "back");
+    render(<Page />);
+    const hamburger = screen.getByRole("button", { name: "Open menu" });
+
+    fireEvent.click(hamburger);
+    fireEvent.click(hamburger);
+    const drawer = await screen.findByRole("dialog", { name: "Menu" });
+
+    expect(push).toHaveBeenCalledTimes(1);
+    fireEvent.click(within(drawer).getByRole("button", { name: "Close menu" }));
+    await expectClosed();
+    expect(back).toHaveBeenCalledTimes(1);
+  });
+
+  it("still closes on Back after the page rewrote its own URL under the open menu", async () => {
+    window.history.replaceState(null, "", "/dashboard?ward=C");
+    render(<Page />);
+    await openMenu();
+
+    // The dashboard calls replaceState for ward and map changes, which also
+    // overwrites the drawer's marker. Back must not depend on the marker.
+    window.history.replaceState(null, "", "/dashboard?ward=C&lat=19&lng=72.8");
+    expect(window.history.state?.ucipMobileNav).toBeUndefined();
+    act(() => window.history.back());
+
+    await expectClosed();
+    expect(window.location.pathname).toBe("/dashboard");
+  });
+
+  it("pushes a fresh entry when it opens again after a navigation it did not make", async () => {
+    window.history.replaceState(null, "", "/dashboard");
+    const push = vi.spyOn(window.history, "pushState");
+    const back = vi.spyOn(window.history, "back");
+    const { rerender } = render(<Page />);
+    await openMenu();
+    expect(push).toHaveBeenCalledTimes(1);
+
+    // Something else navigates (not a drawer link): the entry is no longer current.
+    route.pathname = "/methodology";
+    rerender(<Page />);
+    await expectClosed();
+
+    const { drawer } = await openMenu();
+    expect(push).toHaveBeenCalledTimes(2);
+    fireEvent.click(within(drawer).getByRole("button", { name: "Close menu" }));
+    await expectClosed();
+    // Its X pops the entry this open pushed, not the one a page leaves behind.
+    expect(back).toHaveBeenCalledTimes(1);
   });
 
   it("keeps the page alive and retries when the drawer's code fails to load", async () => {

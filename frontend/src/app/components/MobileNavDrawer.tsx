@@ -29,8 +29,10 @@ export type MobileNavDrawerProps = {
  * demand, so the Radix dialog code and the theme control only reach a
  * route once someone reaches for the menu. The embed cards never do.
  *
- * Links replace the history entry the open drawer pushed (see MobileNav), so
- * following one leaves no extra Back step behind.
+ * Links to other pages replace the history entry the open drawer pushed (see
+ * MobileNav), so following one leaves no extra Back step behind. The link to the
+ * page you are on closes the drawer without navigating, so its query string and
+ * map state stay.
  */
 export default function MobileNavDrawer({ open, onOpenChange, pathname, opener, onLinkClick }: MobileNavDrawerProps) {
   return (

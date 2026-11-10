@@ -63,9 +63,10 @@ function isPlainLeftClick(event: MouseEvent) {
  * Back: opening the drawer pushes one history entry for the same URL, so
  * Android's Back (or the browser's) pops that entry and closes the drawer
  * instead of leaving the page. Closing it any other way pops the entry itself,
- * and a link in the drawer replaces it, so the menu never leaves an extra Back
- * step. The entry keeps the URL as it is, so the dashboard's ward, layer and
- * map params survive.
+ * and a link to another page replaces it, so the menu never leaves an extra
+ * Back step. The link to the page you are already on only closes the drawer and
+ * navigates nowhere, so the dashboard's ward, layer and map params survive. The
+ * entry keeps the URL as it is, for the same reason.
  */
 export function MobileNavProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -74,7 +75,11 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
   const [Drawer, setDrawer] = useState<ComponentType<MobileNavDrawerProps> | null>(null);
   const [lastPathname, setLastPathname] = useState(pathname);
   const opener = useRef<HTMLElement | null>(null);
-  // True while the history entry the drawer pushed is the current one.
+  // True while the history entry the drawer pushed is the current one. After a
+  // reload or a Forward onto an old entry it is false, and that entry is then a
+  // plain duplicate of its page: one extra Back step that does nothing visible.
+  // That is accepted. Android has no Forward, and a reload with the menu open
+  // is rare, so no extra machinery is worth it.
   const menuEntry = useRef(false);
   // Which open is waiting on the drawer's code, so a late failure from an
   // earlier tap cannot close a menu the user has since opened again.
@@ -86,6 +91,13 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
     setLastPathname(pathname);
     setOpen(false);
   }
+
+  // A navigation the drawer did not make leaves its entry buried below the new
+  // page's, so the entry is no longer the current one. Reset on the commit, as
+  // refs are not written while rendering.
+  useEffect(() => {
+    menuEntry.current = false;
+  }, [pathname]);
 
   /** Closes the drawer and takes its history entry back off the stack. */
   const dismiss = useCallback(() => {
@@ -134,14 +146,17 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
       // A new-tab click navigates nothing here: leave the drawer as it is.
       if (!isPlainLeftClick(event)) return;
       const target = new URL(event.currentTarget.href, window.location.href);
-      const here = window.location;
-      if (target.pathname === here.pathname && target.search === here.search && target.hash === here.hash) {
-        // The page you are already on: nothing to navigate to, so just close.
+      if (target.pathname === window.location.pathname) {
+        // The page you are already on: close without navigating. Pathname only,
+        // because the dashboard's URL nearly always carries lat, lng, zoom or
+        // layer while the link is the bare path, and navigating would drop the
+        // ward, layer and map the person is looking at.
         event.preventDefault();
         dismiss();
         return;
       }
-      // The link replaces the drawer's history entry, so there is none to pop.
+      // Another page: the link replaces the drawer's history entry, so there
+      // is none to pop.
       menuEntry.current = false;
       setOpen(false);
     },
