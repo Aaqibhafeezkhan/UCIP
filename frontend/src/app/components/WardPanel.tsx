@@ -11,6 +11,7 @@ import { rankRangeLabel } from "@/lib/rankUncertainty";
 import WardDetail from "./WardDetail";
 import WardDetailHeader from "./WardDetailHeader";
 import WardStaticMap from "./WardStaticMap";
+import WardTrend from "./WardTrend";
 
 /**
  * The dashboard sidebar: a ranked, searchable ward list that hands the whole
@@ -111,6 +112,14 @@ export default function WardPanel({
             totalWards={profiles?.n_wards ?? wards.length}
             onSelectWard={onSelectWard}
           />
+          {/* The trend block WardDialog shows, for the printed brief only (#269): the
+              sidebar looks as it always did on screen, and a printed ward carries
+              the same sections from either path. WardTrend still fetches its data
+              on screen (one 45 KB static file the service worker already
+              precaches); the hidden wrapper keeps it out of the layout. */}
+          <div className="hidden px-4 pb-4 print:block">
+            <WardTrend wardId={props.ward_id} />
+          </div>
         </div>
       </div>
     );

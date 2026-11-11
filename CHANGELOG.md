@@ -6,7 +6,12 @@ All notable changes to this project are documented here. Format based on
 
 ## [Unreleased]
 
+### Fixed
+- Printing a ward brief from the sidebar no longer loses most of its text. At A4 width the page is below the `md` breakpoint, so printing flipped the dashboard into dialog mode and the dialog's body scroll lock cut the brief off after page two (217 of 474 words), or printed it twice. One copy now prints, from either path, in portrait and landscape. `npm run check:print` generates the PDFs and compares their text, and runs in CI (#269).
+- A printed ward brief from the sidebar now includes the multi-year trend, as the dialog's already did. The sidebar on screen is unchanged.
+
 ### Changed
+- The landing page's 3D model stops painting while it is scrolled out of view, and visitors who have turned on Save-Data get the flat version instead, so the 3D code is not downloaded for them. Rendering quality on desktop and on phones is otherwise unchanged (#273).
 - The phone menu is a side drawer over a dimmed page. It no longer snaps past its resting place when it opens, keeps keyboard focus inside while open, and returns focus to the menu button when it closes.
 - The ward list and the ward profile slide up as bottom sheets on phones.
 - Pages share one shell and one layer and motion scale, and the header, footer and sitemap read from a single route list, so a new page picks them up from one entry.

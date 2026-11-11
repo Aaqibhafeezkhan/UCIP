@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check:print": "node scripts/check-print.mjs"
   },
   "dependencies": {
     "@paper-design/shaders-react": "0.0.82",
@@ -47,6 +48,8 @@
     "eslint": "^10",
     "eslint-config-next": "16.4.3",
     "jsdom": "^30.1.3",
+    "pdfjs-dist": "^6.5.438",
+    "playwright-core": "^1.65.0",
     "shadcn": "^4.22.1",
     "tailwindcss": "^4",
     "typescript": "^5",

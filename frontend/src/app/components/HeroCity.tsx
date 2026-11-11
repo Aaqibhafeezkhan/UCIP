@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { hviColor } from "@/lib/hvi";
 import { areasForWard } from "@/lib/wardAreas";
+import { prefersFlatHero, type ConnectionHints } from "@/lib/heroRender";
+import { useInView } from "@/lib/useInView";
 import {
   HERO_CITY_URL,
   HERO_REGION_URL,
@@ -56,6 +58,24 @@ function getWebGLSnapshot(): boolean {
     }
   }
   return webGLSupport;
+}
+
+let flatHeroChosen: boolean | null = null;
+
+/** Decided once per page load, like the WebGL probe: a visitor's Save-Data
+ *  setting changing mid-session must not swap a 3D hero for a flat one. */
+function getFlatHeroSnapshot(): boolean {
+  if (flatHeroChosen === null) {
+    const connection = (navigator as Navigator & { connection?: ConnectionHints }).connection;
+    flatHeroChosen = prefersFlatHero(connection);
+  }
+  return flatHeroChosen;
+}
+
+/** WebGL is available and the visitor has not asked to save data. Without
+ *  either, the flat SVG renders instead (issue #273). */
+function getCanRenderSceneSnapshot(): boolean {
+  return getWebGLSnapshot() && !getFlatHeroSnapshot();
 }
 
 let colorCanvas: CanvasRenderingContext2D | null = null;
@@ -202,7 +222,12 @@ export default function HeroCity() {
   const [hover, setHover] = useState<HoverPayload>(null);
   const [revealed, setRevealed] = useState(false);
   const router = useRouter();
-  const webGL = useSyncExternalStore(noopSubscribe, getWebGLSnapshot, () => false);
+  const webGL = useSyncExternalStore(noopSubscribe, getCanRenderSceneSnapshot, () => false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Whether any of the hero is on screen. The canvas is a full-bleed layer the
+  // compositor keeps blending even though nothing repaints, so once the hero has
+  // scrolled away it is stopped and hidden (issue #273).
+  const inView = useInView(containerRef);
   const backgroundColor = useSyncExternalStore(
     subscribeTheme,
     getBackgroundSnapshot,
@@ -268,7 +293,7 @@ export default function HeroCity() {
     // parent has no definite height for a percentage to resolve against, so
     // h-full collapsed the canvas to its min-height and let the backdrop show
     // through underneath it.
-    <div className="absolute inset-0">
+    <div ref={containerRef} className="absolute inset-0">
       {data && (
         // Mounted hidden and faded in only once the renderer reports a frame,
         // so the model arrives rather than popping. Fading the wrapper on mount
@@ -285,6 +310,7 @@ export default function HeroCity() {
             opacity: revealed ? 1 : 0,
             transform: revealed ? "translateY(0)" : "translateY(18px)",
             transition: "opacity 900ms ease-out, transform 900ms ease-out",
+            visibility: inView ? "visible" : "hidden",
           }}
         >
           {webGL ? (
@@ -297,6 +323,7 @@ export default function HeroCity() {
               onHover={setHover}
               onSelect={openWard}
               onReady={handleReady}
+              paused={!inView}
             />
           ) : (
             <HeroCityFlat data={data} region={region} onReady={handleReady} onSelect={openWard} />

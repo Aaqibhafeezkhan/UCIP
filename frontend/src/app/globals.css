@@ -298,13 +298,35 @@ html {
   header, .leaflet-container, .dashboard-map { display: none !important; }
   main, main > aside { display: block !important; width: 100% !important; border: 0 !important; }
   [data-slot="dialog-portal"], [data-slot="dialog-content"], .ward-scroll { display: block !important; position: static !important; transform: none !important; translate: none !important; max-height: none !important; overflow: visible !important; width: 100% !important; max-width: none !important; box-shadow: none !important; border: 0 !important; }
+  /* One copy of the brief (issue #269). When the sidebar is in the DOM it holds the
+     brief whatever the screen width was. The ward dialog can be open as well,
+     because matchMedia reads the page width while printing, which is below md for
+     A4 with these margins, so it flips the dashboard into dialog mode mid-print.
+     Printing both gave two copies; relying on either alone lost most of the text.
+     Fullscreen has no sidebar, so there the dialog is the one that prints. */
+  body:has(main > aside .ward-scroll) :is([data-slot="dialog-content"], [data-slot="dialog-overlay"]) { display: none !important; }
   .ward-static-map { display: flex !important; align-items: center; gap: 1rem; margin: 1rem; color: black; }
   .ward-static-map svg { width: 6rem; height: 6rem; }
   .ward-static-map figcaption { font-size: 0.75rem; color: #333; }
   .ward-scroll { scrollbar-width: none; }
   .citation-chip { color: black; border-color: #777; }
   /* The h-dvh dashboard shell would print as a blank first page ahead of the portalled dialog. */
-  [data-slot="dashboard-shell"] { height: auto !important; overflow: visible !important; }
+  [data-slot="dashboard-shell"] { display: block !important; height: auto !important; overflow: visible !important; }
+  /* Flex and overflow containers stop Chrome fragmenting their content across pages:
+     below md the brief ran past the end of page 2 and the rest was cut off (#269).
+     Scoped to the dashboard, the only page with a ward sidebar or a ward dialog, so
+     every other page prints exactly as it did. */
+  html:has([data-slot="dashboard-shell"]),
+  body:has([data-slot="dashboard-shell"]) { display: block !important; height: auto !important; overflow: visible !important; }
+  [data-slot="dashboard-shell"] main,
+  [data-slot="dashboard-shell"] main > aside,
+  [data-slot="dashboard-shell"] main > aside * { overflow: visible !important; }
+  [data-slot="dashboard-shell"] main,
+  [data-slot="dashboard-shell"] main > aside,
+  [data-slot="dashboard-shell"] main > aside > div { display: block !important; height: auto !important; }
+  /* An open dialog locks the body's scroll with body[data-scroll-locked] { overflow: hidden !important },
+     which is more specific than the rule above. Matching it keeps the page from being cut off. */
+  html body:has([data-slot="dashboard-shell"])[data-scroll-locked] { overflow: visible !important; position: static !important; margin: 0 !important; height: auto !important; }
   /* Scroll reveals never fire in print, and folded methodology steps must print in full.
      StepDetails opens them on beforeprint; this covers engines that support the pseudo-element. */
   [data-reveal] { opacity: 1 !important; transform: none !important; translate: none !important; }
