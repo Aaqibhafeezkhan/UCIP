@@ -7,8 +7,8 @@ All notable changes to this project are documented here. Format based on
 ## [Unreleased]
 
 ### Fixed
-- Printing a ward brief from the sidebar no longer loses most of its text. At A4 width the page is below the `md` breakpoint, so printing flipped the dashboard into dialog mode and the dialog's body scroll lock cut the brief off after page two (about 215 of 475 words), or printed it twice. One copy now prints, from either path, in portrait and landscape. `npm run check:print` generates the PDFs and compares their text, and runs in CI (#269).
-- The ward profile in the sidebar now shows the multi-year trend, as the dialog already did, so both carry the same brief.
+- Printing a ward brief from the sidebar no longer loses most of its text. At A4 width the page is below the `md` breakpoint, so printing flipped the dashboard into dialog mode and the dialog's body scroll lock cut the brief off after page two (217 of 474 words), or printed it twice. One copy now prints, from either path, in portrait and landscape. `npm run check:print` generates the PDFs and compares their text, and runs in CI (#269).
+- A printed ward brief from the sidebar now includes the multi-year trend, as the dialog's already did. The sidebar on screen is unchanged.
 
 ### Changed
 - The landing page's 3D model stops painting while it is scrolled out of view, and visitors who have turned on Save-Data get the flat version instead, so the 3D code is not downloaded for them. Rendering quality on desktop and on phones is otherwise unchanged (#273).

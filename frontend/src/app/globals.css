@@ -313,13 +313,20 @@ html {
   /* The h-dvh dashboard shell would print as a blank first page ahead of the portalled dialog. */
   [data-slot="dashboard-shell"] { display: block !important; height: auto !important; overflow: visible !important; }
   /* Flex and overflow containers stop Chrome fragmenting their content across pages:
-     below md the brief ran past the end of page 2 and the rest was cut off (#269). */
-  html, body, main, main > aside, main > aside * { overflow: visible !important; }
-  html, body { display: block !important; height: auto !important; }
+     below md the brief ran past the end of page 2 and the rest was cut off (#269).
+     Scoped to the dashboard, the only page with a ward sidebar or a ward dialog, so
+     every other page prints exactly as it did. */
+  html:has([data-slot="dashboard-shell"]),
+  body:has([data-slot="dashboard-shell"]) { display: block !important; height: auto !important; overflow: visible !important; }
+  [data-slot="dashboard-shell"] main,
+  [data-slot="dashboard-shell"] main > aside,
+  [data-slot="dashboard-shell"] main > aside * { overflow: visible !important; }
+  [data-slot="dashboard-shell"] main,
+  [data-slot="dashboard-shell"] main > aside,
+  [data-slot="dashboard-shell"] main > aside > div { display: block !important; height: auto !important; }
   /* An open dialog locks the body's scroll with body[data-scroll-locked] { overflow: hidden !important },
      which is more specific than the rule above. Matching it keeps the page from being cut off. */
-  html body[data-scroll-locked] { overflow: visible !important; position: static !important; margin: 0 !important; height: auto !important; }
-  main, main > aside, main > aside > div { display: block !important; height: auto !important; }
+  html body:has([data-slot="dashboard-shell"])[data-scroll-locked] { overflow: visible !important; position: static !important; margin: 0 !important; height: auto !important; }
   /* Scroll reveals never fire in print, and folded methodology steps must print in full.
      StepDetails opens them on beforeprint; this covers engines that support the pseudo-element. */
   [data-reveal] { opacity: 1 !important; transform: none !important; translate: none !important; }
