@@ -115,7 +115,9 @@ describe("accessibility (axe, WCAG 2.1 A and AA, no colour contrast)", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
-    await screen.findByRole("dialog", { name: "Menu" });
+    // The drawer loads on first open; a cold test run can take more than the
+    // default second to transform it.
+    await screen.findByRole("dialog", { name: "Menu" }, { timeout: 10000 });
     expect(await violations()).toEqual([]);
   });
 
