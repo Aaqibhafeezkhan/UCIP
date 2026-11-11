@@ -32,12 +32,13 @@ jobs:
       - run: npm run build
       - run: npm test --if-present
 
-  # Printed ward briefs (issue #269). The sidebar path once printed 102 words
-  # against 360 from the dialog path, and nothing would have noticed. This builds
+  # Printed ward briefs (issue #269). The sidebar path once printed 217 words
+  # against 474 for a whole brief, and nothing would have noticed. This builds
   # the site, has Chrome generate A4 PDFs in portrait and landscape from both
-  # paths, extracts their text and requires the same words from each.
+  # paths, extracts their text and requires a whole brief from each.
   print-brief:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     defaults:
@@ -59,7 +60,11 @@ jobs:
         # The runner's installed Google Chrome, so nothing is downloaded.
         run: |
           npm start -- -p 3000 &
-          npx --yes wait-on@8 http://localhost:3000/dashboard --timeout 60000
+          for i in $(seq 60); do
+            curl -sf http://localhost:3000/dashboard >/dev/null && break
+            sleep 1
+          done
+          curl -sf http://localhost:3000/dashboard >/dev/null || { echo "server did not answer within 60 s"; exit 1; }
           npm run check:print
 
   # The published TypeScript client (issue #103). Its response types are
