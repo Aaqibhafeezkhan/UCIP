@@ -11,7 +11,7 @@ All notable changes to this project are documented here. Format based on
 - The ward profile in the sidebar now shows the multi-year trend, as the dialog already did, so both carry the same brief.
 
 ### Changed
-- On touch devices the landing page's 3D model renders at 1x without multisampling, stops painting and is hidden while scrolled out of view, and is replaced by the flat SVG on Save-Data or a 3G-or-slower connection. Desktop rendering is unchanged (#273).
+- The landing page's 3D model stops painting while it is scrolled out of view, and visitors who have turned on Save-Data get the flat version instead, so the 3D code is not downloaded for them. Rendering quality on desktop and on phones is otherwise unchanged (#273).
 - The phone menu is a side drawer over a dimmed page. It no longer snaps past its resting place when it opens, keeps keyboard focus inside while open, and returns focus to the menu button when it closes.
 - The ward list and the ward profile slide up as bottom sheets on phones.
 - Pages share one shell and one layer and motion scale, and the header, footer and sitemap read from a single route list, so a new page picks them up from one entry.

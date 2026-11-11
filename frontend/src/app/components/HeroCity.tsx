@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { hviColor } from "@/lib/hvi";
 import { areasForWard } from "@/lib/wardAreas";
 import { prefersFlatHero, type ConnectionHints } from "@/lib/heroRender";
+import { useInView } from "@/lib/useInView";
 import {
   HERO_CITY_URL,
   HERO_REGION_URL,
@@ -59,11 +60,22 @@ function getWebGLSnapshot(): boolean {
   return webGLSupport;
 }
 
-/** WebGL is available and the connection can afford the three.js chunk. Without
+let flatHeroChosen: boolean | null = null;
+
+/** Decided once per page load, like the WebGL probe: a visitor's Save-Data
+ *  setting changing mid-session must not swap a 3D hero for a flat one. */
+function getFlatHeroSnapshot(): boolean {
+  if (flatHeroChosen === null) {
+    const connection = (navigator as Navigator & { connection?: ConnectionHints }).connection;
+    flatHeroChosen = prefersFlatHero(connection);
+  }
+  return flatHeroChosen;
+}
+
+/** WebGL is available and the visitor has not asked to save data. Without
  *  either, the flat SVG renders instead (issue #273). */
 function getCanRenderSceneSnapshot(): boolean {
-  const connection = (navigator as Navigator & { connection?: ConnectionHints }).connection;
-  return getWebGLSnapshot() && !prefersFlatHero(connection);
+  return getWebGLSnapshot() && !getFlatHeroSnapshot();
 }
 
 let colorCanvas: CanvasRenderingContext2D | null = null;
@@ -215,14 +227,7 @@ export default function HeroCity() {
   // Whether any of the hero is on screen. The canvas is a full-bleed layer the
   // compositor keeps blending even though nothing repaints, so once the hero has
   // scrolled away it is stopped and hidden (issue #273).
-  const [inView, setInView] = useState(true);
-  useEffect(() => {
-    const node = containerRef.current;
-    if (!node || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  const inView = useInView(containerRef);
   const backgroundColor = useSyncExternalStore(
     subscribeTheme,
     getBackgroundSnapshot,
